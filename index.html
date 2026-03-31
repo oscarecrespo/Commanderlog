@@ -912,13 +912,15 @@
 
 <script>
 const DECKS = [
-  'Sauron, Dark Lord',
-  'High Perfect Morcant',
-  'Light-Paws, Emperor\'s Voice',
-  'Niv-Mizzet, Parun',
-  'Edric, Spymaster of Trest',
-  'Krenko, Mob Boss'
+  { name: 'Sauron, Dark Lord',           img: 'https://api.scryfall.com/cards/named?exact=Sauron,+the+Dark+Lord&format=image&version=art_crop' },
+  { name: 'High Perfect Morcant',        img: 'https://api.scryfall.com/cards/named?exact=High+Perfect+Morcant&format=image&version=art_crop' },
+  { name: "Light-Paws, Emperor's Voice", img: 'https://api.scryfall.com/cards/named?exact=Light-Paws%2C+Emperor%27s+Voice&format=image&version=art_crop' },
+  { name: 'Niv-Mizzet, Parun',           img: 'https://api.scryfall.com/cards/named?exact=Niv-Mizzet%2C+Parun&format=image&version=art_crop' },
+  { name: 'Edric, Spymaster of Trest',   img: 'https://api.scryfall.com/cards/named?exact=Edric%2C+Spymaster+of+Trest&format=image&version=art_crop' },
+  { name: 'Krenko, Mob Boss',            img: 'https://api.scryfall.com/cards/named?exact=Krenko%2C+Mob+Boss&format=image&version=art_crop' },
 ];
+const DECK_NAMES = DECKS.map(d => d.name);
+const DECK_IMG = Object.fromEntries(DECKS.map(d => [d.name, d.img]));
 
 let state = {
   deck: null,
@@ -932,17 +934,17 @@ let state = {
 
 let currentDetailDeck = null;
 
-// Storage
-async function loadGames() {
+// Storage — synchronous localStorage, no async needed
+function loadGames() {
   try {
-    const r = await window.storage.get('games');
-    return r ? JSON.parse(r.value) : [];
+    const data = localStorage.getItem('commander_log_games');
+    return data ? JSON.parse(data) : [];
   } catch(e) { return []; }
 }
 
-async function saveGames(games) {
+function saveGames(games) {
   try {
-    await window.storage.set('games', JSON.stringify(games));
+    localStorage.setItem('commander_log_games', JSON.stringify(games));
   } catch(e) { console.error(e); }
 }
 
@@ -962,7 +964,7 @@ function startLog() {
 
 function renderDeckOptions() {
   const el = document.getElementById('deck-options');
-  el.innerHTML = DECKS.map(d =>
+  el.innerHTML = DECK_NAMES.map(d =>
     `<button class="deck-option" onclick="selectDeck(this, '${d.replace(/'/g, "\\'")}')">${d}</button>`
   ).join('');
   document.getElementById('btn-deck-next').disabled = true;
@@ -1062,8 +1064,8 @@ function goToConfirm() {
   showScreen('confirm');
 }
 
-async function saveGame() {
-  const games = await loadGames();
+function saveGame() {
+  const games = loadGames();
   const entry = {
     id: Date.now(),
     date: new Date().toISOString(),
@@ -1076,7 +1078,7 @@ async function saveGame() {
     strandedCards: [...state.strandedCards]
   };
   games.unshift(entry);
-  await saveGames(games);
+  saveGames(games);
 
   // Success screen
   const icon = document.getElementById('success-icon');
@@ -1106,7 +1108,7 @@ const DECK_COLORS = [
 
 function renderPerformanceDashboard(games) {
   const el = document.getElementById('perf-dashboard');
-  const stats = DECKS.map((deck, i) => {
+  const stats = DECK_NAMES.map((deck, i) => {
     const dg = games.filter(g => g.deck === deck);
     const wins = dg.filter(g => g.result === 'win').length;
     const total = dg.length;
@@ -1197,13 +1199,13 @@ function renderPerformanceDashboard(games) {
 }
 
 // Dashboard
-async function renderDashboard() {
-  const games = await loadGames();
+function renderDashboard() {
+  const games = loadGames();
   renderPerformanceDashboard(games);
 
   // Deck grid
   const grid = document.getElementById('deck-grid');
-  grid.innerHTML = DECKS.map(deck => {
+  grid.innerHTML = DECK_NAMES.map(deck => {
     const deckGames = games.filter(g => g.deck === deck);
     const wins = deckGames.filter(g => g.result === 'win').length;
     const total = deckGames.length;
@@ -1215,8 +1217,10 @@ async function renderDashboard() {
       else if (rate <= 35) rateClass = 'low';
     }
 
+    const imgUrl = DECK_IMG[deck] || '';
     return `<div class="deck-card" onclick="showDeckDetail('${deck.replace(/'/g, "\\'")}')">
-      <div>
+      ${imgUrl ? `<div class="deck-art" style="background-image:url('${imgUrl}')"></div>` : ''}
+      <div class="deck-card-body">
         <div class="deck-name">${deck}</div>
         ${total > 0 ? `<div class="record">${wins}W – ${total - wins}L</div>` : '<div class="no-games">No games yet</div>'}
       </div>
@@ -1251,9 +1255,9 @@ async function renderDashboard() {
 }
 
 // Deck detail
-async function showDeckDetail(deckName) {
+function showDeckDetail(deckName) {
   currentDetailDeck = deckName;
-  const games = await loadGames();
+  const games = loadGames();
   const deckGames = games.filter(g => g.deck === deckName);
   const wins = deckGames.filter(g => g.result === 'win').length;
   const total = deckGames.length;
