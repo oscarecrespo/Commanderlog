@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Commander Log</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a28;
+    --border: #2a2a3d;
+    --gold: #c9a84c;
+    --gold-dim: #7a6330;
+    --red: #8b2020;
+    --red-bright: #c94040;
+    --green: #1a4a2a;
+    --green-bright: #3a8a4a;
+    --text: #e8e0d0;
+    --text-dim: #8a8070;
+    --accent: #6040a0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(100,60,160,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(139,32,32,0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+    position: relative;
+  }
+
+  .header-ornament {
+    color: var(--gold-dim);
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-family: 'Cinzel', serif;
+    margin-bottom: 6px;
+  }
+
+  .header h1 {
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    font-size: 22px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* Screen management */
+  .screen { display: none; padding: 20px; }
+  .screen.active { display: block; }
+
+  /* Dashboard */
+  .dashboard-greeting {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .log-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #1a0a0a, #2a1010);
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 18px;
+    cursor: pointer;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+
+  .log-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(201,168,76,0.05), rgba(201,168,76,0.1));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .log-btn:hover::before, .log-btn:active::before { opacity: 1; }
+  .log-btn:active { transform: scale(0.99); }
+
+  /* Performance Dashboard */
+  .perf-dashboard {
+    margin-bottom: 28px;
+  }
+
+  .podium-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .podium-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 12px 14px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .podium-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .podium-card.best::before { background: var(--green-bright); }
+  .podium-card.worst::before { background: var(--red-bright); }
+
+  .podium-label {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .podium-card.best .podium-label { color: var(--green-bright); }
+  .podium-card.worst .podium-label { color: var(--red-bright); }
+
+  .podium-deck {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 600;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .podium-rate {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    font-weight: 900;
+  }
+
+  .podium-card.best .podium-rate { color: var(--green-bright); }
+  .podium-card.worst .podium-rate { color: var(--red-bright); }
+
+  /* Bar chart */
+  .chart-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 16px 14px 12px;
+  }
+
+  .chart-title {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    color: var(--gold-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 9px;
+  }
+
+  .bar-label {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    color: var(--text-dim);
+    width: 80px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 18px;
+    background: var(--surface2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    transition: width 0.6s ease;
+    position: relative;
+  }
+
+  .bar-fill::after {
+    content: attr(data-pct);
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    white-space: nowrap;
+  }
+
+  .bar-fill.no-games {
+    width: 0% !important;
+  }
+
+  .bar-games {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    color: var(--text-dim);
+    width: 28px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .chart-no-data {
+    text-align: center;
+    padding: 16px;
+    color: var(--text-dim);
+    font-style: italic;
+    font-size: 13px;
+  }
+
+  /* Overall summary strip */
+  .overall-summary {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    margin-bottom: 10px;
+  }
+
+  .overall-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 8px;
+  }
+
+  .overall-num {
+    font-family: 'Cinzel', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .overall-label {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .overall-divider {
+    width: 1px;
+    background: var(--border);
+    margin: 10px 0;
+  }
+
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    color: var(--gold-dim);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Deck cards */
+  .deck-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+
+  .deck-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .deck-card:hover { border-color: var(--gold-dim); }
+
+  .deck-name {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .deck-stats {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .win-rate {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--gold);
+  }
+
+  .win-rate.high { color: var(--green-bright); }
+  .win-rate.low { color: var(--red-bright); }
+
+  .record {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  .no-games {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* Recent games */
+  .game-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .game-entry {
+    background: var(--surface);
+    border-left: 3px solid var(--border);
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .game-entry.win { border-left-color: var(--green-bright); }
+  .game-entry.loss { border-left-color: var(--red-bright); }
+
+  .game-meta { flex: 1; }
+  .game-deck { font-family: 'Cinzel', serif; font-size: 12px; color: var(--gold); }
+  .game-detail { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+  .game-result {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border: 1px solid;
+  }
+
+  .game-result.win { color: var(--green-bright); border-color: var(--green-bright); }
+  .game-result.loss { color: var(--red-bright); border-color: var(--red-bright); }
+
+  /* Log flow screens */
+  .screen-title {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--gold);
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+
+  .screen-sub {
+    font-size: 14px;
+    color: var(--text-dim);
+    font-style: italic;
+    margin-bottom: 24px;
+  }
+
+  /* Deck selector */
+  .deck-option {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    padding: 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    text-align: left;
+    letter-spacing: 0.5px;
+    transition: all 0.15s;
+  }
+
+  .deck-option:hover, .deck-option.selected {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: var(--surface2);
+  }
+
+  /* Result buttons */
+  .result-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+
+  .result-btn {
+    padding: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-family: 'Cinzel', serif;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .result-btn.win-btn { color: var(--green-bright); }
+  .result-btn.loss-btn { color: var(--red-bright); }
+  .result-btn.win-btn:hover, .result-btn.win-btn.selected { background: var(--green); border-color: var(--green-bright); }
+  .result-btn.loss-btn:hover, .result-btn.loss-btn.selected { background: var(--red); border-color: var(--red-bright); }
+
+  /* Form fields */
+  .field { margin-bottom: 20px; }
+
+  .field label {
+    display: block;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    color: var(--gold-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .field input, .field textarea, .field select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Crimson Pro', serif;
+    font-size: 15px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+
+  .field input:focus, .field textarea:focus, .field select:focus {
+    border-color: var(--gold-dim);
+  }
+
+  .field textarea { resize: vertical; min-height: 80px; }
+
+  .field select option { background: var(--surface2); }
+
+  /* Win type chips */
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .chip {
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .chip:hover, .chip.selected {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+    background: var(--surface2);
+  }
+
+  /* Navigation */
+  .nav-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 28px;
+  }
+
+  .btn-back {
+    flex: 0 0 auto;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-back:hover { border-color: var(--text-dim); color: var(--text); }
+
+  .btn-next {
+    flex: 1;
+    background: linear-gradient(135deg, #1a0a0a, #2a1010);
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-next:hover { border-color: var(--gold); }
+  .btn-next:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* Confirmation screen */
+  .confirm-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .confirm-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+
+  .confirm-row:last-child { border-bottom: none; }
+  .confirm-label { color: var(--text-dim); font-style: italic; }
+  .confirm-value { color: var(--text); font-weight: 600; text-align: right; max-width: 60%; }
+  .confirm-value.win { color: var(--green-bright); }
+  .confirm-value.loss { color: var(--red-bright); }
+
+  /* Stranded cards screen */
+  .stranded-input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .stranded-input-row input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Crimson Pro', serif;
+    font-size: 15px;
+    padding: 12px 14px;
+    outline: none;
+  }
+
+  .stranded-input-row input:focus { border-color: var(--gold-dim); }
+
+  .btn-add-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    padding: 0 16px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .btn-add-card:hover { border-color: var(--gold-dim); }
+
+  .stranded-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+  .stranded-tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 13px;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-style: italic;
+  }
+
+  .remove-tag {
+    color: var(--red-bright);
+    cursor: pointer;
+    font-style: normal;
+    font-size: 15px;
+    line-height: 1;
+  }
+
+  /* Deck detail screen */
+  .back-link {
+    background: transparent;
+    border: none;
+    color: var(--gold-dim);
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .back-link:hover { color: var(--gold); }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .stat-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 14px 10px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Cinzel', serif;
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--gold);
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: 'Cinzel', serif;
+  }
+
+  .stranded-list { margin-top: 8px; }
+
+  .stranded-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--surface);
+    border-left: 2px solid var(--gold-dim);
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-style: italic;
+  }
+
+  .stranded-count {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    color: var(--gold-dim);
+    font-style: normal;
+  }
+
+  /* Success flash */
+  .success-screen { text-align: center; padding: 40px 20px; }
+
+  .success-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .success-title {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--gold);
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+  }
+
+  .success-sub {
+    color: var(--text-dim);
+    font-style: italic;
+    margin-bottom: 32px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-dim);
+    font-style: italic;
+    font-size: 14px;
+  }
+
+  /* Nav tabs */
+  .tab-bar {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 12px;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+  }
+
+  .tab.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-ornament">⚔ Commander ⚔</div>
+    <h1>Game Chronicle</h1>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="screen-dashboard" class="screen active">
+    <div style="padding-top: 8px;"></div>
+    <button class="log-btn" onclick="startLog()">⚔ Log a Game</button>
+
+    <!-- Performance Dashboard -->
+    <div class="perf-dashboard" id="perf-dashboard"></div>
+
+    <div class="section-title">Your Decks</div>
+    <div class="deck-grid" id="deck-grid"></div>
+
+    <div class="section-title">Recent Games</div>
+    <div class="game-list" id="recent-games"></div>
+  </div>
+
+  <!-- STEP 1: CHOOSE DECK -->
+  <div id="screen-deck" class="screen">
+    <div class="screen-title">Which Deck?</div>
+    <div class="screen-sub">Select the deck you played.</div>
+    <div id="deck-options"></div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="showScreen('dashboard')">← Back</button>
+      <button class="btn-next" id="btn-deck-next" disabled onclick="goToResult()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: WIN OR LOSS -->
+  <div id="screen-result" class="screen">
+    <div class="screen-title">Result?</div>
+    <div class="screen-sub">How did the game end for you?</div>
+    <div class="result-row">
+      <button class="result-btn win-btn" id="btn-win" onclick="selectResult('win')">WIN</button>
+      <button class="result-btn loss-btn" id="btn-loss" onclick="selectResult('loss')">LOSS</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="showScreen('deck')">← Back</button>
+      <button class="btn-next" id="btn-result-next" disabled onclick="goToDetails()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: DETAILS -->
+  <div id="screen-details" class="screen">
+    <div class="screen-title">The Details</div>
+    <div class="screen-sub">Quick notes on how it went.</div>
+
+    <div class="field">
+      <label>Turn game ended</label>
+      <input type="number" id="input-turn" min="1" max="50" placeholder="e.g. 9">
+    </div>
+
+    <div class="field" id="win-type-field">
+      <label>How did you win?</label>
+      <div class="chip-row" id="win-type-chips">
+        <div class="chip" onclick="selectChip(this, 'winType')">Combat</div>
+        <div class="chip" onclick="selectChip(this, 'winType')">Combo</div>
+        <div class="chip" onclick="selectChip(this, 'winType')">Infect</div>
+        <div class="chip" onclick="selectChip(this, 'winType')">Board wipe + swing</div>
+        <div class="chip" onclick="selectChip(this, 'winType')">Chandra's Ignition</div>
+        <div class="chip" onclick="selectChip(this, 'winType')">Other</div>
+      </div>
+    </div>
+
+    <div class="field" id="loss-reason-field">
+      <label>Why did you lose?</label>
+      <div class="chip-row" id="loss-reason-chips">
+        <div class="chip" onclick="selectChip(this, 'lossReason')">Outpaced early</div>
+        <div class="chip" onclick="selectChip(this, 'lossReason')">Life total</div>
+        <div class="chip" onclick="selectChip(this, 'lossReason')">Commander removed</div>
+        <div class="chip" onclick="selectChip(this, 'lossReason')">Targeted hate</div>
+        <div class="chip" onclick="selectChip(this, 'lossReason')">Mana screw</div>
+        <div class="chip" onclick="selectChip(this, 'lossReason')">Drew poorly</div>
+        <div class="chip" onclick="selectChip(this, 'lossReason')">Opponent combo'd off</div>
+        <div class="chip" onclick="selectChip(this, 'lossReason')">Other</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Opponents' Commanders</label>
+      <input type="text" id="input-opponents" placeholder="e.g. Ysh'tola, Kratos, Atraxa">
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="showScreen('result')">← Back</button>
+      <button class="btn-next" onclick="goToStranded()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: STRANDED CARDS -->
+  <div id="screen-stranded" class="screen">
+    <div class="screen-title">Stranded Cards</div>
+    <div class="screen-sub">Any cards you drew but never felt comfortable playing?</div>
+
+    <div class="stranded-input-row">
+      <input type="text" id="stranded-input" placeholder="Card name..." onkeydown="if(event.key==='Enter')addStrandedCard()">
+      <button class="btn-add-card" onclick="addStrandedCard()">+</button>
+    </div>
+    <div class="stranded-tags" id="stranded-tags"></div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="showScreen('details')">← Back</button>
+      <button class="btn-next" onclick="goToConfirm()">Review →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: CONFIRM -->
+  <div id="screen-confirm" class="screen">
+    <div class="screen-title">Confirm Entry</div>
+    <div class="screen-sub">Everything look right?</div>
+    <div class="confirm-block" id="confirm-block"></div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="showScreen('stranded')">← Back</button>
+      <button class="btn-next" onclick="saveGame()">Save Game ✓</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="screen-success" class="screen success-screen">
+    <span class="success-icon" id="success-icon">⚔</span>
+    <div class="success-title" id="success-title">Game Logged</div>
+    <div class="success-sub" id="success-sub"></div>
+    <button class="btn-next" onclick="showScreen('dashboard'); renderDashboard()">← Back to Chronicle</button>
+  </div>
+
+  <!-- DECK DETAIL -->
+  <div id="screen-deck-detail" class="screen">
+    <button class="back-link" onclick="showScreen('dashboard')">← All Decks</button>
+    <div class="screen-title" id="detail-deck-name"></div>
+    <div class="stat-row" id="detail-stats"></div>
+
+    <div class="tab-bar">
+      <button class="tab active" id="tab-games" onclick="switchTab('games')">Games</button>
+      <button class="tab" id="tab-stranded" onclick="switchTab('stranded')">Stranded Cards</button>
+    </div>
+
+    <div id="detail-games-panel">
+      <div class="game-list" id="detail-game-list"></div>
+    </div>
+
+    <div id="detail-stranded-panel" style="display:none">
+      <div class="stranded-list" id="detail-stranded-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DECKS = [
+  'Sauron, Dark Lord',
+  'High Perfect Morcant',
+  'Light-Paws, Emperor\'s Voice',
+  'Niv-Mizzet, Parun',
+  'Edric, Spymaster of Trest',
+  'Krenko, Mob Boss'
+];
+
+let state = {
+  deck: null,
+  result: null,
+  turn: null,
+  winType: null,
+  lossReason: null,
+  opponents: '',
+  strandedCards: []
+};
+
+let currentDetailDeck = null;
+
+// Storage
+async function loadGames() {
+  try {
+    const r = await window.storage.get('games');
+    return r ? JSON.parse(r.value) : [];
+  } catch(e) { return []; }
+}
+
+async function saveGames(games) {
+  try {
+    await window.storage.set('games', JSON.stringify(games));
+  } catch(e) { console.error(e); }
+}
+
+// Screen management
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// Start log flow
+function startLog() {
+  state = { deck: null, result: null, turn: null, winType: null, lossReason: null, opponents: '', strandedCards: [] };
+  renderDeckOptions();
+  showScreen('deck');
+}
+
+function renderDeckOptions() {
+  const el = document.getElementById('deck-options');
+  el.innerHTML = DECKS.map(d =>
+    `<button class="deck-option" onclick="selectDeck(this, '${d.replace(/'/g, "\\'")}')">${d}</button>`
+  ).join('');
+  document.getElementById('btn-deck-next').disabled = true;
+}
+
+function selectDeck(el, name) {
+  document.querySelectorAll('.deck-option').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  state.deck = name;
+  document.getElementById('btn-deck-next').disabled = false;
+}
+
+function goToResult() {
+  if (!state.deck) return;
+  document.getElementById('btn-win').classList.remove('selected');
+  document.getElementById('btn-loss').classList.remove('selected');
+  document.getElementById('btn-result-next').disabled = true;
+  state.result = null;
+  showScreen('result');
+}
+
+function selectResult(r) {
+  state.result = r;
+  document.getElementById('btn-win').classList.toggle('selected', r === 'win');
+  document.getElementById('btn-loss').classList.toggle('selected', r === 'loss');
+  document.getElementById('btn-result-next').disabled = false;
+}
+
+function goToDetails() {
+  if (!state.result) return;
+  // Show/hide win vs loss fields
+  document.getElementById('win-type-field').style.display = state.result === 'win' ? 'block' : 'none';
+  document.getElementById('loss-reason-field').style.display = state.result === 'loss' ? 'block' : 'none';
+  // Reset chips
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  state.winType = null;
+  state.lossReason = null;
+  document.getElementById('input-turn').value = '';
+  document.getElementById('input-opponents').value = '';
+  showScreen('details');
+}
+
+function selectChip(el, type) {
+  const parent = el.parentElement;
+  parent.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  if (type === 'winType') state.winType = el.textContent;
+  if (type === 'lossReason') state.lossReason = el.textContent;
+}
+
+function goToStranded() {
+  state.turn = document.getElementById('input-turn').value || null;
+  state.opponents = document.getElementById('input-opponents').value || '';
+  state.strandedCards = [];
+  document.getElementById('stranded-tags').innerHTML = '';
+  document.getElementById('stranded-input').value = '';
+  showScreen('stranded');
+}
+
+function addStrandedCard() {
+  const input = document.getElementById('stranded-input');
+  const val = input.value.trim();
+  if (!val) return;
+  if (state.strandedCards.includes(val)) { input.value = ''; return; }
+  state.strandedCards.push(val);
+  renderStrandedTags();
+  input.value = '';
+  input.focus();
+}
+
+function removeStrandedCard(card) {
+  state.strandedCards = state.strandedCards.filter(c => c !== card);
+  renderStrandedTags();
+}
+
+function renderStrandedTags() {
+  const el = document.getElementById('stranded-tags');
+  el.innerHTML = state.strandedCards.map(c =>
+    `<div class="stranded-tag">${c}<span class="remove-tag" onclick="removeStrandedCard('${c.replace(/'/g, "\\'")}')">×</span></div>`
+  ).join('');
+}
+
+function goToConfirm() {
+  const block = document.getElementById('confirm-block');
+  const rows = [
+    ['Deck', state.deck],
+    ['Result', `<span class="${state.result}">${state.result?.toUpperCase()}</span>`],
+    ['Turn ended', state.turn || '—'],
+    [state.result === 'win' ? 'How you won' : 'Why you lost',
+     (state.result === 'win' ? state.winType : state.lossReason) || '—'],
+    ['Opponents', state.opponents || '—'],
+    ['Stranded cards', state.strandedCards.length ? state.strandedCards.join(', ') : '—']
+  ];
+  block.innerHTML = rows.map(([l, v]) =>
+    `<div class="confirm-row"><span class="confirm-label">${l}</span><span class="confirm-value">${v}</span></div>`
+  ).join('');
+  showScreen('confirm');
+}
+
+async function saveGame() {
+  const games = await loadGames();
+  const entry = {
+    id: Date.now(),
+    date: new Date().toISOString(),
+    deck: state.deck,
+    result: state.result,
+    turn: state.turn ? parseInt(state.turn) : null,
+    winType: state.winType,
+    lossReason: state.lossReason,
+    opponents: state.opponents,
+    strandedCards: [...state.strandedCards]
+  };
+  games.unshift(entry);
+  await saveGames(games);
+
+  // Success screen
+  const icon = document.getElementById('success-icon');
+  const title = document.getElementById('success-title');
+  const sub = document.getElementById('success-sub');
+  if (state.result === 'win') {
+    icon.textContent = '🏆';
+    title.textContent = 'Victory Recorded';
+    sub.textContent = `${state.deck} claims another win.`;
+  } else {
+    icon.textContent = '💀';
+    title.textContent = 'Defeat Logged';
+    sub.textContent = `${state.deck} will return.`;
+  }
+  showScreen('success');
+}
+
+// Deck colors for bar chart
+const DECK_COLORS = [
+  '#c94040',
+  '#6040a0',
+  '#c9a84c',
+  '#4080c0',
+  '#3a8a4a',
+  '#c06030',
+];
+
+function renderPerformanceDashboard(games) {
+  const el = document.getElementById('perf-dashboard');
+  const stats = DECKS.map((deck, i) => {
+    const dg = games.filter(g => g.deck === deck);
+    const wins = dg.filter(g => g.result === 'win').length;
+    const total = dg.length;
+    const rate = total > 0 ? Math.round((wins / total) * 100) : null;
+    return { deck, wins, total, rate, color: DECK_COLORS[i] };
+  });
+
+  const played = stats.filter(s => s.total > 0);
+  if (played.length === 0) { el.innerHTML = ''; return; }
+
+  const sorted = [...played].sort((a, b) => b.rate - a.rate);
+  const best = sorted[0];
+  const worst = sorted[sorted.length - 1];
+  const short = (name) => {
+    const parts = name.split(',')[0].split(' ');
+    return parts.length > 2 ? parts[0] + ' ' + parts[1] : parts.join(' ');
+  };
+
+  // Total games across all decks
+  const totalGames = games.length;
+  const totalWins = games.filter(g => g.result === 'win').length;
+  const overallRate = totalGames > 0 ? Math.round((totalWins / totalGames) * 100) : 0;
+
+  const podiumHTML = played.length >= 2 ? `
+    <div class="podium-row">
+      <div class="podium-card best">
+        <div class="podium-label">🏆 Best Record</div>
+        <div class="podium-deck">${short(best.deck)}</div>
+        <div class="podium-rate">${best.rate}%</div>
+      </div>
+      <div class="podium-card worst">
+        <div class="podium-label">💀 Needs Work</div>
+        <div class="podium-deck">${short(worst.deck)}</div>
+        <div class="podium-rate">${worst.rate}%</div>
+      </div>
+    </div>` : '';
+
+  // Overall summary bar
+  const summaryHTML = `
+    <div class="overall-summary">
+      <div class="overall-item">
+        <span class="overall-num">${totalGames}</span>
+        <span class="overall-label">Total Games</span>
+      </div>
+      <div class="overall-divider"></div>
+      <div class="overall-item">
+        <span class="overall-num">${totalWins}</span>
+        <span class="overall-label">Total Wins</span>
+      </div>
+      <div class="overall-divider"></div>
+      <div class="overall-item">
+        <span class="overall-num" style="color:${overallRate >= 50 ? 'var(--green-bright)' : 'var(--red-bright)'}">${overallRate}%</span>
+        <span class="overall-label">Overall</span>
+      </div>
+    </div>`;
+
+  // Bar chart — played decks sorted by win rate, unplayed at bottom
+  const chartStats = [
+    ...stats.filter(s => s.total > 0).sort((a, b) => b.rate - a.rate),
+    ...stats.filter(s => s.total === 0)
+  ];
+
+  const barsHTML = chartStats.map(s => {
+    const pct = s.rate !== null ? s.rate : 0;
+    const fillStyle = s.rate !== null
+      ? `width:${Math.max(pct, 3)}%; background: ${s.color};`
+      : 'width:3%; background: var(--border);';
+    const dataLabel = s.rate !== null ? `${pct}%` : '';
+    return `<div class="bar-row">
+      <div class="bar-label" title="${s.deck}">${short(s.deck)}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="${fillStyle}" data-pct="${dataLabel}"></div>
+      </div>
+      <div class="bar-games">${s.total > 0 ? s.total + 'g' : '—'}</div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="section-title">Overall Performance</div>
+    ${summaryHTML}
+    ${podiumHTML}
+    <div class="chart-container">
+      <div class="chart-title">Win rate by deck · sorted</div>
+      ${barsHTML}
+    </div>
+    <div style="margin-bottom: 28px;"></div>
+  `;
+}
+
+// Dashboard
+async function renderDashboard() {
+  const games = await loadGames();
+  renderPerformanceDashboard(games);
+
+  // Deck grid
+  const grid = document.getElementById('deck-grid');
+  grid.innerHTML = DECKS.map(deck => {
+    const deckGames = games.filter(g => g.deck === deck);
+    const wins = deckGames.filter(g => g.result === 'win').length;
+    const total = deckGames.length;
+    const rate = total > 0 ? Math.round((wins / total) * 100) : null;
+
+    let rateClass = '';
+    if (rate !== null) {
+      if (rate >= 55) rateClass = 'high';
+      else if (rate <= 35) rateClass = 'low';
+    }
+
+    return `<div class="deck-card" onclick="showDeckDetail('${deck.replace(/'/g, "\\'")}')">
+      <div>
+        <div class="deck-name">${deck}</div>
+        ${total > 0 ? `<div class="record">${wins}W – ${total - wins}L</div>` : '<div class="no-games">No games yet</div>'}
+      </div>
+      <div class="deck-stats">
+        ${rate !== null
+          ? `<div class="win-rate ${rateClass}">${rate}%</div>`
+          : `<div class="win-rate" style="font-size:13px;color:var(--text-dim)">—</div>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+
+  // Recent games
+  const recentEl = document.getElementById('recent-games');
+  if (games.length === 0) {
+    recentEl.innerHTML = '<div class="empty-state">No games logged yet. Time to play.</div>';
+    return;
+  }
+  recentEl.innerHTML = games.slice(0, 8).map(g => {
+    const date = new Date(g.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const detail = g.result === 'win'
+      ? (g.winType || 'Win')
+      : (g.lossReason || 'Loss');
+    return `<div class="game-entry ${g.result}">
+      <div class="game-meta">
+        <div class="game-deck">${g.deck}</div>
+        <div class="game-detail">${detail}${g.opponents ? ' · vs ' + g.opponents : ''}${g.turn ? ' · T' + g.turn : ''} · ${date}</div>
+      </div>
+      <div class="game-result ${g.result}">${g.result.toUpperCase()}</div>
+    </div>`;
+  }).join('');
+}
+
+// Deck detail
+async function showDeckDetail(deckName) {
+  currentDetailDeck = deckName;
+  const games = await loadGames();
+  const deckGames = games.filter(g => g.deck === deckName);
+  const wins = deckGames.filter(g => g.result === 'win').length;
+  const total = deckGames.length;
+  const rate = total > 0 ? Math.round((wins / total) * 100) : 0;
+  const avgTurn = deckGames.filter(g => g.turn).length > 0
+    ? Math.round(deckGames.filter(g => g.turn).reduce((a, g) => a + g.turn, 0) / deckGames.filter(g => g.turn).length)
+    : '—';
+
+  document.getElementById('detail-deck-name').textContent = deckName;
+  document.getElementById('detail-stats').innerHTML = `
+    <div class="stat-box"><span class="stat-num">${rate}%</span><span class="stat-label">Win Rate</span></div>
+    <div class="stat-box"><span class="stat-num">${wins}–${total - wins}</span><span class="stat-label">Record</span></div>
+    <div class="stat-box"><span class="stat-num">${avgTurn}</span><span class="stat-label">Avg Turn</span></div>
+  `;
+
+  // Games list
+  const gameList = document.getElementById('detail-game-list');
+  if (deckGames.length === 0) {
+    gameList.innerHTML = '<div class="empty-state">No games logged for this deck yet.</div>';
+  } else {
+    gameList.innerHTML = deckGames.map(g => {
+      const date = new Date(g.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const detail = g.result === 'win' ? (g.winType || 'Win') : (g.lossReason || 'Loss');
+      return `<div class="game-entry ${g.result}">
+        <div class="game-meta">
+          <div class="game-deck" style="color:var(--text)">${detail}</div>
+          <div class="game-detail">${g.opponents ? 'vs ' + g.opponents : 'No opponents logged'}${g.turn ? ' · T' + g.turn : ''} · ${date}</div>
+        </div>
+        <div class="game-result ${g.result}">${g.result.toUpperCase()}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Stranded cards tally
+  const strandedMap = {};
+  deckGames.forEach(g => {
+    (g.strandedCards || []).forEach(c => {
+      strandedMap[c] = (strandedMap[c] || 0) + 1;
+    });
+  });
+
+  const strandedList = document.getElementById('detail-stranded-list');
+  const sorted = Object.entries(strandedMap).sort((a, b) => b[1] - a[1]);
+  if (sorted.length === 0) {
+    strandedList.innerHTML = '<div class="empty-state">No stranded cards logged yet.</div>';
+  } else {
+    strandedList.innerHTML = sorted.map(([card, count]) =>
+      `<div class="stranded-item">
+        <span>${card}</span>
+        <span class="stranded-count">×${count}</span>
+      </div>`
+    ).join('');
+  }
+
+  switchTab('games');
+  showScreen('deck-detail');
+}
+
+function switchTab(tab) {
+  document.getElementById('tab-games').classList.toggle('active', tab === 'games');
+  document.getElementById('tab-stranded').classList.toggle('active', tab === 'stranded');
+  document.getElementById('detail-games-panel').style.display = tab === 'games' ? 'block' : 'none';
+  document.getElementById('detail-stranded-panel').style.display = tab === 'stranded' ? 'block' : 'none';
+}
+
+// Init
+renderDashboard();
+</script>
+</body>
+</html>
