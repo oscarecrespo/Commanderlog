@@ -321,15 +321,39 @@
   /* Deck cards */
   .deck-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
 
+  .deck-art {
+    width: 64px;
+    height: 48px;
+    flex-shrink: 0;
+    background-size: cover;
+    background-position: center top;
+    border-right: 1px solid var(--border);
+    opacity: 0.85;
+    transition: opacity 0.2s;
+  }
+
+  .deck-card:hover .deck-art { opacity: 1; }
+
+  .deck-card-body {
+    flex: 1;
+    padding: 0 4px;
+  }
+
   .deck-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    padding: 14px 16px;
+    padding: 0;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: stretch;
     cursor: pointer;
     transition: border-color 0.2s;
+    overflow: hidden;
+  }
+
+  .deck-card-body {
+    flex: 1;
+    padding: 12px 14px;
   }
 
   .deck-card:hover { border-color: var(--gold-dim); }
@@ -345,6 +369,7 @@
     display: flex;
     gap: 12px;
     align-items: center;
+    padding-right: 16px;
   }
 
   .win-rate {
@@ -912,15 +937,43 @@
 
 <script>
 const DECKS = [
-  { name: 'Sauron, Dark Lord',           img: 'https://api.scryfall.com/cards/named?exact=Sauron,+the+Dark+Lord&format=image&version=art_crop' },
-  { name: 'High Perfect Morcant',        img: 'https://api.scryfall.com/cards/named?exact=High+Perfect+Morcant&format=image&version=art_crop' },
-  { name: "Light-Paws, Emperor's Voice", img: 'https://api.scryfall.com/cards/named?exact=Light-Paws%2C+Emperor%27s+Voice&format=image&version=art_crop' },
-  { name: 'Niv-Mizzet, Parun',           img: 'https://api.scryfall.com/cards/named?exact=Niv-Mizzet%2C+Parun&format=image&version=art_crop' },
-  { name: 'Edric, Spymaster of Trest',   img: 'https://api.scryfall.com/cards/named?exact=Edric%2C+Spymaster+of+Trest&format=image&version=art_crop' },
-  { name: 'Krenko, Mob Boss',            img: 'https://api.scryfall.com/cards/named?exact=Krenko%2C+Mob+Boss&format=image&version=art_crop' },
+  'Sauron, Dark Lord',
+  'High Perfect Morcant',
+  "Light-Paws, Emperor's Voice",
+  'Niv-Mizzet, Parun',
+  'Edric, Spymaster of Trest',
+  'Krenko, Mob Boss'
 ];
-const DECK_NAMES = DECKS.map(d => d.name);
-const DECK_IMG = Object.fromEntries(DECKS.map(d => [d.name, d.img]));
+
+// Scryfall exact card names for each deck
+const SCRYFALL_NAMES = {
+  'Sauron, Dark Lord':           'Sauron, the Dark Lord',
+  'High Perfect Morcant':        'High Perfect Morcant',
+  "Light-Paws, Emperor's Voice": "Light-Paws, Emperor's Voice",
+  'Niv-Mizzet, Parun':           'Niv-Mizzet, Parun',
+  'Edric, Spymaster of Trest':   'Edric, Spymaster of Trest',
+  'Krenko, Mob Boss':            'Krenko, Mob Boss',
+};
+
+const DECK_NAMES = DECKS;
+const DECK_IMG = {};
+
+// Fetch art crops from Scryfall API on load
+async function loadCardImages() {
+  for (const deck of DECKS) {
+    const cardName = SCRYFALL_NAMES[deck];
+    try {
+      const res = await fetch(`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(cardName)}`);
+      if (!res.ok) continue;
+      const data = await res.json();
+      const img = data.image_uris?.art_crop || (data.card_faces?.[0]?.image_uris?.art_crop);
+      if (img) DECK_IMG[deck] = img;
+    } catch(e) { /* silent fail */ }
+    // Scryfall asks for ~50-100ms between requests
+    await new Promise(r => setTimeout(r, 80));
+  }
+  renderDashboard();
+}
 
 let state = {
   deck: null,
@@ -1266,7 +1319,13 @@ function showDeckDetail(deckName) {
     ? Math.round(deckGames.filter(g => g.turn).reduce((a, g) => a + g.turn, 0) / deckGames.filter(g => g.turn).length)
     : '—';
 
-  document.getElementById('detail-deck-name').textContent = deckName;
+  // Add art to detail header
+  const detailArt = DECK_IMG[deckName];
+  const detailHeader = document.getElementById('detail-deck-name');
+  detailHeader.textContent = deckName;
+  if (detailArt) {
+    detailHeader.style.cssText = 'padding-left: 76px; min-height: 52px; display: flex; align-items: center; background-image: url(' + detailArt + '); background-size: 64px auto; background-repeat: no-repeat; background-position: left center;';
+  }
   document.getElementById('detail-stats').innerHTML = `
     <div class="stat-box"><span class="stat-num">${rate}%</span><span class="stat-label">Win Rate</span></div>
     <div class="stat-box"><span class="stat-num">${wins}–${total - wins}</span><span class="stat-label">Record</span></div>
@@ -1324,7 +1383,7 @@ function switchTab(tab) {
 }
 
 // Init
-renderDashboard();
+loadCardImages();
 </script>
 </body>
 </html>
