@@ -2252,7 +2252,7 @@ async function submitImport() {
     });
 
     if (!deckResult || !deckResult[0]) throw new Error('Failed to save deck.');
-    const newDeck = deckResult[0];
+    const newDeckId = deckResult[0].id;
 
     progressMsg.textContent = 'Generating Intelligence Brief (this takes ~30 seconds)...';
     const brief = await generateBriefText(parsedDeckData);
@@ -2262,7 +2262,7 @@ async function submitImport() {
     const flavors = await generateFlavorMessages(parsedDeckData);
 
     // Update deck with AI content
-    await sbRequest(`decks?id=eq.${newDeck.id}`, 'PATCH', {
+    await sbRequest(`decks?id=eq.${newDeckId}`, 'PATCH', {
       intelligence_brief: brief,
       deck_roast: roast,
       win_message_title: flavors.winTitle,
@@ -2273,12 +2273,9 @@ async function submitImport() {
       roast_generated_at: new Date().toISOString()
     });
 
-    newDeck.intelligence_brief = brief;
-    newDeck.deck_roast = roast;
-    newDeck.win_message_title = flavors.winTitle;
-    newDeck.win_message_body = flavors.winBody;
-    newDeck.loss_message_title = flavors.lossTitle;
-    newDeck.loss_message_body = flavors.lossBody;
+    // Reload the full deck record from Supabase to get all columns
+    const freshDeck = await sbRequest('decks', 'GET', null, `?id=eq.${newDeckId}&select=*`);
+    const newDeck = freshDeck[0];
     allDecks.unshift(newDeck);
 
     hideImportModal();
