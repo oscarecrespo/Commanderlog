@@ -1010,7 +1010,6 @@ h1, h2, h3, h4 {
       <button class="nav-tab active" onclick="showTab('dashboard')" data-tab="dashboard">Dashboard</button>
       <button class="nav-tab" onclick="showTab('decks')" data-tab="decks">My Decks</button>
       <button class="nav-tab" onclick="showTab('games')" data-tab="games">Game Log</button>
-      <button class="nav-tab" onclick="showTab('log-game')" data-tab="log-game">+ Log Game</button>
       <button class="nav-tab" id="admin-tab" onclick="showTab('admin')" data-tab="admin" style="display:none">⚑ Admin</button>
     </div>
     <div class="nav-user">
@@ -1056,7 +1055,10 @@ h1, h2, h3, h4 {
       <div class="panel">
         <div class="panel-header">
           <span class="panel-title">My Decks</span>
-          <button class="btn btn-small" onclick="showImportModal()">+ Import Deck</button>
+          <div class="flex gap-1">
+            <button class="btn btn-small" onclick="showLogGameModal()">+ Log Game</button>
+            <button class="btn btn-small" onclick="showImportModal()">+ Import Deck</button>
+          </div>
         </div>
         <div class="decks-grid" id="decks-grid">
           <div class="empty-state">
@@ -1073,6 +1075,7 @@ h1, h2, h3, h4 {
         <div class="panel-header">
           <span class="panel-title">Game Log</span>
           <div class="flex gap-1">
+            <button class="btn btn-small" onclick="showLogGameModal()">+ Log Game</button>
             <select id="games-filter-deck" class="form-group" style="margin:0;padding:0.4rem 0.7rem;font-size:0.85rem;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:var(--radius)" onchange="renderGames()">
               <option value="">All Decks</option>
             </select>
@@ -2332,6 +2335,20 @@ async function regenerateRoast(deckId) {
 }
 
 // ============================================
+// LOG GAME MODAL
+// ============================================
+function showLogGameModal() {
+  const userDecks = allDecks.filter(d => d.user_id === currentUser.id);
+  if (userDecks.length === 0) {
+    alert('You need to import a deck before logging a game.');
+    showTab('decks');
+    return;
+  }
+  buildLogGameForm(true);
+  document.getElementById('log-game-modal').classList.remove('hidden');
+}
+
+// ============================================
 // LOG GAME FORM
 // ============================================
 let logGameState = {
@@ -2348,12 +2365,14 @@ let logGameState = {
   notes: ''
 };
 
-function buildLogGameForm() {
+function buildLogGameForm(modalMode = false) {
   const userDecks = allDecks.filter(d => d.user_id === currentUser.id);
-  const form = document.getElementById('log-game-form');
+  const formId = modalMode ? 'log-game-modal-form' : 'log-game-form';
+  const form = document.getElementById(formId);
+  if (!form) return;
 
   if (userDecks.length === 0) {
-    form.innerHTML = `<div class="empty-state"><h3>No Decks</h3><p>Import a deck first before logging games.</p><button class="btn" style="margin-top:1rem" onclick="showTab('decks')">Go to Decks</button></div>`;
+    form.innerHTML = `<div class="empty-state"><h3>No Decks</h3><p>Import a deck first before logging games.</p><button class="btn" style="margin-top:1rem" onclick="showTab('decks');document.getElementById('log-game-modal').classList.add('hidden')">Go to Decks</button></div>`;
     return;
   }
 
@@ -2561,7 +2580,10 @@ async function submitGame() {
     allGames.unshift(result[0]);
     renderDashboard();
     renderGames();
-    showTab('dashboard');
+    // Close modal if open
+    const modal = document.getElementById('log-game-modal');
+    if (modal) modal.classList.add('hidden');
+    showTab('games');
 
   } catch (e) {
     showLogError('Failed to save game: ' + e.message);
@@ -2571,8 +2593,11 @@ async function submitGame() {
 
 function showLogError(msg) {
   const el = document.getElementById('log-error');
-  el.textContent = msg;
-  el.classList.remove('hidden');
+  if (el) {
+    el.textContent = msg;
+    el.classList.remove('hidden');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
 }
 
 // ============================================
@@ -2696,5 +2721,14 @@ document.addEventListener('keydown', e => {
 // ============================================
 // Check for returning session (none — intentional, PIN required each visit)
 </script>
+<!-- LOG GAME MODAL -->
+<div id="log-game-modal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:580px">
+    <button class="modal-close" onclick="document.getElementById('log-game-modal').classList.add('hidden')">✕</button>
+    <h3 class="modal-title">Log a Game</h3>
+    <div id="log-game-modal-form"></div>
+  </div>
+</div>
+
 </body>
 </html>
