@@ -2,924 +2,2392 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Commander Chronicle</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Chronicle">
-<meta name="theme-color" content="#0a0a0f">
-<link rel="apple-touch-icon" href="icon.png">
-<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
+/* ============================================
+   COMMANDER CHRONICLE - DESIGN SYSTEM
+   Theme: Dark arcane grimoire meets data dashboard
+   ============================================ */
 
-  :root {
-    --bg: #0a0a0f; --surface: #12121a; --surface2: #1a1a28; --border: #2a2a3d;
-    --gold: #c9a84c; --gold-dim: #7a6330; --red: #8b2020; --red-bright: #c94040;
-    --green: #1a4a2a; --green-bright: #3a8a4a; --text: #e8e0d0; --text-dim: #8a8070;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Crimson Pro', Georgia, serif; min-height: 100vh; font-size: 16px; line-height: 1.5; }
-  body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse at 20% 20%, rgba(100,60,160,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(139,32,32,0.08) 0%, transparent 60%); pointer-events: none; z-index: 0; }
-  .app { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --surface2: #1a1a26;
+  --surface3: #222235;
+  --border: #2a2a40;
+  --border-bright: #3a3a58;
+  --gold: #c9a84c;
+  --gold-dim: #7a6530;
+  --gold-bright: #e8c46a;
+  --crimson: #8b1a1a;
+  --crimson-bright: #c0392b;
+  --mana-W: #f9f6e8;
+  --mana-U: #4a90d9;
+  --mana-B: #9b59b6;
+  --mana-R: #e74c3c;
+  --mana-G: #27ae60;
+  --text: #e8e0cc;
+  --text-dim: #9a9080;
+  --text-faint: #5a5448;
+  --win: #27ae60;
+  --loss: #c0392b;
+  --radius: 4px;
+  --glow: 0 0 20px rgba(201,168,76,0.15);
+}
 
-  /* HEADER */
-  .header { padding: 24px 20px 16px; border-bottom: 1px solid var(--border); text-align: center; }
-  .header-ornament { color: var(--gold-dim); font-size: 11px; letter-spacing: 4px; text-transform: uppercase; font-family: 'Cinzel', serif; margin-bottom: 6px; }
-  .header h1 { font-family: 'Cinzel', serif; font-weight: 900; font-size: 22px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* SCREENS */
-  .screen { display: none; padding: 20px; }
-  .screen.active { display: block; }
+body {
+  font-family: 'Crimson Pro', Georgia, serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(139,26,26,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(74,80,140,0.08) 0%, transparent 50%);
+}
 
-  /* LOG BUTTON */
-  .log-btn { width: 100%; background: linear-gradient(135deg, #1a0a0a, #2a1010); border: 1px solid var(--gold-dim); color: var(--gold); font-family: 'Cinzel', serif; font-size: 15px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 18px; cursor: pointer; margin-bottom: 28px; position: relative; overflow: hidden; transition: all 0.2s; }
-  .log-btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(201,168,76,0.05), rgba(201,168,76,0.1)); opacity: 0; transition: opacity 0.2s; }
-  .log-btn:hover::before, .log-btn:active::before { opacity: 1; }
-  .log-btn:active { transform: scale(0.99); }
+h1, h2, h3, h4 {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+}
 
-  /* SECTION TITLE */
-  .section-title { font-family: 'Cinzel', serif; font-size: 11px; color: var(--gold-dim); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+/* ============================================
+   AUTH SCREEN
+   ============================================ */
 
-  /* PERFORMANCE */
-  .perf-dashboard { margin-bottom: 28px; }
-  .overall-summary { display: flex; background: var(--surface); border: 1px solid var(--border); margin-bottom: 10px; }
-  .overall-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 14px 8px; }
-  .overall-num { font-family: 'Cinzel', serif; font-size: 22px; font-weight: 900; color: var(--gold); line-height: 1; margin-bottom: 4px; }
-  .overall-label { font-family: 'Cinzel', serif; font-size: 9px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
-  .overall-divider { width: 1px; background: var(--border); margin: 10px 0; }
-  .podium-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-  .podium-card { background: var(--surface); border: 1px solid var(--border); padding: 12px 14px; position: relative; overflow: hidden; }
-  .podium-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
-  .podium-card.best::before { background: var(--green-bright); }
-  .podium-card.worst::before { background: var(--red-bright); }
-  .podium-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
-  .podium-card.best .podium-label { color: var(--green-bright); }
-  .podium-card.worst .podium-label { color: var(--red-bright); }
-  .podium-deck { font-family: 'Cinzel', serif; font-size: 12px; color: var(--text); font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .podium-rate { font-family: 'Cinzel', serif; font-size: 20px; font-weight: 900; }
-  .podium-card.best .podium-rate { color: var(--green-bright); }
-  .podium-card.worst .podium-rate { color: var(--red-bright); }
-  .chart-container { background: var(--surface); border: 1px solid var(--border); padding: 16px 14px 12px; }
-  .chart-title { font-family: 'Cinzel', serif; font-size: 9px; color: var(--gold-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
-  .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
-  .bar-label { font-family: 'Cinzel', serif; font-size: 10px; color: var(--text-dim); width: 80px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .bar-track { flex: 1; height: 18px; background: var(--surface2); position: relative; overflow: hidden; }
-  .bar-fill { height: 100%; transition: width 0.6s ease; position: relative; }
-  .bar-fill::after { content: attr(data-pct); position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-family: 'Cinzel', serif; font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.9); white-space: nowrap; }
-  .bar-games { font-family: 'Cinzel', serif; font-size: 10px; color: var(--text-dim); width: 28px; text-align: right; flex-shrink: 0; }
+#auth-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
 
-  /* DECK CARDS */
-  .deck-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
-  .deck-card { background: var(--surface); border: 1px solid var(--border); padding: 0; display: flex; justify-content: space-between; align-items: stretch; cursor: pointer; transition: border-color 0.2s; overflow: hidden; }
-  .deck-card:hover { border-color: var(--gold-dim); }
-  .deck-art { width: 64px; height: 48px; flex-shrink: 0; background-size: cover; background-position: center top; border-right: 1px solid var(--border); opacity: 0.85; transition: opacity 0.2s; }
-  .deck-card:hover .deck-art { opacity: 1; }
-  .deck-card-body { flex: 1; padding: 12px 14px; }
-  .deck-name { font-family: 'Cinzel', serif; font-size: 13px; color: var(--text); font-weight: 600; }
-  .deck-stats { display: flex; gap: 12px; align-items: center; padding-right: 16px; }
-  .win-rate { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 900; color: var(--gold); }
-  .win-rate.high { color: var(--green-bright); }
-  .win-rate.low { color: var(--red-bright); }
-  .record { font-size: 12px; color: var(--text-dim); font-style: italic; }
-  .no-games { font-size: 13px; color: var(--text-dim); font-style: italic; }
+.auth-box {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--gold);
+  padding: 3rem 2.5rem;
+  position: relative;
+}
 
-  /* GAME ENTRIES */
-  .game-list { display: flex; flex-direction: column; gap: 8px; }
-  .game-entry { background: var(--surface); border-left: 3px solid var(--border); padding: 10px 14px; display: flex; justify-content: space-between; align-items: flex-start; }
-  .game-entry.win { border-left-color: var(--green-bright); }
-  .game-entry.loss { border-left-color: var(--red-bright); }
-  .game-meta { flex: 1; }
-  .game-deck { font-family: 'Cinzel', serif; font-size: 12px; color: var(--gold); }
-  .game-detail { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
-  .game-result { font-family: 'Cinzel', serif; font-size: 11px; font-weight: 600; letter-spacing: 1px; padding: 3px 8px; border: 1px solid; white-space: nowrap; }
-  .game-result.win { color: var(--green-bright); border-color: var(--green-bright); }
-  .game-result.loss { color: var(--red-bright); border-color: var(--red-bright); }
-  .game-edit-btn { background: none; border: none; color: var(--text-dim); font-size: 14px; cursor: pointer; padding: 0 0 0 8px; transition: color 0.15s; align-self: center; }
-  .game-edit-btn:hover { color: var(--gold); }
+.auth-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
 
-  /* LOG FLOW */
-  .screen-title { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 900; color: var(--gold); margin-bottom: 6px; letter-spacing: 1px; }
-  .screen-sub { font-size: 14px; color: var(--text-dim); font-style: italic; margin-bottom: 24px; }
-  .deck-option { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); font-family: 'Cinzel', serif; font-size: 13px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; text-align: left; letter-spacing: 0.5px; transition: all 0.15s; display: flex; align-items: center; gap: 10px; }
-  .deck-option:hover, .deck-option.selected { border-color: var(--gold); color: var(--gold); background: var(--surface2); }
-  .deck-option img { border-radius: 2px; opacity: 0.85; flex-shrink: 0; }
-  .result-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-  .result-btn { padding: 20px; border: 1px solid var(--border); background: var(--surface); font-family: 'Cinzel', serif; font-size: 16px; font-weight: 900; letter-spacing: 2px; cursor: pointer; transition: all 0.15s; }
-  .result-btn.win-btn { color: var(--green-bright); }
-  .result-btn.loss-btn { color: var(--red-bright); }
-  .result-btn.win-btn:hover, .result-btn.win-btn.selected { background: var(--green); border-color: var(--green-bright); }
-  .result-btn.loss-btn:hover, .result-btn.loss-btn.selected { background: var(--red); border-color: var(--red-bright); }
-  .field { margin-bottom: 20px; }
-  .field label { display: block; font-family: 'Cinzel', serif; font-size: 11px; color: var(--gold-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
-  .field input, .field textarea, .field select { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); font-family: 'Crimson Pro', serif; font-size: 15px; padding: 12px 14px; outline: none; transition: border-color 0.15s; -webkit-appearance: none; }
-  .field input:focus, .field textarea:focus { border-color: var(--gold-dim); }
-  .field textarea { resize: vertical; min-height: 70px; }
-  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
-  .chip { padding: 8px 14px; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 1px; cursor: pointer; transition: all 0.15s; }
-  .chip:hover, .chip.selected { border-color: var(--gold-dim); color: var(--gold); background: var(--surface2); }
-  .size-chips, .pos-chips { display: flex; gap: 8px; flex-wrap: wrap; }
-  .size-chip, .pos-chip { padding: 8px 16px; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); font-family: 'Cinzel', serif; font-size: 13px; cursor: pointer; transition: all 0.15s; }
-  .size-chip:hover, .size-chip.selected, .pos-chip:hover, .pos-chip.selected { border-color: var(--gold-dim); color: var(--gold); background: var(--surface2); }
-  .nav-row { display: flex; gap: 10px; margin-top: 28px; }
-  .btn-back { flex: 0 0 auto; background: transparent; border: 1px solid var(--border); color: var(--text-dim); font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 1px; padding: 14px 18px; cursor: pointer; transition: all 0.15s; }
-  .btn-back:hover { border-color: var(--text-dim); color: var(--text); }
-  .btn-next { flex: 1; background: linear-gradient(135deg, #1a0a0a, #2a1010); border: 1px solid var(--gold-dim); color: var(--gold); font-family: 'Cinzel', serif; font-size: 13px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 14px; cursor: pointer; transition: all 0.15s; }
-  .btn-next:hover { border-color: var(--gold); }
-  .btn-next:disabled { opacity: 0.3; cursor: not-allowed; }
-  .confirm-block { background: var(--surface); border: 1px solid var(--border); padding: 20px; margin-bottom: 20px; }
-  .confirm-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
-  .confirm-row:last-child { border-bottom: none; }
-  .confirm-label { color: var(--text-dim); font-style: italic; }
-  .confirm-value { color: var(--text); font-weight: 600; text-align: right; max-width: 60%; }
-  .confirm-value.win { color: var(--green-bright); }
-  .confirm-value.loss { color: var(--red-bright); }
-  .stranded-input-row { display: flex; gap: 8px; margin-bottom: 12px; }
-  .stranded-input-row input { flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text); font-family: 'Crimson Pro', serif; font-size: 15px; padding: 12px 14px; outline: none; }
-  .stranded-input-row input:focus { border-color: var(--gold-dim); }
-  .btn-add-card { background: var(--surface2); border: 1px solid var(--border); color: var(--gold); font-family: 'Cinzel', serif; font-size: 18px; padding: 0 16px; cursor: pointer; }
-  .stranded-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-  .stranded-tag { background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); font-size: 13px; padding: 6px 10px; display: flex; align-items: center; gap: 8px; font-style: italic; }
-  .remove-tag { color: var(--red-bright); cursor: pointer; font-style: normal; font-size: 15px; }
+.auth-logo {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
 
-  /* SUCCESS */
-  .success-screen { text-align: center; padding: 40px 20px; }
-  .success-icon { font-size: 48px; margin-bottom: 16px; display: block; }
-  .success-title { font-family: 'Cinzel', serif; font-size: 20px; font-weight: 900; color: var(--gold); margin-bottom: 8px; letter-spacing: 2px; }
-  .success-sub { color: var(--text-dim); font-style: italic; margin-bottom: 32px; }
+.auth-logo h1 {
+  font-size: 1.8rem;
+  color: var(--gold);
+  text-shadow: 0 0 30px rgba(201,168,76,0.4);
+}
 
-  /* DECK DETAIL */
-  .back-link { background: transparent; border: none; color: var(--gold-dim); font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2px; cursor: pointer; padding: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 6px; }
-  .back-link:hover { color: var(--gold); }
-  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 24px; }
-  .stat-box { background: var(--surface); border: 1px solid var(--border); padding: 12px 8px; text-align: center; }
-  .stat-num { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 900; color: var(--gold); display: block; }
-  .stat-label { font-size: 9px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; font-family: 'Cinzel', serif; }
-  .tab-bar { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-  .tab { flex: 1; padding: 10px 4px; background: transparent; border: none; color: var(--text-dim); font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
-  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
-  .stranded-list { margin-top: 8px; }
-  .stranded-item { display: flex; justify-content: space-between; padding: 8px 12px; background: var(--surface); border-left: 2px solid var(--gold-dim); margin-bottom: 6px; font-size: 14px; font-style: italic; }
-  .stranded-count { font-family: 'Cinzel', serif; font-size: 12px; color: var(--gold-dim); font-style: normal; }
+.auth-logo p {
+  color: var(--text-dim);
+  font-style: italic;
+  font-size: 0.95rem;
+  margin-top: 0.3rem;
+}
 
-  /* H2H + TREND */
-  .h2h-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); margin-bottom: 8px; }
-  .h2h-opponent { font-family: 'Cinzel', serif; font-size: 12px; color: var(--text); }
-  .h2h-record { display: flex; gap: 8px; align-items: center; }
-  .h2h-w { color: var(--green-bright); font-family: 'Cinzel', serif; font-size: 13px; font-weight: 900; }
-  .h2h-l { color: var(--red-bright); font-family: 'Cinzel', serif; font-size: 13px; font-weight: 900; }
-  .h2h-pct { color: var(--text-dim); font-size: 12px; font-style: italic; }
+.rune-divider {
+  text-align: center;
+  color: var(--gold-dim);
+  font-size: 1.2rem;
+  letter-spacing: 0.5rem;
+  margin: 1.5rem 0;
+}
 
-  /* ALL GAMES FEED */
-  .feed-filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-  .filter-chip { padding: 6px 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1px; cursor: pointer; transition: all 0.15s; }
-  .filter-chip:hover, .filter-chip.active { border-color: var(--gold-dim); color: var(--gold); background: var(--surface2); }
+.auth-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+}
 
-  /* EDIT MODAL */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; display: none; align-items: flex-end; justify-content: center; }
-  .modal-overlay.open { display: flex; }
-  .modal { background: var(--surface); border: 1px solid var(--border); border-bottom: none; width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto; padding: 24px 20px; }
-  .modal-title { font-family: 'Cinzel', serif; font-size: 16px; font-weight: 900; color: var(--gold); margin-bottom: 20px; }
-  .modal-actions { display: flex; gap: 10px; margin-top: 24px; }
-  .btn-danger { flex: 1; background: var(--red); border: 1px solid var(--red-bright); color: var(--red-bright); font-family: 'Cinzel', serif; font-size: 11px; font-weight: 600; letter-spacing: 1px; padding: 12px; cursor: pointer; }
-  .btn-save { flex: 2; background: linear-gradient(135deg, #1a0a0a, #2a1010); border: 1px solid var(--gold-dim); color: var(--gold); font-family: 'Cinzel', serif; font-size: 11px; font-weight: 600; letter-spacing: 1px; padding: 12px; cursor: pointer; }
-  .btn-save:hover { border-color: var(--gold); }
-  .btn-cancel { flex: 1; background: transparent; border: 1px solid var(--border); color: var(--text-dim); font-family: 'Cinzel', serif; font-size: 11px; padding: 12px; cursor: pointer; }
+.auth-tab {
+  flex: 1;
+  padding: 0.6rem;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
 
-  .empty-state { text-align: center; padding: 20px; color: var(--text-dim); font-style: italic; font-size: 14px; }
-  .view-all-btn { width: 100%; padding: 12px; margin-top: 10px; background: transparent; border: 1px solid var(--border); color: var(--text-dim); font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2px; cursor: pointer; transition: all 0.15s; }
-  .view-all-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+.auth-tab.active {
+  background: var(--surface3);
+  color: var(--gold);
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-group label {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.65rem 0.9rem;
+  color: var(--text);
+  font-family: 'Crimson Pro', serif;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--gold-dim);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  border: 1px solid var(--gold-dim);
+  background: transparent;
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  background: rgba(201,168,76,0.1);
+  border-color: var(--gold);
+  box-shadow: var(--glow);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: rgba(201,168,76,0.15);
+  border-color: var(--gold);
+  width: 100%;
+}
+
+.btn-primary:hover {
+  background: rgba(201,168,76,0.25);
+}
+
+.btn-danger {
+  border-color: var(--crimson);
+  color: var(--crimson-bright);
+}
+
+.btn-danger:hover {
+  background: rgba(192,57,43,0.15);
+}
+
+.btn-small {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.7rem;
+}
+
+.error-msg {
+  background: rgba(192,57,43,0.15);
+  border: 1px solid var(--crimson);
+  color: #e8a090;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.success-msg {
+  background: rgba(39,174,96,0.15);
+  border: 1px solid #27ae60;
+  color: #90e8a8;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+/* ============================================
+   MAIN APP LAYOUT
+   ============================================ */
+
+#app {
+  display: none;
+  min-height: 100vh;
+}
+
+/* TOP NAV */
+.top-nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-brand {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+}
+
+.nav-brand span {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-family: 'Crimson Pro', serif;
+  margin-left: 0.5rem;
+  font-style: italic;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 0;
+  height: 100%;
+}
+
+.nav-tab {
+  display: flex;
+  align-items: center;
+  padding: 0 1.2rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  height: 100%;
+}
+
+.nav-tab:hover { color: var(--text); }
+
+.nav-tab.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-user-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+}
+
+/* MAIN CONTENT */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* PANELS */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-title {
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+/* ============================================
+   STAT CARDS
+   ============================================ */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 1.2rem;
+  text-align: center;
+  border-radius: var(--radius);
+}
+
+.stat-value {
+  font-family: 'Cinzel', serif;
+  font-size: 2rem;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.stat-value.win { color: var(--win); }
+.stat-value.loss { color: var(--loss); }
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 0.3rem;
+}
+
+/* ============================================
+   DECK CARDS
+   ============================================ */
+
+.decks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.2rem;
+}
+
+.deck-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.3rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.deck-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-dim));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.deck-card:hover {
+  border-color: var(--border-bright);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.deck-card:hover::before { opacity: 1; }
+
+.deck-card-commander {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  color: var(--gold);
+  margin-bottom: 0.3rem;
+}
+
+.deck-card-name {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 0.8rem;
+}
+
+.deck-card-stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.deck-card-stat { display: flex; gap: 0.3rem; }
+
+.color-pips {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 0.8rem;
+}
+
+.pip {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0,0,0,0.7);
+}
+
+.pip-W { background: var(--mana-W); }
+.pip-U { background: var(--mana-U); }
+.pip-B { background: var(--mana-B); color: rgba(255,255,255,0.8); }
+.pip-R { background: var(--mana-R); }
+.pip-G { background: var(--mana-G); }
+.pip-C { background: #888; color: white; }
+
+/* ============================================
+   GAME LOG
+   ============================================ */
+
+.game-entry {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-left: 3px solid transparent;
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.game-entry:hover { border-color: var(--border-bright); }
+.game-entry.win { border-left-color: var(--win); }
+.game-entry.loss { border-left-color: var(--loss); }
+
+.game-result-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+  min-width: 45px;
+  text-align: center;
+}
+
+.game-result-badge.win {
+  background: rgba(39,174,96,0.2);
+  color: #5dde8e;
+  border: 1px solid rgba(39,174,96,0.3);
+}
+
+.game-result-badge.loss {
+  background: rgba(192,57,43,0.2);
+  color: #e07060;
+  border: 1px solid rgba(192,57,43,0.3);
+}
+
+.game-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.game-deck-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.game-meta {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-top: 0.1rem;
+}
+
+.game-condition {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-align: right;
+  min-width: 120px;
+}
+
+.game-date {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+/* ============================================
+   LOG GAME FORM (MODAL)
+   ============================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--gold);
+  max-width: 560px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
+  position: relative;
+  border-radius: var(--radius);
+}
+
+.modal-title {
+  font-size: 1rem;
+  color: var(--gold);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+}
+
+.modal-close:hover { color: var(--text); }
+
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.radio-btn {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: all 0.15s;
+}
+
+.radio-btn:hover { border-color: var(--border-bright); color: var(--text); }
+
+.radio-btn.selected {
+  border-color: var(--gold-dim);
+  background: rgba(201,168,76,0.1);
+  color: var(--gold);
+}
+
+.radio-btn.selected-win {
+  border-color: var(--win);
+  background: rgba(39,174,96,0.1);
+  color: #5dde8e;
+}
+
+.radio-btn.selected-loss {
+  border-color: var(--loss);
+  background: rgba(192,57,43,0.1);
+  color: #e07060;
+}
+
+/* ============================================
+   DECK DETAIL VIEW
+   ============================================ */
+
+.deck-detail-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+
+.deck-detail-tab {
+  padding: 0.6rem 1.2rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: -1px;
+}
+
+.deck-detail-tab:hover { color: var(--text); }
+
+.deck-detail-tab.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+/* Intelligence Brief & Roast */
+.ai-content {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  color: var(--text);
+}
+
+.ai-content.roast {
+  border-color: var(--crimson);
+  background: rgba(139,26,26,0.08);
+}
+
+.ai-generating {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.ai-generating .spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================
+   DECK IMPORT
+   ============================================ */
+
+.import-area {
+  background: var(--bg);
+  border: 1px dashed var(--border-bright);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.import-area textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: 'Courier New', monospace;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  min-height: 200px;
+  resize: vertical;
+  outline: none;
+}
+
+.parsed-preview {
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.parsed-preview h4 {
+  font-size: 0.8rem;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+
+.parsed-preview p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 0.3rem;
+}
+
+/* ============================================
+   ADMIN VIEW
+   ============================================ */
+
+.admin-banner {
+  background: rgba(139,26,26,0.2);
+  border: 1px solid var(--crimson);
+  padding: 0.5rem 1rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: #e07060;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.user-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.user-row:last-child { border-bottom: none; }
+
+/* ============================================
+   TREND CHART (simple CSS bars)
+   ============================================ */
+
+.chart-bar-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 80px;
+  margin-top: 1rem;
+}
+
+.chart-bar {
+  flex: 1;
+  background: var(--gold-dim);
+  border-radius: 2px 2px 0 0;
+  min-height: 2px;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.chart-bar.win-bar { background: rgba(39,174,96,0.5); }
+.chart-bar.loss-bar { background: rgba(192,57,43,0.5); }
+
+/* ============================================
+   STRANDED CARDS TAG INPUT
+   ============================================ */
+
+.tag-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.5rem;
+  min-height: 42px;
+  cursor: text;
+}
+
+.tag-input-container:focus-within { border-color: var(--gold-dim); }
+
+.tag {
+  background: var(--surface3);
+  border: 1px solid var(--border-bright);
+  color: var(--text);
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.tag-remove:hover { color: var(--loss); }
+
+.tag-text-input {
+  flex: 1;
+  min-width: 80px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+/* ============================================
+   UTILITY
+   ============================================ */
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.gap-1 { gap: 0.5rem; }
+.gap-2 { gap: 1rem; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.text-dim { color: var(--text-dim); }
+.text-gold { color: var(--gold); }
+.text-small { font-size: 0.85rem; }
+.text-xs { font-size: 0.75rem; }
+.italic { font-style: italic; }
+.hidden { display: none !important; }
+
+.separator {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.5rem 0;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+}
+
+.back-btn:hover { color: var(--gold); }
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-dim);
+}
+
+.empty-state h3 {
+  font-size: 0.9rem;
+  color: var(--text-faint);
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-tabs { display: none; }
+  .main-content { padding: 1rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .decks-grid { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="header">
-    <div class="header-ornament">⚔ Commander ⚔</div>
-    <h1>Game Chronicle</h1>
-  </div>
 
-  <!-- DASHBOARD -->
-  <div id="screen-dashboard" class="screen active">
-    <div style="padding-top:8px"></div>
-    <button class="log-btn" onclick="startLog()">⚔ Log a Game</button>
-    <div class="perf-dashboard" id="perf-dashboard"></div>
-    <div class="section-title">Your Decks</div>
-    <div class="deck-grid" id="deck-grid"></div>
-    <div class="section-title">Recent Games</div>
-    <div class="game-list" id="recent-games"></div>
-  </div>
-
-  <!-- ALL GAMES -->
-  <div id="screen-all-games" class="screen">
-    <button class="back-link" onclick="showScreen('dashboard')">← Chronicle</button>
-    <div class="screen-title">All Games</div>
-    <div class="feed-filters" id="feed-filters"></div>
-    <div class="game-list" id="all-games-list"></div>
-  </div>
-
-  <!-- STEP 1: DECK -->
-  <div id="screen-deck" class="screen">
-    <div class="screen-title">Which Deck?</div>
-    <div class="screen-sub">Select the deck you played.</div>
-    <div id="deck-options"></div>
-    <div class="nav-row">
-      <button class="btn-back" onclick="showScreen('dashboard')">← Back</button>
-      <button class="btn-next" id="btn-deck-next" disabled onclick="goToResult()">Continue →</button>
+<!-- ============================================
+     AUTH SCREEN
+     ============================================ -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <h1>⚔ Commander Chronicle</h1>
+      <p>Track. Analyze. Dominate.</p>
     </div>
-  </div>
+    <div class="rune-divider">✦ ✦ ✦</div>
 
-  <!-- STEP 2: RESULT -->
-  <div id="screen-result" class="screen">
-    <div class="screen-title">Result?</div>
-    <div class="screen-sub">How did it end?</div>
-    <div class="result-row">
-      <button class="result-btn win-btn" id="btn-win" onclick="selectResult('win')">WIN</button>
-      <button class="result-btn loss-btn" id="btn-loss" onclick="selectResult('loss')">LOSS</button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Enter the Hall</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">Join the Hall</button>
     </div>
-    <div class="nav-row">
-      <button class="btn-back" onclick="showScreen('deck')">← Back</button>
-      <button class="btn-next" id="btn-result-next" disabled onclick="goToDetails()">Continue →</button>
-    </div>
-  </div>
 
-  <!-- STEP 3: DETAILS -->
-  <div id="screen-details" class="screen">
-    <div class="screen-title">The Details</div>
-    <div class="screen-sub">Quick notes on how it went.</div>
+    <div id="auth-error" class="error-msg hidden"></div>
+    <div id="auth-success" class="success-msg hidden"></div>
 
-    <div class="field">
-      <label>Pod Size</label>
-      <div class="size-chips" id="pod-size-chips">
-        <div class="size-chip" onclick="selectPodSize(this,2)">2</div>
-        <div class="size-chip" onclick="selectPodSize(this,3)">3</div>
-        <div class="size-chip selected" onclick="selectPodSize(this,4)">4</div>
-        <div class="size-chip" onclick="selectPodSize(this,5)">5</div>
+    <!-- LOGIN -->
+    <div id="login-form">
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="login-name" placeholder="Your name" autocomplete="username">
       </div>
-    </div>
-
-    <div class="field">
-      <label>Seat Position</label>
-      <div class="pos-chips" id="pos-chips">
-        <div class="pos-chip" onclick="selectPos(this,1)">1st</div>
-        <div class="pos-chip" onclick="selectPos(this,2)">2nd</div>
-        <div class="pos-chip" onclick="selectPos(this,3)">3rd</div>
-        <div class="pos-chip" onclick="selectPos(this,4)">4th</div>
-        <div class="pos-chip" style="display:none" onclick="selectPos(this,5)">5th</div>
+      <div class="form-group">
+        <label>PIN</label>
+        <input type="password" id="login-pin" placeholder="••••" maxlength="10" inputmode="numeric">
       </div>
+      <button class="btn btn-primary" onclick="login()">Enter the Hall</button>
     </div>
 
-    <div class="field" id="sauron-field" style="display:none">
-      <label>Did Sauron hit the battlefield?</label>
-      <div class="size-chips" id="sauron-chips">
-        <div class="size-chip" onclick="selectSauron(this,true)">Yes</div>
-        <div class="size-chip" onclick="selectSauron(this,false)">No</div>
+    <!-- REGISTER -->
+    <div id="register-form" class="hidden">
+      <div class="form-group">
+        <label>Choose a Name</label>
+        <input type="text" id="reg-name" placeholder="How shall you be known?" maxlength="30">
       </div>
-    </div>
-
-    <div class="field">
-      <label>Turn game ended</label>
-      <input type="number" id="input-turn" min="1" max="50" placeholder="e.g. 9">
-    </div>
-
-    <div class="field" id="win-type-field">
-      <label>How did you win?</label>
-      <div class="chip-row">
-        <div class="chip" onclick="selectChip(this,'winType')">Combat</div>
-        <div class="chip" onclick="selectChip(this,'winType')">Combo</div>
-        <div class="chip" onclick="selectChip(this,'winType')">Infect</div>
-        <div class="chip" onclick="selectChip(this,'winType')">Board wipe + swing</div>
-        <div class="chip" onclick="selectChip(this,'winType')">Chandra's Ignition</div>
-        <div class="chip" onclick="selectChip(this,'winType')">Other</div>
+      <div class="form-group">
+        <label>Choose a PIN (numbers only)</label>
+        <input type="password" id="reg-pin" placeholder="••••" maxlength="10" inputmode="numeric">
       </div>
-    </div>
-
-    <div class="field" id="loss-reason-field">
-      <label>Why did you lose?</label>
-      <div class="chip-row">
-        <div class="chip" onclick="selectChip(this,'lossReason')">Outpaced early</div>
-        <div class="chip" onclick="selectChip(this,'lossReason')">Life total</div>
-        <div class="chip" onclick="selectChip(this,'lossReason')">Commander removed</div>
-        <div class="chip" onclick="selectChip(this,'lossReason')">Targeted hate</div>
-        <div class="chip" onclick="selectChip(this,'lossReason')">Mana screw</div>
-        <div class="chip" onclick="selectChip(this,'lossReason')">Drew poorly</div>
-        <div class="chip" onclick="selectChip(this,'lossReason')">Opponent combo'd off</div>
-        <div class="chip" onclick="selectChip(this,'lossReason')">Other</div>
+      <div class="form-group">
+        <label>Confirm PIN</label>
+        <input type="password" id="reg-pin2" placeholder="••••" maxlength="10" inputmode="numeric">
       </div>
+      <button class="btn btn-primary" onclick="register()">Join the Hall</button>
     </div>
-
-    <div class="field">
-      <label>Opponents' Commanders</label>
-      <input type="text" id="input-opponents" placeholder="e.g. Ysh'tola, Kratos, Atraxa">
-    </div>
-
-    <div class="field">
-      <label>Notes (optional)</label>
-      <textarea id="input-notes" placeholder="Anything worth remembering…"></textarea>
-    </div>
-
-    <div class="nav-row">
-      <button class="btn-back" onclick="showScreen('result')">← Back</button>
-      <button class="btn-next" onclick="goToStranded()">Continue →</button>
-    </div>
-  </div>
-
-  <!-- STEP 4: STRANDED -->
-  <div id="screen-stranded" class="screen">
-    <div class="screen-title">Stranded Cards</div>
-    <div class="screen-sub">Cards you drew but never felt comfortable playing?</div>
-    <div class="stranded-input-row">
-      <input type="text" id="stranded-input" placeholder="Card name…" onkeydown="if(event.key==='Enter')addStrandedCard()">
-      <button class="btn-add-card" onclick="addStrandedCard()">+</button>
-    </div>
-    <div class="stranded-tags" id="stranded-tags"></div>
-    <div class="nav-row">
-      <button class="btn-back" onclick="showScreen('details')">← Back</button>
-      <button class="btn-next" onclick="goToConfirm()">Review →</button>
-    </div>
-  </div>
-
-  <!-- STEP 5: CONFIRM -->
-  <div id="screen-confirm" class="screen">
-    <div class="screen-title">Confirm Entry</div>
-    <div class="screen-sub">Everything look right?</div>
-    <div class="confirm-block" id="confirm-block"></div>
-    <div class="nav-row">
-      <button class="btn-back" onclick="showScreen('stranded')">← Back</button>
-      <button class="btn-next" onclick="saveGame()">Save Game ✓</button>
-    </div>
-  </div>
-
-  <!-- SUCCESS -->
-  <div id="screen-success" class="screen success-screen">
-    <span class="success-icon" id="success-icon">⚔</span>
-    <div class="success-title" id="success-title">Game Logged</div>
-    <div class="success-sub" id="success-sub"></div>
-    <button class="btn-next" onclick="showScreen('dashboard');renderDashboard()">← Back to Chronicle</button>
-  </div>
-
-  <!-- DECK DETAIL -->
-  <div id="screen-deck-detail" class="screen">
-    <button class="back-link" onclick="showScreen('dashboard')">← All Decks</button>
-    <div class="screen-title" id="detail-deck-name"></div>
-    <div class="stat-row" id="detail-stats"></div>
-    <div class="tab-bar">
-      <button class="tab active" id="tab-games" onclick="switchTab('games')">Games</button>
-      <button class="tab" id="tab-stranded" onclick="switchTab('stranded')">Stranded</button>
-      <button class="tab" id="tab-h2h" onclick="switchTab('h2h')">H2H</button>
-      <button class="tab" id="tab-trend" onclick="switchTab('trend')">Trend</button>
-    </div>
-    <div id="detail-games-panel"><div class="game-list" id="detail-game-list"></div></div>
-    <div id="detail-stranded-panel" style="display:none"><div class="stranded-list" id="detail-stranded-list"></div></div>
-    <div id="detail-h2h-panel" style="display:none"><div id="detail-h2h-list"></div></div>
-    <div id="detail-trend-panel" style="display:none"><div id="detail-trend-content"></div></div>
   </div>
 </div>
 
-<!-- EDIT MODAL -->
-<div class="modal-overlay" id="edit-modal" onclick="if(event.target===this)closeModal()">
+<!-- ============================================
+     MAIN APP
+     ============================================ -->
+<div id="app">
+
+  <!-- TOP NAV -->
+  <nav class="top-nav">
+    <div class="nav-brand">
+      ⚔ Commander Chronicle
+      <span id="nav-username"></span>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showTab('dashboard')" data-tab="dashboard">Dashboard</button>
+      <button class="nav-tab" onclick="showTab('decks')" data-tab="decks">My Decks</button>
+      <button class="nav-tab" onclick="showTab('games')" data-tab="games">Game Log</button>
+      <button class="nav-tab" onclick="showTab('log-game')" data-tab="log-game">+ Log Game</button>
+      <button class="nav-tab" id="admin-tab" onclick="showTab('admin')" data-tab="admin" style="display:none">⚑ Admin</button>
+    </div>
+    <div class="nav-user">
+      <span class="nav-user-name" id="nav-user-display"></span>
+      <button class="btn btn-small btn-danger" onclick="logout()">Exit</button>
+    </div>
+  </nav>
+
+  <!-- CONTENT AREAS -->
+  <div class="main-content">
+
+    <!-- DASHBOARD TAB -->
+    <div id="tab-dashboard" class="tab-content">
+      <div id="admin-banner" class="admin-banner hidden">⚑ ADMIN VIEW — All users visible</div>
+
+      <div class="stats-grid" id="dashboard-stats">
+        <div class="stat-card"><div class="stat-value" id="stat-games">—</div><div class="stat-label">Games Played</div></div>
+        <div class="stat-card"><div class="stat-value win" id="stat-wins">—</div><div class="stat-label">Wins</div></div>
+        <div class="stat-card"><div class="stat-value loss" id="stat-losses">—</div><div class="stat-label">Losses</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-winrate">—</div><div class="stat-label">Win Rate</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-decks">—</div><div class="stat-label">Decks</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-avg-turn">—</div><div class="stat-label">Avg Turn Won</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Recent Games</span>
+          <button class="btn btn-small" onclick="showTab('games')">View All</button>
+        </div>
+        <div id="dashboard-recent-games"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Win Conditions Breakdown</span>
+        </div>
+        <div id="dashboard-wincons"></div>
+      </div>
+    </div>
+
+    <!-- DECKS TAB -->
+    <div id="tab-decks" class="tab-content hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">My Decks</span>
+          <button class="btn btn-small" onclick="showImportModal()">+ Import Deck</button>
+        </div>
+        <div class="decks-grid" id="decks-grid">
+          <div class="empty-state">
+            <h3>No Decks Yet</h3>
+            <p>Import your first deck from Moxfield to begin.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAMES TAB -->
+    <div id="tab-games" class="tab-content hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Game Log</span>
+          <div class="flex gap-1">
+            <select id="games-filter-deck" class="form-group" style="margin:0;padding:0.4rem 0.7rem;font-size:0.85rem;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:var(--radius)" onchange="renderGames()">
+              <option value="">All Decks</option>
+            </select>
+            <select id="games-filter-result" style="margin:0;padding:0.4rem 0.7rem;font-size:0.85rem;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:var(--radius)" onchange="renderGames()">
+              <option value="">All Results</option>
+              <option value="win">Wins</option>
+              <option value="loss">Losses</option>
+            </select>
+          </div>
+        </div>
+        <div id="games-list"></div>
+      </div>
+    </div>
+
+    <!-- LOG GAME TAB -->
+    <div id="tab-log-game" class="tab-content hidden">
+      <div class="panel" style="max-width:600px">
+        <div class="panel-header">
+          <span class="panel-title">Log a Game</span>
+        </div>
+        <div id="log-game-form"></div>
+      </div>
+    </div>
+
+    <!-- DECK DETAIL VIEW -->
+    <div id="tab-deck-detail" class="tab-content hidden">
+      <button class="back-btn" onclick="showTab('decks')">← Back to Decks</button>
+      <div id="deck-detail-content"></div>
+    </div>
+
+    <!-- ADMIN TAB -->
+    <div id="tab-admin" class="tab-content hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">⚑ Admin Overview</span>
+        </div>
+        <div id="admin-content"></div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /app -->
+
+<!-- ============================================
+     IMPORT DECK MODAL
+     ============================================ -->
+<div id="import-modal" class="modal-overlay hidden">
   <div class="modal">
-    <div class="modal-title">Edit Game</div>
-    <div class="field">
-      <label>Result</label>
-      <div class="result-row" style="margin-bottom:0">
-        <button class="result-btn win-btn" id="edit-btn-win" onclick="editSelectResult('win')">WIN</button>
-        <button class="result-btn loss-btn" id="edit-btn-loss" onclick="editSelectResult('loss')">LOSS</button>
+    <button class="modal-close" onclick="hideImportModal()">✕</button>
+    <h3 class="modal-title">Import Deck from Moxfield</h3>
+
+    <p class="text-dim text-small mb-2">
+      In Moxfield, open your deck → Export → <strong style="color:var(--text)">Copy Plain Text</strong> → paste below.
+      Sideboard and considering cards are excluded automatically.
+    </p>
+
+    <div class="form-group">
+      <label>Deck Name (optional — auto-detected from export)</label>
+      <input type="text" id="import-deck-name" placeholder="e.g. Sauron Drain Build">
+    </div>
+
+    <div class="import-area">
+      <textarea id="import-text" placeholder="Paste your Moxfield plain text export here...
+      
+Example:
+1 Sauron, the Dark Lord (LTR) 224
+1 Animate Dead (5ED) 140
+1 Yawgmoth, Thran Physician (DMR) 315
+..." oninput="previewImport()"></textarea>
+    </div>
+
+    <div id="import-preview" class="hidden"></div>
+    <div id="import-error" class="error-msg hidden"></div>
+
+    <div class="flex gap-1" style="justify-content:flex-end">
+      <button class="btn" onclick="hideImportModal()">Cancel</button>
+      <button class="btn btn-primary" id="import-submit-btn" style="width:auto" onclick="submitImport()" disabled>Import & Analyze</button>
+    </div>
+
+    <div id="import-progress" class="hidden" style="margin-top:1rem">
+      <div class="ai-generating">
+        <div class="spinner"></div>
+        <p id="import-progress-msg">Parsing deck...</p>
       </div>
     </div>
-    <div class="field"><label>Turn ended</label><input type="number" id="edit-turn" min="1" max="50"></div>
-    <div class="field">
-      <label>Pod Size</label>
-      <div class="size-chips" id="edit-pod-chips">
-        <div class="size-chip" onclick="editSelectPod(this,2)">2</div>
-        <div class="size-chip" onclick="editSelectPod(this,3)">3</div>
-        <div class="size-chip" onclick="editSelectPod(this,4)">4</div>
-        <div class="size-chip" onclick="editSelectPod(this,5)">5</div>
-      </div>
-    </div>
-    <div class="field">
-      <label>Seat Position</label>
-      <div class="pos-chips" id="edit-pos-chips">
-        <div class="pos-chip" onclick="editSelectPos(this,1)">1st</div>
-        <div class="pos-chip" onclick="editSelectPos(this,2)">2nd</div>
-        <div class="pos-chip" onclick="editSelectPos(this,3)">3rd</div>
-        <div class="pos-chip" onclick="editSelectPos(this,4)">4th</div>
-        <div class="pos-chip" onclick="editSelectPos(this,5)">5th</div>
-      </div>
-    </div>
-    <div class="field"><label>Opponents</label><input type="text" id="edit-opponents"></div>
-    <div class="field"><label>How won / Why lost</label><input type="text" id="edit-outcome"></div>
-    <div class="field"><label>Notes</label><textarea id="edit-notes"></textarea></div>
-    <div class="modal-actions">
-      <button class="btn-danger" onclick="deleteGame()">Delete</button>
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-save" onclick="saveEditGame()">Save ✓</button>
-    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     GAME DETAIL MODAL
+     ============================================ -->
+<div id="game-detail-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('game-detail-modal').classList.add('hidden')">✕</button>
+    <div id="game-detail-content"></div>
   </div>
 </div>
 
 <script>
-// ══════════ CONFIG ══════════
-const DECKS = [
-  'Sauron, Dark Lord',
-  'High Perfect Morcant',
-  "Light-Paws, Emperor's Voice",
-  'Niv-Mizzet, Parun',
-  'Edric, Spymaster of Trest',
-  'Krenko, Mob Boss'
-];
-const DECK_COLORS = ['#c94040','#6040a0','#c9a84c','#4080c0','#3a8a4a','#c06030'];
+// ============================================
+// SUPABASE CLIENT
+// ============================================
+const SUPABASE_URL = 'https://ituoiksaxmukvrakznhu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_mnyQVNMqaa4FfQmXj78F4A_fEYEIl_G';
+const ADMIN_PIN = '2992';
 
-// Hardcoded Scryfall art crop URLs — direct CDN links, no fetch needed
-const DECK_IMG = {
-  'Sauron, Dark Lord':           'https://cards.scryfall.io/art_crop/front/2/a/2a845583-5698-4650-9493-ad264d7674d2.jpg?1695448769',
-  'High Perfect Morcant':        'https://cards.scryfall.io/art_crop/front/f/d/fdb4192b-73ae-41e9-a3b7-a20c69350b79.jpg?1765451587',
-  "Light-Paws, Emperor's Voice": 'https://cards.scryfall.io/art_crop/front/e/0/e008fe9b-1913-4358-a411-5d3c175c60ba.jpg?1647481751',
-  'Niv-Mizzet, Parun':           'https://cards.scryfall.io/art_crop/front/4/4/44146784-d7f0-4add-8242-8783b97a4d7d.jpg?1774778676',
-  'Edric, Spymaster of Trest':   'https://cards.scryfall.io/art_crop/front/2/2/22d6a4c9-4bdd-4e70-8481-95260e6aa7ab.jpg?1712354689',
-  'Krenko, Mob Boss':            'https://cards.scryfall.io/art_crop/front/f/8/f888f402-c6f7-4387-a512-6edf9b262bb3.jpg?1731966003',
+async function sbRequest(path, method = 'GET', body = null, params = '') {
+  const url = `${SUPABASE_URL}/rest/v1/${path}${params}`;
+  const opts = {
+    method,
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'POST' ? 'return=representation' : 'return=representation'
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+// ============================================
+// SIMPLE PIN HASH (SHA-256)
+// ============================================
+async function hashPin(pin) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(pin + 'commander_chronicle_salt');
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// ============================================
+// APP STATE
+// ============================================
+let currentUser = null;
+let allDecks = [];
+let allGames = [];
+let currentDeckDetail = null;
+
+// ============================================
+// AUTH
+// ============================================
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
+  });
+  document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('register-form').classList.toggle('hidden', tab !== 'register');
+  clearAuthMessages();
+}
+
+function clearAuthMessages() {
+  document.getElementById('auth-error').classList.add('hidden');
+  document.getElementById('auth-success').classList.add('hidden');
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+}
+
+function showAuthSuccess(msg) {
+  const el = document.getElementById('auth-success');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+}
+
+async function login() {
+  const name = document.getElementById('login-name').value.trim();
+  const pin = document.getElementById('login-pin').value.trim();
+  if (!name || !pin) return showAuthError('Please enter your name and PIN.');
+
+  try {
+    // Check admin
+    if (pin === ADMIN_PIN) {
+      // Admin login — find or create admin user
+      const users = await sbRequest('users', 'GET', null, `?username=eq.${encodeURIComponent(name)}&select=*`);
+      if (users && users.length > 0 && users[0].is_admin) {
+        setCurrentUser(users[0]);
+        return;
+      }
+    }
+
+    const pinHash = await hashPin(pin);
+    const users = await sbRequest('users', 'GET', null,
+      `?username=eq.${encodeURIComponent(name)}&pin_hash=eq.${pinHash}&select=*`);
+
+    if (!users || users.length === 0) {
+      return showAuthError('Invalid name or PIN. Check your credentials or register.');
+    }
+    setCurrentUser(users[0]);
+  } catch (e) {
+    showAuthError('Connection error. Please try again.');
+    console.error(e);
+  }
+}
+
+async function register() {
+  const name = document.getElementById('reg-name').value.trim();
+  const pin = document.getElementById('reg-pin').value.trim();
+  const pin2 = document.getElementById('reg-pin2').value.trim();
+
+  if (!name) return showAuthError('Please enter a name.');
+  if (!pin) return showAuthError('Please choose a PIN.');
+  if (pin !== pin2) return showAuthError('PINs do not match.');
+  if (!/^\d+$/.test(pin)) return showAuthError('PIN must be numbers only.');
+  if (name.length < 2) return showAuthError('Name must be at least 2 characters.');
+
+  // Reserve admin PIN
+  if (pin === ADMIN_PIN && name.toLowerCase() !== 'oscar') {
+    return showAuthError('That PIN is reserved.');
+  }
+
+  try {
+    const pinHash = await hashPin(pin);
+    const isAdmin = (pin === ADMIN_PIN);
+
+    const result = await sbRequest('users', 'POST', {
+      username: name,
+      pin_hash: pinHash,
+      is_admin: isAdmin
+    });
+
+    if (result && result.length > 0) {
+      showAuthSuccess('Welcome to the Hall! You can now log in.');
+      switchAuthTab('login');
+      document.getElementById('login-name').value = name;
+    }
+  } catch (e) {
+    if (e.message.includes('duplicate') || e.message.includes('unique')) {
+      showAuthError('That name is already taken. Choose another.');
+    } else {
+      showAuthError('Registration failed. Please try again.');
+      console.error(e);
+    }
+  }
+}
+
+function setCurrentUser(user) {
+  currentUser = user;
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('nav-username').textContent = `— ${user.username}`;
+  document.getElementById('nav-user-display').textContent = user.username;
+
+  if (user.is_admin) {
+    document.getElementById('admin-tab').style.display = 'flex';
+    document.getElementById('admin-banner').classList.remove('hidden');
+  }
+
+  loadUserData();
+}
+
+function logout() {
+  currentUser = null;
+  allDecks = [];
+  allGames = [];
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('login-pin').value = '';
+  clearAuthMessages();
+}
+
+// ============================================
+// DATA LOADING
+// ============================================
+async function loadUserData() {
+  try {
+    if (currentUser.is_admin) {
+      allDecks = await sbRequest('decks', 'GET', null, '?select=*,users(username)&order=created_at.desc') || [];
+      allGames = await sbRequest('games', 'GET', null, '?select=*,users(username)&order=played_at.desc') || [];
+    } else {
+      allDecks = await sbRequest('decks', 'GET', null,
+        `?user_id=eq.${currentUser.id}&select=*&order=created_at.desc`) || [];
+      allGames = await sbRequest('games', 'GET', null,
+        `?user_id=eq.${currentUser.id}&select=*&order=played_at.desc`) || [];
+    }
+    renderDashboard();
+    renderDecks();
+    renderGames();
+    buildLogGameForm();
+  } catch (e) {
+    console.error('Failed to load data:', e);
+  }
+}
+
+// ============================================
+// NAVIGATION
+// ============================================
+function showTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+
+  const tabEl = document.getElementById(`tab-${tab}`);
+  if (tabEl) tabEl.classList.remove('hidden');
+
+  const navEl = document.querySelector(`[data-tab="${tab}"]`);
+  if (navEl) navEl.classList.add('active');
+
+  if (tab === 'log-game') buildLogGameForm();
+  if (tab === 'admin' && currentUser.is_admin) renderAdmin();
+}
+
+// ============================================
+// DASHBOARD
+// ============================================
+function renderDashboard() {
+  const games = allGames.filter(g => currentUser.is_admin || g.user_id === currentUser.id);
+  const wins = games.filter(g => g.result === 'win').length;
+  const losses = games.filter(g => g.result === 'loss').length;
+  const total = games.length;
+  const winRate = total > 0 ? ((wins / total) * 100).toFixed(0) : '—';
+  const avgTurn = total > 0
+    ? (games.filter(g => g.turn_ended).reduce((a, g) => a + g.turn_ended, 0) /
+       games.filter(g => g.turn_ended).length || 0).toFixed(1)
+    : '—';
+
+  document.getElementById('stat-games').textContent = total || '—';
+  document.getElementById('stat-wins').textContent = wins || '—';
+  document.getElementById('stat-losses').textContent = losses || '—';
+  document.getElementById('stat-winrate').textContent = total > 0 ? `${winRate}%` : '—';
+  document.getElementById('stat-decks').textContent = allDecks.length || '—';
+  document.getElementById('stat-avg-turn').textContent = avgTurn;
+
+  // Recent games
+  const recentEl = document.getElementById('dashboard-recent-games');
+  const recent = games.slice(0, 5);
+  if (recent.length === 0) {
+    recentEl.innerHTML = '<div class="empty-state"><p>No games logged yet.</p></div>';
+  } else {
+    recentEl.innerHTML = recent.map(g => renderGameRow(g)).join('');
+  }
+
+  // Win condition breakdown
+  const winconsEl = document.getElementById('dashboard-wincons');
+  const winGames = games.filter(g => g.result === 'win' && g.win_condition);
+  if (winGames.length === 0) {
+    winconsEl.innerHTML = '<p class="text-dim text-small italic">No wins logged yet.</p>';
+  } else {
+    const counts = {};
+    winGames.forEach(g => { counts[g.win_condition] = (counts[g.win_condition] || 0) + 1; });
+    const maxCount = Math.max(...Object.values(counts));
+    winconsEl.innerHTML = Object.entries(counts).map(([cond, count]) => `
+      <div class="flex items-center gap-2 mb-1" style="font-size:0.85rem">
+        <span style="min-width:160px;color:var(--text)">${cond}</span>
+        <div style="flex:1;background:var(--surface3);border-radius:2px;height:8px">
+          <div style="width:${(count/maxCount*100).toFixed(0)}%;background:var(--win);height:100%;border-radius:2px"></div>
+        </div>
+        <span style="color:var(--text-dim);min-width:30px;text-align:right">${count}x</span>
+      </div>
+    `).join('');
+  }
+}
+
+// ============================================
+// DECKS
+// ============================================
+function renderDecks() {
+  const grid = document.getElementById('decks-grid');
+  const decks = allDecks.filter(d => currentUser.is_admin || d.user_id === currentUser.id);
+
+  if (decks.length === 0) {
+    grid.innerHTML = `<div class="empty-state"><h3>No Decks Yet</h3><p>Import your first deck from Moxfield to begin.</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = decks.map(deck => {
+    const deckGames = allGames.filter(g => g.deck_id === deck.id);
+    const wins = deckGames.filter(g => g.result === 'win').length;
+    const total = deckGames.length;
+    const wr = total > 0 ? `${((wins/total)*100).toFixed(0)}%` : '—';
+    const colors = deck.color_identity || [];
+
+    const ownerTag = currentUser.is_admin && deck.users
+      ? `<span style="font-size:0.7rem;color:var(--text-faint)">${deck.users.username}</span>` : '';
+
+    return `
+      <div class="deck-card" onclick="showDeckDetail('${deck.id}')">
+        <div class="flex justify-between items-center mb-1">
+          <div class="deck-card-commander">${escHtml(deck.commander)}</div>
+          ${ownerTag}
+        </div>
+        <div class="deck-card-name">${escHtml(deck.name)}</div>
+        <div class="color-pips">${colors.map(c => `<span class="pip pip-${c}">${c}</span>`).join('')}</div>
+        <div class="deck-card-stats">
+          <div class="deck-card-stat"><span class="text-dim">${total}</span> games</div>
+          <div class="deck-card-stat"><span style="color:var(--win)">${wins}</span>W</div>
+          <div class="deck-card-stat"><span>${total - wins}</span>L</div>
+          <div class="deck-card-stat"><span style="color:var(--gold)">${wr}</span> WR</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================
+// GAMES
+// ============================================
+function renderGames() {
+  const list = document.getElementById('games-list');
+  const filterDeck = document.getElementById('games-filter-deck').value;
+  const filterResult = document.getElementById('games-filter-result').value;
+
+  let games = allGames.filter(g => currentUser.is_admin || g.user_id === currentUser.id);
+  if (filterDeck) games = games.filter(g => g.deck_id === filterDeck);
+  if (filterResult) games = games.filter(g => g.result === filterResult);
+
+  // Populate deck filter
+  const deckFilter = document.getElementById('games-filter-deck');
+  const currentVal = deckFilter.value;
+  deckFilter.innerHTML = '<option value="">All Decks</option>' +
+    allDecks.filter(d => currentUser.is_admin || d.user_id === currentUser.id)
+      .map(d => `<option value="${d.id}" ${d.id === currentVal ? 'selected' : ''}>${escHtml(d.commander)}</option>`)
+      .join('');
+
+  if (games.length === 0) {
+    list.innerHTML = '<div class="empty-state"><p>No games match your filters.</p></div>';
+    return;
+  }
+
+  list.innerHTML = games.map(g => renderGameRow(g)).join('');
+}
+
+function renderGameRow(game) {
+  const deck = allDecks.find(d => d.id === game.deck_id);
+  const deckName = deck ? deck.commander : 'Unknown Deck';
+  const condition = game.result === 'win' ? game.win_condition : game.loss_reason;
+  const date = new Date(game.played_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+  return `
+    <div class="game-entry ${game.result}" onclick="showGameDetail('${game.id}')">
+      <div class="game-result-badge ${game.result}">${game.result.toUpperCase()}</div>
+      <div class="game-info">
+        <div class="game-deck-name">${escHtml(deckName)}</div>
+        <div class="game-meta">Turn ${game.turn_ended || '?'} · ${game.pod_size}-player pod · Seat ${game.seat_position}</div>
+      </div>
+      <div class="game-condition">${escHtml(condition || '')}</div>
+      <div class="game-date">${date}</div>
+    </div>
+  `;
+}
+
+function showGameDetail(gameId) {
+  const game = allGames.find(g => g.id === gameId);
+  if (!game) return;
+  const deck = allDecks.find(d => d.id === game.deck_id);
+
+  const content = document.getElementById('game-detail-content');
+  content.innerHTML = `
+    <h3 class="modal-title" style="color:${game.result === 'win' ? 'var(--win)' : 'var(--loss)'}">
+      ${game.result.toUpperCase()} — ${deck ? escHtml(deck.commander) : 'Unknown'}
+    </h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+      <div><span class="text-dim text-xs">DATE</span><br>${new Date(game.played_at).toLocaleDateString()}</div>
+      <div><span class="text-dim text-xs">POD SIZE</span><br>${game.pod_size} players</div>
+      <div><span class="text-dim text-xs">SEAT</span><br>${game.seat_position}</div>
+      <div><span class="text-dim text-xs">TURN ENDED</span><br>${game.turn_ended || 'Not recorded'}</div>
+      <div><span class="text-dim text-xs">COMMANDER LANDED</span><br>${game.commander_hit_battlefield ? 'Yes' : 'No'}</div>
+      <div><span class="text-dim text-xs">COMMANDER REMOVED</span><br>${game.commander_removed ? 'Yes' : 'No'}</div>
+      <div><span class="text-dim text-xs">${game.result === 'win' ? 'WIN CONDITION' : 'LOSS REASON'}</span><br>
+        ${escHtml(game.result === 'win' ? (game.win_condition || '—') : (game.loss_reason || '—'))}
+      </div>
+    </div>
+    ${game.stranded_cards && game.stranded_cards.length > 0 ? `
+      <div class="mb-2"><span class="text-dim text-xs">STRANDED CARDS</span><br>
+        <div class="flex" style="flex-wrap:wrap;gap:0.4rem;margin-top:0.4rem">
+          ${game.stranded_cards.map(c => `<span class="tag">${escHtml(c)}</span>`).join('')}
+        </div>
+      </div>` : ''}
+    ${game.notes ? `<div><span class="text-dim text-xs">NOTES</span><br><p style="margin-top:0.3rem;font-style:italic">${escHtml(game.notes)}</p></div>` : ''}
+    <div class="flex gap-1" style="margin-top:1.5rem;justify-content:flex-end">
+      <button class="btn btn-small btn-danger" onclick="deleteGame('${game.id}')">Delete Game</button>
+    </div>
+  `;
+  document.getElementById('game-detail-modal').classList.remove('hidden');
+}
+
+async function deleteGame(gameId) {
+  if (!confirm('Delete this game record? This cannot be undone.')) return;
+  try {
+    await sbRequest(`games?id=eq.${gameId}`, 'DELETE');
+    allGames = allGames.filter(g => g.id !== gameId);
+    document.getElementById('game-detail-modal').classList.add('hidden');
+    renderDashboard();
+    renderGames();
+  } catch (e) {
+    alert('Failed to delete game.');
+  }
+}
+
+// ============================================
+// DECK DETAIL
+// ============================================
+function showDeckDetail(deckId) {
+  currentDeckDetail = allDecks.find(d => d.id === deckId);
+  if (!currentDeckDetail) return;
+  showTab('deck-detail');
+  renderDeckDetail();
+}
+
+function renderDeckDetail() {
+  const deck = currentDeckDetail;
+  const deckGames = allGames.filter(g => g.deck_id === deck.id);
+  const wins = deckGames.filter(g => g.result === 'win').length;
+  const total = deckGames.length;
+  const colors = deck.color_identity || [];
+
+  const content = document.getElementById('deck-detail-content');
+  content.innerHTML = `
+    <div class="panel">
+      <div class="flex justify-between items-center mb-3">
+        <div>
+          <h2 style="font-size:1.4rem;color:var(--gold)">${escHtml(deck.commander)}</h2>
+          <p class="text-dim italic">${escHtml(deck.name)}</p>
+          <div class="color-pips" style="margin-top:0.5rem">${colors.map(c => `<span class="pip pip-${c}">${c}</span>`).join('')}</div>
+        </div>
+        <div class="flex gap-1">
+          <button class="btn btn-small btn-danger" onclick="deleteDeck('${deck.id}')">Delete Deck</button>
+        </div>
+      </div>
+
+      <div class="stats-grid" style="margin-bottom:1.5rem">
+        <div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Games</div></div>
+        <div class="stat-card"><div class="stat-value win">${wins}</div><div class="stat-label">Wins</div></div>
+        <div class="stat-card"><div class="stat-value loss">${total - wins}</div><div class="stat-label">Losses</div></div>
+        <div class="stat-card"><div class="stat-value">${total > 0 ? ((wins/total)*100).toFixed(0) + '%' : '—'}</div><div class="stat-label">Win Rate</div></div>
+      </div>
+
+      <div class="deck-detail-tabs">
+        <button class="deck-detail-tab active" onclick="switchDeckTab('games', this)">Games</button>
+        <button class="deck-detail-tab" onclick="switchDeckTab('decklist', this)">Decklist</button>
+        <button class="deck-detail-tab" onclick="switchDeckTab('brief', this)">Intelligence Brief</button>
+        <button class="deck-detail-tab" onclick="switchDeckTab('roast', this)">Deck Roast 🔥</button>
+      </div>
+
+      <div id="deck-tab-games">
+        ${deckGames.length === 0
+          ? '<div class="empty-state"><p>No games logged for this deck yet.</p></div>'
+          : deckGames.map(g => renderGameRow(g)).join('')}
+      </div>
+
+      <div id="deck-tab-decklist" class="hidden">
+        <div style="column-count:2;column-gap:2rem;font-size:0.82rem;font-family:'Courier New',monospace;color:var(--text-dim)">
+          ${renderDecklistHTML(deck.decklist)}
+        </div>
+      </div>
+
+      <div id="deck-tab-brief" class="hidden">
+        ${renderBriefTab(deck)}
+      </div>
+
+      <div id="deck-tab-roast" class="hidden">
+        ${renderRoastTab(deck)}
+      </div>
+    </div>
+  `;
+}
+
+function switchDeckTab(tab, btn) {
+  document.querySelectorAll('[id^="deck-tab-"]').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.deck-detail-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById(`deck-tab-${tab}`).classList.remove('hidden');
+  btn.classList.add('active');
+}
+
+function renderDecklistHTML(decklist) {
+  if (!decklist || !Array.isArray(decklist)) return '<p class="text-dim">No decklist data.</p>';
+  return decklist.map(c => `<div style="break-inside:avoid">${c.qty}x ${escHtml(c.name)}</div>`).join('');
+}
+
+function renderBriefTab(deck) {
+  if (deck.intelligence_brief) {
+    return `
+      <div class="ai-content">${escHtml(deck.intelligence_brief)}</div>
+      <p class="text-dim text-xs italic" style="margin-top:0.5rem">Generated ${deck.brief_generated_at ? new Date(deck.brief_generated_at).toLocaleDateString() : ''}</p>
+      <button class="btn btn-small" style="margin-top:0.5rem" onclick="regenerateBrief('${deck.id}')">↺ Regenerate</button>
+    `;
+  }
+  return `
+    <div class="empty-state">
+      <p>Intelligence Brief not yet generated.</p>
+      <button class="btn" style="margin-top:1rem" onclick="generateBrief('${deck.id}')">Generate Brief</button>
+    </div>
+  `;
+}
+
+function renderRoastTab(deck) {
+  if (deck.deck_roast) {
+    return `
+      <div class="ai-content roast">${escHtml(deck.deck_roast)}</div>
+      <p class="text-dim text-xs italic" style="margin-top:0.5rem">Roasted ${deck.roast_generated_at ? new Date(deck.roast_generated_at).toLocaleDateString() : ''}</p>
+      <button class="btn btn-small btn-danger" style="margin-top:0.5rem" onclick="regenerateRoast('${deck.id}')">🔥 Re-Roast</button>
+    `;
+  }
+  return `
+    <div class="empty-state">
+      <p>This deck hasn't been roasted yet.</p>
+      <p class="text-xs italic" style="margin-top:0.3rem;color:var(--text-faint)">Warning: Gordon Ramsay after being kicked in the balls.</p>
+      <button class="btn btn-danger" style="margin-top:1rem" onclick="generateRoast('${deck.id}')">🔥 Roast This Deck</button>
+    </div>
+  `;
+}
+
+// ============================================
+// DECK IMPORT
+// ============================================
+function showImportModal() {
+  document.getElementById('import-modal').classList.remove('hidden');
+  document.getElementById('import-text').value = '';
+  document.getElementById('import-preview').classList.add('hidden');
+  document.getElementById('import-error').classList.add('hidden');
+  document.getElementById('import-submit-btn').disabled = true;
+  document.getElementById('import-progress').classList.add('hidden');
+}
+
+function hideImportModal() {
+  document.getElementById('import-modal').classList.add('hidden');
+}
+
+let parsedDeckData = null;
+
+function previewImport() {
+  const text = document.getElementById('import-text').value.trim();
+  const preview = document.getElementById('import-preview');
+  const errEl = document.getElementById('import-error');
+  const submitBtn = document.getElementById('import-submit-btn');
+
+  errEl.classList.add('hidden');
+  submitBtn.disabled = true;
+  parsedDeckData = null;
+
+  if (!text) {
+    preview.classList.add('hidden');
+    return;
+  }
+
+  try {
+    const parsed = parseMoxfieldText(text);
+    parsedDeckData = parsed;
+
+    preview.innerHTML = `
+      <div class="parsed-preview">
+        <h4>✓ Deck Detected</h4>
+        <p><strong>Commander:</strong> ${escHtml(parsed.commander || 'Not detected — please specify in deck name')}</p>
+        <p><strong>Cards:</strong> ${parsed.cards.length} (main deck, sideboard excluded)</p>
+        <p><strong>Colors:</strong> ${parsed.colorIdentity.join(', ') || 'Unknown'}</p>
+      </div>
+    `;
+    preview.classList.remove('hidden');
+    submitBtn.disabled = false;
+    errEl.classList.add('hidden');
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.classList.remove('hidden');
+    preview.classList.add('hidden');
+  }
+}
+
+function parseMoxfieldText(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const cards = [];
+  let commander = null;
+  let inSideboard = false;
+  let inConsidering = false;
+
+  // Section headers to skip
+  const skipSections = ['sideboard', 'considering', 'maybe', 'maybeboard', 'tokens'];
+
+  for (const line of lines) {
+    const lower = line.toLowerCase();
+
+    // Detect section headers
+    if (skipSections.some(s => lower === s || lower.startsWith(s + ':') || lower.startsWith('// ' + s))) {
+      inSideboard = true;
+      continue;
+    }
+
+    // Reset if we hit "commander" section
+    if (lower === 'commander' || lower === '// commander') {
+      inSideboard = false;
+      inConsidering = false;
+      continue;
+    }
+
+    if (lower === 'deck' || lower === '// deck' || lower === 'main deck') {
+      inSideboard = false;
+      inConsidering = false;
+      continue;
+    }
+
+    if (inSideboard || inConsidering) continue;
+
+    // Parse card line: "1 Card Name (SET) 123"
+    const match = line.match(/^(\d+)\s+(.+?)(?:\s+\([A-Z0-9]+\)\s+\d+.*)?$/);
+    if (!match) continue;
+
+    const qty = parseInt(match[1]);
+    let name = match[2].trim();
+    // Remove set info if present inline
+    name = name.replace(/\s*\([A-Z0-9\-]+\)\s+\d+.*$/, '').trim();
+    // Remove foil markers
+    name = name.replace(/\s*\*[EF]\*\s*$/, '').trim();
+
+    if (!name) continue;
+    cards.push({ qty, name });
+  }
+
+  if (cards.length < 5) {
+    throw new Error('Could not parse deck. Please use Moxfield → Export → Copy Plain Text format.');
+  }
+
+  // Try to detect commander (often the first legendary creature, or user's deck name)
+  const deckNameInput = document.getElementById('import-deck-name').value.trim();
+
+  // Detect color identity from card names (basic detection)
+  const colorIdentity = detectColors(cards.map(c => c.name).join(' '));
+
+  return {
+    commander: deckNameInput || guessCommander(cards),
+    cards,
+    colorIdentity,
+    rawText: text
+  };
+}
+
+function guessCommander(cards) {
+  // Moxfield plain text often starts with the commander
+  // We look for the first 1-of that looks legendary
+  // For now return the first card name as a hint
+  const firstCard = cards.find(c => c.qty === 1);
+  return firstCard ? firstCard.name : cards[0].name;
+}
+
+function detectColors(text) {
+  const colors = [];
+  const t = text.toLowerCase();
+  // Very basic — the actual color identity requires the Scryfall API per card
+  // We'll store empty and let user identify, or parse from commander name hints
+  return colors;
+}
+
+async function submitImport() {
+  if (!parsedDeckData) return;
+
+  const progress = document.getElementById('import-progress');
+  const submitBtn = document.getElementById('import-submit-btn');
+  const progressMsg = document.getElementById('import-progress-msg');
+
+  submitBtn.disabled = true;
+  progress.classList.remove('hidden');
+
+  try {
+    progressMsg.textContent = 'Saving deck...';
+
+    const deckName = document.getElementById('import-deck-name').value.trim()
+      || parsedDeckData.commander || 'My Deck';
+
+    // Insert deck
+    const deckResult = await sbRequest('decks', 'POST', {
+      user_id: currentUser.id,
+      name: deckName,
+      commander: parsedDeckData.commander || deckName,
+      color_identity: parsedDeckData.colorIdentity,
+      decklist: parsedDeckData.cards,
+      card_count: parsedDeckData.cards.length
+    });
+
+    if (!deckResult || !deckResult[0]) throw new Error('Failed to save deck.');
+    const newDeck = deckResult[0];
+
+    progressMsg.textContent = 'Generating Intelligence Brief (this takes ~30 seconds)...';
+    const brief = await generateBriefText(parsedDeckData);
+    progressMsg.textContent = 'Generating Deck Roast...';
+    const roast = await generateRoastText(parsedDeckData);
+
+    // Update deck with AI content
+    await sbRequest(`decks?id=eq.${newDeck.id}`, 'PATCH', {
+      intelligence_brief: brief,
+      deck_roast: roast,
+      brief_generated_at: new Date().toISOString(),
+      roast_generated_at: new Date().toISOString()
+    });
+
+    newDeck.intelligence_brief = brief;
+    newDeck.deck_roast = roast;
+    allDecks.unshift(newDeck);
+
+    hideImportModal();
+    renderDecks();
+    renderDashboard();
+    showTab('decks');
+
+  } catch (e) {
+    document.getElementById('import-error').textContent = `Import failed: ${e.message}`;
+    document.getElementById('import-error').classList.remove('hidden');
+    progress.classList.add('hidden');
+    submitBtn.disabled = false;
+    console.error(e);
+  }
+}
+
+// ============================================
+// CLAUDE API — INTELLIGENCE BRIEF
+// ============================================
+async function generateBriefText(deckData) {
+  const cardList = deckData.cards.map(c => `${c.qty}x ${c.name}`).join('\n');
+  const prompt = `You are an expert Magic: The Gathering Commander analyst. Analyze this Commander deck and provide an Intelligence Brief.
+
+Commander/Deck: ${deckData.commander}
+
+Decklist:
+${cardList}
+
+Provide a thorough Intelligence Brief covering:
+
+1. POWER LEVEL ASSESSMENT
+Evaluate the deck on a scale of 1-10 and assign it to an official Commander Rules Committee bracket (1=Precon, 2=Upgraded Precon, 3=Optimized, 4=cEDH). Be honest and specific about why.
+
+2. WHAT POWER LEVEL ARE YOU STRIVING FOR?
+Ask the player to reflect on whether this deck is built for casual fun, optimized for competitive wins, or somewhere in between. Note any tension between what the deck wants to do and how it's currently built.
+
+3. CONSISTENCY ANALYSIS
+How reliably does this deck execute its gameplan? What are the key cards it needs to see? How many redundant copies of critical effects does it run? Identify any critical single points of failure.
+
+4. RESILIENCE ASSESSMENT
+How does this deck hold up against removal, board wipes, graveyard hate, and counterspells? Does it have enough interaction? Too little? What threats does it struggle against?
+
+5. OPENING HAND — WHAT TO KEEP
+Describe the ideal opening hand for this deck. What combination of mana, ramp, and early plays constitutes a keepable hand? When should you mulligan? Be specific with card names.
+
+6. MIDGAME PLAN
+How should a typical midgame look? What should the pilot be assembling and when? What signals tell you it's time to pivot from building to executing?
+
+7. WIN CONDITIONS SUMMARY
+List all realistic win conditions for this deck in order of likelihood. For each one, describe the specific cards involved and what needs to be in play.
+
+8. SUGGESTED CHANGES (only if genuinely needed)
+If you see clear weaknesses or missing pieces, suggest up to 3 specific changes with brief explanations. If the deck is well-constructed, say so and skip suggestions. Do NOT feel obligated to suggest changes.
+
+Be direct, specific, and use card names throughout. No generic advice.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await response.json();
+    return data.content?.[0]?.text || 'Brief generation failed.';
+  } catch (e) {
+    return 'Failed to generate brief. Please regenerate manually.';
+  }
+}
+
+async function generateRoastText(deckData) {
+  const cardList = deckData.cards.map(c => `${c.qty}x ${c.name}`).join('\n');
+  const prompt = `You are the most savage, brutally honest, hilariously ruthless deck critic in all of Magic: The Gathering. Think Gordon Ramsay after being kicked in the square in the balls. Nothing is off limits. Roast this Commander deck MERCILESSLY.
+
+Commander/Deck: ${deckData.commander}
+
+Decklist:
+${cardList}
+
+Roast this deck. Go after:
+- The commander choice and what it says about the person playing it
+- The worst cards in the deck and why they're embarrassing
+- The deck's strategy (or lack thereof)
+- What kind of player runs this deck (personality assumptions, play style, life choices)
+- Any obvious budget compromises or "I'll fix it later" cards
+- The overall coherence (or incoherence) of the build
+- Funny comparisons to other decks, strategies, or MTG archetypes
+
+Also give it a brutal letter grade (A through F) with a one-line verdict.
+
+Be genuinely funny. Be specific to these actual cards. Savage but not mean-spirited — roast the deck, not the person's soul. This is for entertainment among friends.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await response.json();
+    return data.content?.[0]?.text || 'Roast generation failed.';
+  } catch (e) {
+    return 'Failed to generate roast. Please try again.';
+  }
+}
+
+async function generateBrief(deckId) {
+  const deck = allDecks.find(d => d.id === deckId);
+  if (!deck) return;
+
+  const briefEl = document.getElementById('deck-tab-brief');
+  briefEl.innerHTML = '<div class="ai-generating"><div class="spinner"></div><p>Generating Intelligence Brief...</p></div>';
+
+  const brief = await generateBriefText({ commander: deck.commander, cards: deck.decklist || [] });
+
+  await sbRequest(`decks?id=eq.${deckId}`, 'PATCH', {
+    intelligence_brief: brief,
+    brief_generated_at: new Date().toISOString()
+  });
+
+  deck.intelligence_brief = brief;
+  deck.brief_generated_at = new Date().toISOString();
+  briefEl.innerHTML = renderBriefTab(deck);
+}
+
+async function regenerateBrief(deckId) {
+  await generateBrief(deckId);
+}
+
+async function generateRoast(deckId) {
+  const deck = allDecks.find(d => d.id === deckId);
+  if (!deck) return;
+
+  const roastEl = document.getElementById('deck-tab-roast');
+  roastEl.innerHTML = '<div class="ai-generating"><div class="spinner"></div><p>Consulting Gordon Ramsay...</p></div>';
+
+  const roast = await generateRoastText({ commander: deck.commander, cards: deck.decklist || [] });
+
+  await sbRequest(`decks?id=eq.${deckId}`, 'PATCH', {
+    deck_roast: roast,
+    roast_generated_at: new Date().toISOString()
+  });
+
+  deck.deck_roast = roast;
+  deck.roast_generated_at = new Date().toISOString();
+  roastEl.innerHTML = renderRoastTab(deck);
+}
+
+async function regenerateRoast(deckId) {
+  await generateRoast(deckId);
+}
+
+// ============================================
+// LOG GAME FORM
+// ============================================
+let logGameState = {
+  deckId: null,
+  podSize: null,
+  seatPosition: null,
+  commanderLanded: null,
+  commanderRemoved: null,
+  result: null,
+  winCondition: null,
+  lossReason: null,
+  turnEnded: null,
+  strandedCards: [],
+  notes: ''
 };
 
-// ══════════ STORAGE ══════════
-function loadGames() {
-  try { return JSON.parse(localStorage.getItem('commander_log_games') || '[]'); } catch(e) { return []; }
+function buildLogGameForm() {
+  const userDecks = allDecks.filter(d => d.user_id === currentUser.id);
+  const form = document.getElementById('log-game-form');
+
+  if (userDecks.length === 0) {
+    form.innerHTML = `<div class="empty-state"><h3>No Decks</h3><p>Import a deck first before logging games.</p><button class="btn" style="margin-top:1rem" onclick="showTab('decks')">Go to Decks</button></div>`;
+    return;
+  }
+
+  logGameState = { deckId: null, podSize: null, seatPosition: null, commanderLanded: null, commanderRemoved: null, result: null, winCondition: null, lossReason: null, turnEnded: null, strandedCards: [], notes: '' };
+
+  form.innerHTML = `
+    <!-- Step 1: Deck -->
+    <div class="form-group">
+      <label>Which deck did you play?</label>
+      <div class="radio-group">
+        ${userDecks.map(d => `
+          <button class="radio-btn" onclick="setLogField('deckId', '${d.id}', this)">${escHtml(d.commander)}</button>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- Step 2: Pod Size -->
+    <div class="form-group">
+      <label>Pod Size</label>
+      <div class="radio-group">
+        ${[3,4,5].map(n => `<button class="radio-btn" onclick="setLogField('podSize', ${n}, this)">${n} players</button>`).join('')}
+      </div>
+    </div>
+
+    <!-- Step 3: Seat -->
+    <div class="form-group">
+      <label>Your Seat Position</label>
+      <div class="radio-group">
+        ${[1,2,3,4,5].map(n => `<button class="radio-btn" onclick="setLogField('seatPosition', ${n}, this)">${n}</button>`).join('')}
+      </div>
+    </div>
+
+    <!-- Step 4: Commander landed -->
+    <div class="form-group">
+      <label>Did your commander hit the battlefield?</label>
+      <div class="radio-group">
+        <button class="radio-btn" onclick="setLogField('commanderLanded', true, this)">Yes</button>
+        <button class="radio-btn" onclick="setLogField('commanderLanded', false, this)">No</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Commander removed -->
+    <div class="form-group">
+      <label>Was your commander removed?</label>
+      <div class="radio-group">
+        <button class="radio-btn" onclick="setLogField('commanderRemoved', true, this)">Yes</button>
+        <button class="radio-btn" onclick="setLogField('commanderRemoved', false, this)">No</button>
+      </div>
+    </div>
+
+    <!-- Step 6: Result -->
+    <div class="form-group">
+      <label>Result</label>
+      <div class="radio-group">
+        <button class="radio-btn" onclick="setResult('win', this)">🏆 Win</button>
+        <button class="radio-btn" onclick="setResult('loss', this)">💀 Loss</button>
+      </div>
+    </div>
+
+    <!-- Win Condition (shown when win) -->
+    <div class="form-group" id="win-condition-group" style="display:none">
+      <label>How did you win?</label>
+      <div class="radio-group">
+        ${['Combat damage','Commander damage','Drain','Noncombat Damage','Combo','Specific Card'].map(c =>
+          `<button class="radio-btn" onclick="setLogField('winCondition', '${c}', this)">${c}</button>`
+        ).join('')}
+      </div>
+    </div>
+
+    <!-- Loss Reason (shown when loss) -->
+    <div class="form-group" id="loss-reason-group" style="display:none">
+      <label>Why did you lose?</label>
+      <div class="radio-group">
+        ${['No Commander Impact','Board wiped','Mana screwed','Outpaced by opponent','Mana Flood','Targeted Hate'].map(c =>
+          `<button class="radio-btn" onclick="setLogField('lossReason', '${c}', this)">${c}</button>`
+        ).join('')}
+      </div>
+    </div>
+
+    <!-- Turn ended -->
+    <div class="form-group">
+      <label>Turn the game ended</label>
+      <input type="number" id="log-turn" min="1" max="50" placeholder="e.g. 8"
+        onchange="logGameState.turnEnded = parseInt(this.value) || null">
+    </div>
+
+    <!-- Stranded cards -->
+    <div class="form-group">
+      <label>Stranded Cards (optional — press Enter to add)</label>
+      <div class="tag-input-container" onclick="document.getElementById('stranded-input').focus()">
+        <div id="stranded-tags"></div>
+        <input type="text" id="stranded-input" class="tag-text-input"
+          placeholder="Card name..."
+          onkeydown="handleStrandedInput(event)">
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="form-group">
+      <label>Notes (optional)</label>
+      <textarea id="log-notes" placeholder="Anything worth remembering about this game..."
+        onchange="logGameState.notes = this.value"></textarea>
+    </div>
+
+    <div id="log-error" class="error-msg hidden"></div>
+
+    <button class="btn btn-primary" onclick="submitGame()">Save Game</button>
+  `;
 }
-function saveGames(g) { localStorage.setItem('commander_log_games', JSON.stringify(g)); }
 
-// ══════════ SCREENS ══════════
-function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + name).classList.add('active');
-  window.scrollTo(0, 0);
+function setLogField(field, value, btn) {
+  logGameState[field] = value;
+  // Deselect siblings
+  btn.closest('.radio-group').querySelectorAll('.radio-btn').forEach(b => {
+    b.classList.remove('selected', 'selected-win', 'selected-loss');
+  });
+  btn.classList.add('selected');
 }
 
-// ══════════ LOG FLOW ══════════
-let state = {};
+function setResult(result, btn) {
+  logGameState.result = result;
+  logGameState.winCondition = null;
+  logGameState.lossReason = null;
 
-function startLog() {
-  state = { deck: null, result: null, turn: null, podSize: 4, position: null, sauronLanded: null, winType: null, lossReason: null, opponents: '', notes: '', strandedCards: [] };
-  document.getElementById('deck-options').innerHTML = DECKS.map(d => {
-    const img = DECK_IMG[d] ? `<img src="${DECK_IMG[d]}" width="32" height="24" style="object-fit:cover;border-radius:2px">` : '';
-    return `<button class="deck-option" onclick="selectDeck(this,'${d.replace(/'/g,"\\'")}')">${img}${d}</button>`;
-  }).join('');
-  document.getElementById('btn-deck-next').disabled = true;
-  showScreen('deck');
+  btn.closest('.radio-group').querySelectorAll('.radio-btn').forEach(b => {
+    b.classList.remove('selected', 'selected-win', 'selected-loss');
+  });
+  btn.classList.add(result === 'win' ? 'selected-win' : 'selected-loss');
+
+  document.getElementById('win-condition-group').style.display = result === 'win' ? 'block' : 'none';
+  document.getElementById('loss-reason-group').style.display = result === 'loss' ? 'block' : 'none';
+
+  // Clear win/loss selections
+  ['win-condition-group','loss-reason-group'].forEach(id => {
+    document.getElementById(id).querySelectorAll('.radio-btn').forEach(b => {
+      b.classList.remove('selected','selected-win','selected-loss');
+    });
+  });
 }
 
-function selectDeck(el, name) {
-  document.querySelectorAll('.deck-option').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
-  state.deck = name;
-  document.getElementById('btn-deck-next').disabled = false;
-}
-
-function goToResult() {
-  if (!state.deck) return;
-  ['btn-win','btn-loss'].forEach(id => document.getElementById(id).classList.remove('selected'));
-  document.getElementById('btn-result-next').disabled = true;
-  state.result = null;
-  showScreen('result');
-}
-
-function selectResult(r) {
-  state.result = r;
-  document.getElementById('btn-win').classList.toggle('selected', r === 'win');
-  document.getElementById('btn-loss').classList.toggle('selected', r === 'loss');
-  document.getElementById('btn-result-next').disabled = false;
-}
-
-function goToDetails() {
-  if (!state.result) return;
-  document.getElementById('win-type-field').style.display = state.result === 'win' ? 'block' : 'none';
-  document.getElementById('loss-reason-field').style.display = state.result === 'loss' ? 'block' : 'none';
-  document.getElementById('sauron-field').style.display = state.deck === 'Sauron, Dark Lord' ? 'block' : 'none';
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
-  document.querySelectorAll('#sauron-chips .size-chip').forEach(c => c.classList.remove('selected'));
-  document.querySelectorAll('#pod-size-chips .size-chip').forEach((c,i) => c.classList.toggle('selected', i === 2));
-  state.podSize = 4; state.position = null; state.sauronLanded = null;
-  state.winType = null; state.lossReason = null;
-  ['input-turn','input-opponents','input-notes'].forEach(id => document.getElementById(id).value = '');
-  showScreen('details');
-}
-
-function selectPodSize(el, size) {
-  document.querySelectorAll('#pod-size-chips .size-chip').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  state.podSize = size;
-  document.querySelectorAll('#pos-chips .pos-chip').forEach((c,i) => { c.style.display = i < size ? '' : 'none'; });
-  if (state.position > size) { state.position = null; document.querySelectorAll('#pos-chips .pos-chip').forEach(c => c.classList.remove('selected')); }
-}
-
-function selectPos(el, pos) {
-  document.querySelectorAll('#pos-chips .pos-chip').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  state.position = pos;
-}
-
-function selectSauron(el, val) {
-  document.querySelectorAll('#sauron-chips .size-chip').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  state.sauronLanded = val;
-}
-
-function selectChip(el, type) {
-  el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  if (type === 'winType') state.winType = el.textContent;
-  if (type === 'lossReason') state.lossReason = el.textContent;
-}
-
-function goToStranded() {
-  state.turn = document.getElementById('input-turn').value || null;
-  state.opponents = document.getElementById('input-opponents').value || '';
-  state.notes = document.getElementById('input-notes').value || '';
-  state.strandedCards = [];
-  document.getElementById('stranded-tags').innerHTML = '';
-  document.getElementById('stranded-input').value = '';
-  showScreen('stranded');
-}
-
-function addStrandedCard() {
-  const input = document.getElementById('stranded-input');
-  const val = input.value.trim();
-  if (!val || state.strandedCards.includes(val)) { input.value = ''; return; }
-  state.strandedCards.push(val);
-  renderStrandedTags();
-  input.value = ''; input.focus();
-}
-
-function removeStrandedCard(card) {
-  state.strandedCards = state.strandedCards.filter(c => c !== card);
-  renderStrandedTags();
+function handleStrandedInput(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const val = e.target.value.trim().replace(/,$/, '');
+    if (val) {
+      logGameState.strandedCards.push(val);
+      renderStrandedTags();
+      e.target.value = '';
+    }
+  }
 }
 
 function renderStrandedTags() {
-  document.getElementById('stranded-tags').innerHTML = state.strandedCards.map(c =>
-    `<div class="stranded-tag">${c}<span class="remove-tag" onclick="removeStrandedCard('${c.replace(/'/g,"\\'")}')" >×</span></div>`
-  ).join('');
+  const container = document.getElementById('stranded-tags');
+  container.innerHTML = logGameState.strandedCards.map((card, i) => `
+    <span class="tag">
+      ${escHtml(card)}
+      <button class="tag-remove" onclick="removeStrandedCard(${i})">×</button>
+    </span>
+  `).join('');
 }
 
-function goToConfirm() {
-  const rows = [
-    ['Deck', state.deck],
-    ['Result', `<span class="${state.result}">${state.result?.toUpperCase()}</span>`],
-    ['Pod', `${state.podSize}-player${state.position?' · Seat '+state.position:''}`],
-    ['Turn ended', state.turn || '—'],
-    [state.result==='win'?'How won':'Why lost', (state.result==='win'?state.winType:state.lossReason)||'—'],
-    ['Opponents', state.opponents||'—'],
-    ['Notes', state.notes||'—'],
-    ['Stranded', state.strandedCards.length?state.strandedCards.join(', '):'—'],
-  ];
-  if (state.deck==='Sauron, Dark Lord' && state.sauronLanded!==null) {
-    rows.splice(3, 0, ['Sauron landed', state.sauronLanded?'Yes':'No']);
+function removeStrandedCard(i) {
+  logGameState.strandedCards.splice(i, 1);
+  renderStrandedTags();
+}
+
+async function submitGame() {
+  const s = logGameState;
+  const errEl = document.getElementById('log-error');
+  errEl.classList.add('hidden');
+
+  // Validation
+  if (!s.deckId) return showLogError('Please select a deck.');
+  if (!s.podSize) return showLogError('Please select pod size.');
+  if (!s.seatPosition) return showLogError('Please select your seat position.');
+  if (s.commanderLanded === null) return showLogError('Please indicate if your commander hit the battlefield.');
+  if (s.commanderRemoved === null) return showLogError('Please indicate if your commander was removed.');
+  if (!s.result) return showLogError('Please select a result.');
+  if (s.result === 'win' && !s.winCondition) return showLogError('Please select how you won.');
+  if (s.result === 'loss' && !s.lossReason) return showLogError('Please select why you lost.');
+
+  s.notes = document.getElementById('log-notes').value.trim();
+
+  try {
+    const game = {
+      user_id: currentUser.id,
+      deck_id: s.deckId,
+      pod_size: s.podSize,
+      seat_position: s.seatPosition,
+      commander_hit_battlefield: s.commanderLanded,
+      commander_removed: s.commanderRemoved,
+      result: s.result,
+      win_condition: s.result === 'win' ? s.winCondition : null,
+      loss_reason: s.result === 'loss' ? s.lossReason : null,
+      turn_ended: s.turnEnded,
+      stranded_cards: s.strandedCards.length > 0 ? s.strandedCards : null,
+      notes: s.notes || null,
+      played_at: new Date().toISOString()
+    };
+
+    const result = await sbRequest('games', 'POST', game);
+    if (!result || !result[0]) throw new Error('Failed to save game.');
+
+    allGames.unshift(result[0]);
+    renderDashboard();
+    renderGames();
+    showTab('dashboard');
+
+  } catch (e) {
+    showLogError('Failed to save game: ' + e.message);
+    console.error(e);
   }
-  document.getElementById('confirm-block').innerHTML = rows.map(([l,v]) =>
-    `<div class="confirm-row"><span class="confirm-label">${l}</span><span class="confirm-value">${v}</span></div>`
-  ).join('');
-  showScreen('confirm');
 }
 
-function saveGame() {
-  const games = loadGames();
-  games.unshift({
-    id: Date.now(), date: new Date().toISOString(),
-    deck: state.deck, result: state.result,
-    turn: state.turn ? parseInt(state.turn) : null,
-    podSize: state.podSize, position: state.position,
-    sauronLanded: state.sauronLanded,
-    winType: state.winType, lossReason: state.lossReason,
-    opponents: state.opponents, notes: state.notes,
-    strandedCards: [...state.strandedCards]
-  });
-  saveGames(games);
-  const icon = document.getElementById('success-icon');
-  const title = document.getElementById('success-title');
-  const sub = document.getElementById('success-sub');
-  const flavorWin = {
-    'Sauron, Dark Lord':           { icon:'🔥', title:'Mordor Prevails', sub:'One Ring has bound them all in the darkness. An army worthy of Mordor has prevailed!' },
-    'High Perfect Morcant':        { icon:'🌿', title:'Perfection Achieved', sub:'The Elves bow to no one.' },
-    "Light-Paws, Emperor's Voice": { icon:'🦊', title:'The Emperor Speaks', sub:'And all the realm listened.' },
-    'Niv-Mizzet, Parun':           { icon:'🐉', title:'Parun Triumphant', sub:'Intelligence and fire — a lethal combination.' },
-    'Edric, Spymaster of Trest':   { icon:'🗡️', title:'The Spymaster Wins', sub:'They never saw it coming.' },
-    'Krenko, Mob Boss':            { icon:'👺', title:'The Mob Runs This Town', sub:'Legitimate business was conducted my good sir. Goblins everywhere. Game Over.' },
-  };
-  const flavorLoss = {
-    'Sauron, Dark Lord':           { icon:'💍', title:'The Eye Closes', sub:'Sauron endures. The Dark Lord shall return.' },
-    'High Perfect Morcant':        { icon:'🍂', title:'Imperfect', sub:'The Elves regroup. Perfection takes time.' },
-    "Light-Paws, Emperor's Voice": { icon:'🌸', title:'Silenced', sub:'The Emperor\'s voice will be heard again.' },
-    'Niv-Mizzet, Parun':           { icon:'📖', title:'Outplayed', sub:'Niv-Mizzet is already studying what went wrong.' },
-    'Edric, Spymaster of Trest':   { icon:'🌲', title:'The Spy Compromised', sub:'Regroup. Gather intel. Try again.' },
-    'Krenko, Mob Boss':            { icon:'💀', title:'The Mob Scatters', sub:'There are always more goblins.' },
-  };
-  const deck = state.deck;
-  const flavor = state.result === 'win'
-    ? (flavorWin[deck] || { icon:'🏆', title:'Victory Recorded', sub:`${deck} claims another win.` })
-    : (flavorLoss[deck] || { icon:'💀', title:'Defeat Logged', sub:`${deck} will return.` });
-  icon.textContent = flavor.icon;
-  title.textContent = flavor.title;
-  sub.textContent = flavor.sub;
-  showScreen('success');
+function showLogError(msg) {
+  const el = document.getElementById('log-error');
+  el.textContent = msg;
+  el.classList.remove('hidden');
 }
 
-// ══════════ EDIT / DELETE ══════════
-let editingId = null, editResult = null, editPodSize = 4, editPosition = null;
-
-function openEditModal(id) {
-  const g = loadGames().find(x => x.id === id);
-  if (!g) return;
-  editingId = id; editResult = g.result; editPodSize = g.podSize || 4; editPosition = g.position || null;
-  document.getElementById('edit-btn-win').classList.toggle('selected', g.result==='win');
-  document.getElementById('edit-btn-loss').classList.toggle('selected', g.result==='loss');
-  document.getElementById('edit-turn').value = g.turn || '';
-  document.getElementById('edit-opponents').value = g.opponents || '';
-  document.getElementById('edit-outcome').value = (g.result==='win'?g.winType:g.lossReason) || '';
-  document.getElementById('edit-notes').value = g.notes || '';
-  document.querySelectorAll('#edit-pod-chips .size-chip').forEach((c,i) => c.classList.toggle('selected', (i+2)===editPodSize));
-  document.querySelectorAll('#edit-pos-chips .pos-chip').forEach((c,i) => { c.classList.toggle('selected',(i+1)===editPosition); c.style.display=i<editPodSize?'':'none'; });
-  document.getElementById('edit-modal').classList.add('open');
+// ============================================
+// DELETE DECK
+// ============================================
+async function deleteDeck(deckId) {
+  if (!confirm('Delete this deck and all its game history? This cannot be undone.')) return;
+  try {
+    await sbRequest(`decks?id=eq.${deckId}`, 'DELETE');
+    allDecks = allDecks.filter(d => d.id !== deckId);
+    allGames = allGames.filter(g => g.deck_id !== deckId);
+    showTab('decks');
+    renderDecks();
+    renderDashboard();
+  } catch (e) {
+    alert('Failed to delete deck.');
+  }
 }
 
-function editSelectResult(r) {
-  editResult = r;
-  document.getElementById('edit-btn-win').classList.toggle('selected', r==='win');
-  document.getElementById('edit-btn-loss').classList.toggle('selected', r==='loss');
+// ============================================
+// ADMIN VIEW
+// ============================================
+async function renderAdmin() {
+  if (!currentUser.is_admin) return;
+  const content = document.getElementById('admin-content');
+  content.innerHTML = '<div class="ai-generating"><div class="spinner"></div><p>Loading admin data...</p></div>';
+
+  try {
+    const users = await sbRequest('users', 'GET', null, '?select=*&order=created_at.asc') || [];
+
+    const rows = await Promise.all(users.filter(u => !u.is_admin).map(async u => {
+      const userDecks = allDecks.filter(d => d.user_id === u.id);
+      const userGames = allGames.filter(g => g.user_id === u.id);
+      const wins = userGames.filter(g => g.result === 'win').length;
+      const wr = userGames.length > 0 ? `${((wins/userGames.length)*100).toFixed(0)}%` : '—';
+
+      return `
+        <div class="user-row">
+          <div>
+            <div style="font-family:'Cinzel',serif;font-size:0.9rem">${escHtml(u.username)}</div>
+            <div class="text-dim text-xs">Joined ${new Date(u.created_at).toLocaleDateString()}</div>
+          </div>
+          <div class="flex gap-2 items-center">
+            <div class="text-small"><span class="text-gold">${userDecks.length}</span> decks</div>
+            <div class="text-small"><span class="text-gold">${userGames.length}</span> games</div>
+            <div class="text-small"><span style="color:var(--win)">${wins}W</span> · <span>${wr}</span></div>
+          </div>
+        </div>
+      `;
+    }));
+
+    // Global stats
+    const totalGames = allGames.length;
+    const totalWins = allGames.filter(g => g.result === 'win').length;
+
+    content.innerHTML = `
+      <div class="stats-grid" style="margin-bottom:1.5rem">
+        <div class="stat-card"><div class="stat-value">${users.filter(u => !u.is_admin).length}</div><div class="stat-label">Players</div></div>
+        <div class="stat-card"><div class="stat-value">${allDecks.length}</div><div class="stat-label">Total Decks</div></div>
+        <div class="stat-card"><div class="stat-value">${totalGames}</div><div class="stat-label">Total Games</div></div>
+        <div class="stat-card"><div class="stat-value">${totalGames > 0 ? ((totalWins/totalGames)*100).toFixed(0) + '%' : '—'}</div><div class="stat-label">Global Win Rate</div></div>
+      </div>
+
+      <h3 style="font-size:0.8rem;color:var(--text-dim);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.8rem">Players</h3>
+      ${rows.join('')}
+
+      <hr class="separator">
+      <h3 style="font-size:0.8rem;color:var(--text-dim);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.8rem">Most Popular Win Conditions</h3>
+      ${renderGlobalWincondBreakdown()}
+    `;
+  } catch (e) {
+    content.innerHTML = '<p class="text-dim">Failed to load admin data.</p>';
+    console.error(e);
+  }
 }
 
-function editSelectPod(el, size) {
-  editPodSize = size;
-  document.querySelectorAll('#edit-pod-chips .size-chip').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  document.querySelectorAll('#edit-pos-chips .pos-chip').forEach((c,i) => { c.style.display=i<size?'':'none'; });
-}
+function renderGlobalWincondBreakdown() {
+  const winGames = allGames.filter(g => g.result === 'win' && g.win_condition);
+  if (winGames.length === 0) return '<p class="text-dim italic text-small">No wins logged yet.</p>';
 
-function editSelectPos(el, pos) {
-  editPosition = pos;
-  document.querySelectorAll('#edit-pos-chips .pos-chip').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-}
+  const counts = {};
+  winGames.forEach(g => { counts[g.win_condition] = (counts[g.win_condition] || 0) + 1; });
+  const maxCount = Math.max(...Object.values(counts));
 
-function closeModal() { document.getElementById('edit-modal').classList.remove('open'); editingId=null; }
-
-function saveEditGame() {
-  const games = loadGames();
-  const idx = games.findIndex(g => g.id===editingId);
-  if (idx===-1) return;
-  const outcome = document.getElementById('edit-outcome').value.trim();
-  Object.assign(games[idx], {
-    result: editResult,
-    turn: parseInt(document.getElementById('edit-turn').value)||null,
-    podSize: editPodSize, position: editPosition,
-    opponents: document.getElementById('edit-opponents').value,
-    notes: document.getElementById('edit-notes').value,
-    winType: editResult==='win'?outcome:null,
-    lossReason: editResult==='loss'?outcome:null
-  });
-  saveGames(games);
-  const deck = games[idx].deck;
-  closeModal();
-  showDeckDetail(deck);
-}
-
-function deleteGame() {
-  if (!confirm('Delete this game? This cannot be undone.')) return;
-  const games = loadGames();
-  const idx = games.findIndex(g => g.id===editingId);
-  const deck = games[idx]?.deck;
-  games.splice(idx, 1);
-  saveGames(games);
-  closeModal();
-  if (deck) showDeckDetail(deck);
-  else { renderDashboard(); showScreen('dashboard'); }
-}
-
-// ══════════ DASHBOARD ══════════
-const short = n => { const p=n.split(',')[0].split(' '); return p.length>2?p[0]+' '+p[1]:p.join(' '); };
-
-function renderPerformanceDashboard(games) {
-  const el = document.getElementById('perf-dashboard');
-  const stats = DECKS.map((deck,i) => {
-    const dg = games.filter(g=>g.deck===deck);
-    const wins = dg.filter(g=>g.result==='win').length;
-    const total = dg.length;
-    const rate = total>0?Math.round((wins/total)*100):null;
-    return { deck, wins, total, rate, color: DECK_COLORS[i] };
-  });
-  const played = stats.filter(s=>s.total>0);
-  if (!played.length) { el.innerHTML=''; return; }
-  const sorted = [...played].sort((a,b)=>b.rate-a.rate);
-  const totalGames=games.length, totalWins=games.filter(g=>g.result==='win').length;
-  const overallRate=totalGames>0?Math.round((totalWins/totalGames)*100):0;
-
-  const summaryHTML=`<div class="overall-summary">
-    <div class="overall-item"><span class="overall-num">${totalGames}</span><span class="overall-label">Games</span></div>
-    <div class="overall-divider"></div>
-    <div class="overall-item"><span class="overall-num">${totalWins}</span><span class="overall-label">Wins</span></div>
-    <div class="overall-divider"></div>
-    <div class="overall-item"><span class="overall-num" style="color:${overallRate>=50?'var(--green-bright)':'var(--red-bright)'}">${overallRate}%</span><span class="overall-label">Overall</span></div>
-  </div>`;
-
-  const podiumHTML=played.length>=2?`<div class="podium-row">
-    <div class="podium-card best"><div class="podium-label">🏆 Best Record</div><div class="podium-deck">${short(sorted[0].deck)}</div><div class="podium-rate">${sorted[0].rate}%</div></div>
-    <div class="podium-card worst"><div class="podium-label">💀 Needs Work</div><div class="podium-deck">${short(sorted[sorted.length-1].deck)}</div><div class="podium-rate">${sorted[sorted.length-1].rate}%</div></div>
-  </div>`:'';
-
-  const chartStats=[...stats.filter(s=>s.total>0).sort((a,b)=>b.rate-a.rate),...stats.filter(s=>s.total===0)];
-  const barsHTML=chartStats.map(s=>{
-    const pct=s.rate!==null?s.rate:0;
-    const fill=s.rate!==null?`width:${Math.max(pct,3)}%;background:${s.color};`:'width:3%;background:var(--border);';
-    return `<div class="bar-row"><div class="bar-label" title="${s.deck}">${short(s.deck)}</div><div class="bar-track"><div class="bar-fill" style="${fill}" data-pct="${s.rate!==null?pct+'%':''}"></div></div><div class="bar-games">${s.total>0?s.total+'g':'—'}</div></div>`;
-  }).join('');
-
-  el.innerHTML=`<div class="section-title">Overall Performance</div>${summaryHTML}${podiumHTML}<div class="chart-container"><div class="chart-title">Win rate by deck · sorted</div>${barsHTML}</div><div style="margin-bottom:28px"></div>`;
-}
-
-function renderGameEntry(g, showDeck=true) {
-  const date=new Date(g.date).toLocaleDateString('en-US',{month:'short',day:'numeric'});
-  const detail=g.result==='win'?(g.winType||'Win'):(g.lossReason||'Loss');
-  const pod=g.podSize?` · ${g.podSize}p`:'';
-  const seat=g.position?` · S${g.position}`:'';
-  return `<div class="game-entry ${g.result}">
-    <div class="game-meta">
-      ${showDeck?`<div class="game-deck">${g.deck}</div>`:''}
-      <div class="${showDeck?'game-detail':'game-deck'}" ${showDeck?'':'style="color:var(--text)"'}>${detail}</div>
-      <div class="game-detail">${g.opponents?'vs '+g.opponents:''}${g.turn?' · T'+g.turn:''}${pod}${seat} · ${date}</div>
-      ${g.notes?`<div class="game-detail" style="font-style:italic;margin-top:2px">"${g.notes}"</div>`:''}
+  return Object.entries(counts).sort((a,b) => b[1]-a[1]).map(([cond, count]) => `
+    <div class="flex items-center gap-2 mb-1" style="font-size:0.85rem">
+      <span style="min-width:160px;color:var(--text)">${cond}</span>
+      <div style="flex:1;background:var(--surface3);border-radius:2px;height:8px">
+        <div style="width:${(count/maxCount*100).toFixed(0)}%;background:var(--win);height:100%;border-radius:2px"></div>
+      </div>
+      <span style="color:var(--text-dim);min-width:30px;text-align:right">${count}x</span>
     </div>
-    <div style="display:flex;align-items:center;gap:6px">
-      <div class="game-result ${g.result}">${g.result.toUpperCase()}</div>
-      <button class="game-edit-btn" onclick="event.stopPropagation();openEditModal(${g.id})" title="Edit">✎</button>
-    </div>
-  </div>`;
+  `).join('');
 }
 
-function renderDashboard() {
-  const games = loadGames();
-  renderPerformanceDashboard(games);
-
-  document.getElementById('deck-grid').innerHTML = DECKS.map(deck => {
-    const dg=games.filter(g=>g.deck===deck);
-    const wins=dg.filter(g=>g.result==='win').length, total=dg.length;
-    const rate=total>0?Math.round((wins/total)*100):null;
-    const rc=rate!==null?(rate>=55?'high':rate<=35?'low':''):'';
-    const img=DECK_IMG[deck]||'';
-    return `<div class="deck-card" onclick="showDeckDetail('${deck.replace(/'/g,"\\'")}')">
-      ${img?`<div class="deck-art" style="background-image:url('${img}')"></div>`:''}
-      <div class="deck-card-body"><div class="deck-name">${deck}</div>${total>0?`<div class="record">${wins}W – ${total-wins}L</div>`:'<div class="no-games">No games yet</div>'}</div>
-      <div class="deck-stats">${rate!==null?`<div class="win-rate ${rc}">${rate}%</div>`:`<div class="win-rate" style="font-size:13px;color:var(--text-dim)">—</div>`}</div>
-    </div>`;
-  }).join('');
-
-  const recentEl = document.getElementById('recent-games');
-  if (!games.length) { recentEl.innerHTML='<div class="empty-state">No games logged yet. Time to play.</div>'; return; }
-  recentEl.innerHTML = games.slice(0,6).map(g=>renderGameEntry(g,true)).join('') +
-    `<button class="view-all-btn" onclick="showAllGames()">View All ${games.length} Games →</button>`;
+// ============================================
+// UTILITY
+// ============================================
+function escHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
-// ══════════ ALL GAMES FEED ══════════
-let feedFilter = 'all';
-function showAllGames() { feedFilter='all'; renderAllGames(); showScreen('all-games'); }
-function setFeedFilter(key) { feedFilter=key; renderAllGames(); }
+// Enter key support for auth forms
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const loginForm = document.getElementById('login-form');
+    const regForm = document.getElementById('register-form');
+    if (loginForm && !loginForm.classList.contains('hidden')) login();
+    else if (regForm && !regForm.classList.contains('hidden')) register();
+  }
+});
 
-function renderAllGames() {
-  const games = loadGames();
-  document.getElementById('feed-filters').innerHTML = [
-    {key:'all', label:'All'},
-    ...DECKS.map(d=>({key:d, label:short(d)}))
-  ].map(({key,label}) =>
-    `<div class="filter-chip ${feedFilter===key?'active':''}" onclick="setFeedFilter('${key.replace(/'/g,"\\'")}')">${label}</div>`
-  ).join('');
-  const filtered = feedFilter==='all'?games:games.filter(g=>g.deck===feedFilter);
-  const list = document.getElementById('all-games-list');
-  if (!filtered.length) { list.innerHTML='<div class="empty-state">No games match this filter.</div>'; return; }
-  list.innerHTML = filtered.map(g=>renderGameEntry(g, feedFilter==='all')).join('');
-}
-
-// ══════════ DECK DETAIL ══════════
-let currentDetailDeck = null;
-
-function showDeckDetail(deckName) {
-  currentDetailDeck = deckName;
-  const games = loadGames();
-  const dg = games.filter(g=>g.deck===deckName);
-  const wins=dg.filter(g=>g.result==='win').length, total=dg.length;
-  const rate=total>0?Math.round((wins/total)*100):0;
-  const avgTurn=dg.filter(g=>g.turn).length>0?Math.round(dg.filter(g=>g.turn).reduce((a,g)=>a+g.turn,0)/dg.filter(g=>g.turn).length):'—';
-  const isSauron=deckName==='Sauron, Dark Lord';
-  const landedGames=dg.filter(g=>g.sauronLanded===true);
-  const landedWins=landedGames.filter(g=>g.result==='win').length;
-  const landedRate=landedGames.length>0?Math.round((landedWins/landedGames.length)*100):null;
-
-  const header=document.getElementById('detail-deck-name');
-  header.textContent=deckName;
-  const art=DECK_IMG[deckName];
-  header.style.cssText=art?`padding-left:76px;min-height:52px;display:flex;align-items:center;background-image:url(${art});background-size:64px auto;background-repeat:no-repeat;background-position:left center;`:'';
-
-  document.getElementById('detail-stats').innerHTML=`
-    <div class="stat-box"><span class="stat-num">${rate}%</span><span class="stat-label">Win Rate</span></div>
-    <div class="stat-box"><span class="stat-num">${wins}–${total-wins}</span><span class="stat-label">Record</span></div>
-    <div class="stat-box"><span class="stat-num">${avgTurn}</span><span class="stat-label">Avg Turn</span></div>
-    <div class="stat-box"><span class="stat-num" style="${isSauron&&landedRate!==null?(landedRate>=50?'color:var(--green-bright)':'color:var(--red-bright)'):''}">
-      ${isSauron&&landedRate!==null?landedRate+'%':'—'}</span><span class="stat-label">${isSauron?'W% Sauron':'—'}</span></div>`;
-
-  switchTab('games');
-  showScreen('deck-detail');
-}
-
-function switchTab(tab) {
-  ['games','stranded','h2h','trend'].forEach(t=>{
-    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
-    document.getElementById('detail-'+t+'-panel').style.display=t===tab?'block':'none';
-  });
-  if (tab==='games') renderDetailGames();
-  else if (tab==='stranded') renderDetailStranded();
-  else if (tab==='h2h') renderDetailH2H();
-  else if (tab==='trend') renderDetailTrend();
-}
-
-function renderDetailGames() {
-  const dg=loadGames().filter(g=>g.deck===currentDetailDeck);
-  const el=document.getElementById('detail-game-list');
-  el.innerHTML=dg.length?dg.map(g=>renderGameEntry(g,false)).join(''):'<div class="empty-state">No games logged yet.</div>';
-}
-
-function renderDetailStranded() {
-  const dg=loadGames().filter(g=>g.deck===currentDetailDeck);
-  const map={};
-  dg.forEach(g=>(g.strandedCards||[]).forEach(c=>{map[c]=(map[c]||0)+1;}));
-  const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]);
-  const el=document.getElementById('detail-stranded-list');
-  el.innerHTML=sorted.length?sorted.map(([c,n])=>`<div class="stranded-item"><span>${c}</span><span class="stranded-count">×${n}</span></div>`).join(''):'<div class="empty-state">No stranded cards logged yet.</div>';
-}
-
-function renderDetailH2H() {
-  const dg=loadGames().filter(g=>g.deck===currentDetailDeck&&g.opponents);
-  const h2h={};
-  dg.forEach(g=>g.opponents.split(',').map(o=>o.trim()).filter(Boolean).forEach(opp=>{
-    if(!h2h[opp])h2h[opp]={w:0,l:0};
-    g.result==='win'?h2h[opp].w++:h2h[opp].l++;
-  }));
-  const entries=Object.entries(h2h).sort((a,b)=>(b[1].w+b[1].l)-(a[1].w+a[1].l));
-  const el=document.getElementById('detail-h2h-list');
-  if(!entries.length){el.innerHTML='<div class="empty-state">Log games with opponents to see head-to-head records.</div>';return;}
-  el.innerHTML=entries.map(([opp,r])=>{
-    const t=r.w+r.l, pct=Math.round((r.w/t)*100);
-    return `<div class="h2h-item"><div class="h2h-opponent">${opp}</div><div class="h2h-record"><span class="h2h-w">${r.w}W</span><span class="h2h-l">${r.l}L</span><span class="h2h-pct">${pct}%</span></div></div>`;
-  }).join('');
-}
-
-function renderDetailTrend() {
-  const dg=[...loadGames().filter(g=>g.deck===currentDetailDeck)].reverse();
-  const el=document.getElementById('detail-trend-content');
-  if(dg.length<2){el.innerHTML='<div class="empty-state">Play at least 2 games to see trend data.</div>';return;}
-
-  // Win rate sparkline
-  const bars=dg.map((g,i)=>{
-    const slice=dg.slice(0,i+1);
-    const rate=Math.round((slice.filter(x=>x.result==='win').length/slice.length)*100);
-    const color=g.result==='win'?'var(--green-bright)':'var(--red-bright)';
-    const h=Math.max(4,Math.round((rate/100)*56));
-    return `<div style="flex:1;height:${h}px;background:${color};border-radius:1px;opacity:0.8;min-width:5px" title="G${i+1}: ${rate}%"></div>`;
-  }).join('');
-
-  let streak=0, sType=dg[dg.length-1].result;
-  for(let i=dg.length-1;i>=0;i--){if(dg[i].result===sType)streak++;else break;}
-
-  // Pod size breakdown
-  const pods={};
-  dg.forEach(g=>{const p=g.podSize||'?';if(!pods[p])pods[p]={w:0,l:0};g.result==='win'?pods[p].w++:pods[p].l++;});
-  const podHTML=Object.entries(pods).sort((a,b)=>a[0]-b[0]).map(([size,r])=>{
-    const t=r.w+r.l,pct=Math.round((r.w/t)*100);
-    return `<div class="h2h-item"><div class="h2h-opponent">${size}-player</div><div class="h2h-record"><span class="h2h-w">${r.w}W</span><span class="h2h-l">${r.l}L</span><span class="h2h-pct">${pct}%</span></div></div>`;
-  }).join('');
-
-  // Seat position breakdown
-  const seats={};
-  dg.filter(g=>g.position).forEach(g=>{const p='Seat '+g.position;if(!seats[p])seats[p]={w:0,l:0};g.result==='win'?seats[p].w++:seats[p].l++;});
-  const seatHTML=Object.entries(seats).sort().map(([seat,r])=>{
-    const t=r.w+r.l,pct=Math.round((r.w/t)*100);
-    return `<div class="h2h-item"><div class="h2h-opponent">${seat}</div><div class="h2h-record"><span class="h2h-w">${r.w}W</span><span class="h2h-l">${r.l}L</span><span class="h2h-pct">${pct}%</span></div></div>`;
-  }).join('');
-
-  const overallRate=Math.round((dg.filter(g=>g.result==='win').length/dg.length)*100);
-
-  el.innerHTML=`
-    <div class="section-title" style="margin-top:0">Win Rate Over Time</div>
-    <div style="background:var(--surface);border:1px solid var(--border);padding:16px 14px;margin-bottom:16px">
-      <div style="display:flex;gap:3px;align-items:flex-end;height:60px">${bars}</div>
-      <div style="display:flex;justify-content:space-between;margin-top:6px;font-family:'Cinzel',serif;font-size:9px;color:var(--text-dim)"><span>Game 1</span><span>Game ${dg.length}</span></div>
-    </div>
-    <div class="overall-summary" style="margin-bottom:20px">
-      <div class="overall-item"><span class="overall-num">${streak}</span><span class="overall-label">${sType==='win'?'🔥 Win':'💀 Loss'} Streak</span></div>
-      <div class="overall-divider"></div>
-      <div class="overall-item"><span class="overall-num">${dg.length}</span><span class="overall-label">Games</span></div>
-      <div class="overall-divider"></div>
-      <div class="overall-item"><span class="overall-num" style="color:${overallRate>=50?'var(--green-bright)':'var(--red-bright)'}">${overallRate}%</span><span class="overall-label">Win Rate</span></div>
-    </div>
-    ${Object.keys(pods).length>1?`<div class="section-title">By Pod Size</div>${podHTML}`:''}
-    ${Object.keys(seats).length>0?`<div class="section-title" style="margin-top:16px">By Seat Position</div>${seatHTML}`:''}`;
-}
-
-// ══════════ INIT ══════════
-renderDashboard();
+// ============================================
+// INIT
+// ============================================
+// Check for returning session (none — intentional, PIN required each visit)
 </script>
 </body>
 </html>
