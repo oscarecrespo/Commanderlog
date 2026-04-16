@@ -38,6 +38,80 @@
   --glow: 0 0 20px rgba(201,168,76,0.15);
 }
 
+/* DECK ART */
+.deck-art-container {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  background: var(--surface3);
+  border-radius: var(--radius) var(--radius) 0 0;
+  overflow: hidden;
+  margin: -1.3rem -1.3rem 1rem -1.3rem;
+  width: calc(100% + 2.6rem);
+  cursor: pointer;
+}
+
+.deck-art-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  transition: transform 0.3s;
+}
+
+.deck-art-container:hover img {
+  transform: scale(1.03);
+}
+
+.deck-art-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  gap: 0.4rem;
+  transition: all 0.2s;
+}
+
+.deck-art-placeholder:hover {
+  color: var(--text-dim);
+  background: var(--surface2);
+}
+
+.deck-art-placeholder span {
+  font-size: 1.5rem;
+}
+
+.deck-art-placeholder p {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  font-family: 'Cinzel', serif;
+  text-transform: uppercase;
+}
+
+.deck-art-edit-btn {
+  position: absolute;
+  bottom: 0.4rem;
+  right: 0.4rem;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 2px;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.65rem;
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.deck-art-container:hover .deck-art-edit-btn {
+  opacity: 1;
+}
+
 /* LIGHT THEME */
 body.light-theme {
   --bg: #f4f1ea;
@@ -1527,8 +1601,18 @@ function renderDecks() {
     const ownerTag = currentUser.is_admin && deck.users
       ? `<span style="font-size:0.7rem;color:var(--text-faint)">${deck.users.username}</span>` : '';
 
+    const artHtml = deck.art_url
+      ? `<div class="deck-art-container" onclick="event.stopPropagation();promptArtUrl('${deck.id}')">
+          <img src="${escHtml(deck.art_url)}" alt="${escHtml(deck.commander)}" onerror="this.parentElement.innerHTML=\'<div class=\"deck-art-placeholder\"><span>🎴</span><p>Add Art</p></div>\'">
+          <button class="deck-art-edit-btn">✎ Edit Art</button>
+        </div>`
+      : `<div class="deck-art-container" onclick="event.stopPropagation();promptArtUrl('${deck.id}')">
+          <div class="deck-art-placeholder"><span>🎴</span><p>Add Art</p></div>
+        </div>`;
+
     return `
       <div class="deck-card" onclick="showDeckDetail('${deck.id}')">
+        ${artHtml}
         <div class="flex justify-between items-center mb-1">
           <div class="deck-card-commander">${escHtml(deck.commander)}</div>
           ${ownerTag}
@@ -1676,10 +1760,15 @@ function renderDeckDetail() {
   content.innerHTML = `
     <div class="panel">
       <div class="flex justify-between items-center mb-3">
-        <div>
-          <h2 style="font-size:1.4rem;color:var(--gold)">${escHtml(deck.commander)}</h2>
-          <p class="text-dim italic">${escHtml(deck.name)}</p>
-          <div class="color-pips" style="margin-top:0.5rem">${colors.map(c => `<span class="pip pip-${c}">${c}</span>`).join('')}</div>
+        <div style="display:flex;gap:1.2rem;align-items:flex-start">
+          ${deck.art_url ? `<div style="width:80px;height:60px;border-radius:var(--radius);overflow:hidden;flex-shrink:0;cursor:pointer" onclick="promptArtUrl('${deck.id}')">
+            <img src="${escHtml(deck.art_url)}" style="width:100%;height:100%;object-fit:cover;object-position:center top" onerror="this.style.display='none'">
+          </div>` : `<div style="width:80px;height:60px;border-radius:var(--radius);background:var(--surface3);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--text-faint);font-size:0.65rem;font-family:'Cinzel',serif;letter-spacing:0.05em;text-align:center;padding:0.3rem" onclick="promptArtUrl('${deck.id}')">ADD ART</div>`}
+          <div>
+            <h2 style="font-size:1.4rem;color:var(--gold)">${escHtml(deck.commander)}</h2>
+            <p class="text-dim italic">${escHtml(deck.name)}</p>
+            <div class="color-pips" style="margin-top:0.5rem">${colors.map(c => `<span class="pip pip-${c}">${c}</span>`).join('')}</div>
+          </div>
         </div>
         <div class="flex gap-1">
           <button class="btn btn-small" onclick="showUpdateDecklistModal('${deck.id}')">↺ Update Decklist</button>
@@ -2659,6 +2748,48 @@ function showLogError(msg) {
     el.textContent = msg;
     el.classList.remove('hidden');
     el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// ============================================
+// DECK ART
+// ============================================
+async function promptArtUrl(deckId) {
+  const deck = allDecks.find(d => d.id === deckId);
+  if (!deck) return;
+
+  const url = window.prompt(
+    `Paste a Scryfall art crop URL for ${deck.commander}:
+
+Example: https://cards.scryfall.io/art_crop/front/0/3/034e0929-b2c7-4b5f-94f2-8eaf4fb1a2a1.jpg?1693611218
+
+Leave blank to remove art.`,
+    deck.art_url || ''
+  );
+
+  // null = cancelled
+  if (url === null) return;
+
+  const trimmed = url.trim();
+
+  // Validate if not empty
+  if (trimmed && !trimmed.startsWith('http')) {
+    alert('Please enter a valid URL starting with http.');
+    return;
+  }
+
+  try {
+    await sbRequest(`decks?id=eq.${deckId}`, 'PATCH', {
+      art_url: trimmed || null
+    });
+    deck.art_url = trimmed || null;
+    renderDecks();
+    if (currentDeckDetail && currentDeckDetail.id === deckId) {
+      renderDeckDetail();
+    }
+  } catch (e) {
+    alert('Failed to save art URL.');
+    console.error(e);
   }
 }
 
