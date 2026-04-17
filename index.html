@@ -2393,9 +2393,12 @@ Be direct, specific, and use card names throughout. No generic advice.`;
       })
     });
     const data = await response.json();
+    console.log('Brief API response:', JSON.stringify(data).substring(0, 200));
+    if (data.error) throw new Error(data.error);
     return data.content?.[0]?.text || 'Brief generation failed.';
   } catch (e) {
-    return 'Failed to generate brief. Please regenerate manually.';
+    console.error('Brief generation error:', e);
+    return 'Failed to generate brief: ' + e.message;
   }
 }
 
