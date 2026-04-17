@@ -2345,7 +2345,8 @@ Match the tone perfectly to the commander. Sauron = dark and ominous. Krenko = c
 // CLAUDE API — INTELLIGENCE BRIEF
 // ============================================
 async function generateBriefText(deckData) {
-  const cardList = deckData.cards.map(c => `${c.qty}x ${c.name}`).join('\n');
+  const cards = Array.isArray(deckData.cards) ? deckData.cards : (Array.isArray(deckData.decklist) ? deckData.decklist : []);
+  const cardList = cards.map(c => `${c.qty}x ${c.name}`).join('\n');
   const prompt = `You are an expert Magic: The Gathering Commander analyst. Analyze this Commander deck and provide an Intelligence Brief.
 
 Commander/Deck: ${deckData.commander}
@@ -2399,7 +2400,8 @@ Be direct, specific, and use card names throughout. No generic advice.`;
 }
 
 async function generateRoastText(deckData) {
-  const cardList = deckData.cards.map(c => `${c.qty}x ${c.name}`).join('\n');
+  const cards = Array.isArray(deckData.cards) ? deckData.cards : (Array.isArray(deckData.decklist) ? deckData.decklist : []);
+  const cardList = cards.map(c => `${c.qty}x ${c.name}`).join('\n');
   const prompt = `You are the most savage, brutally honest, hilariously ruthless deck critic in all of Magic: The Gathering. Think Gordon Ramsay after being kicked in the square in the balls. Nothing is off limits. Roast this Commander deck MERCILESSLY.
 
 Commander/Deck: ${deckData.commander}
@@ -2444,7 +2446,7 @@ async function generateBrief(deckId) {
   const briefEl = document.getElementById('deck-tab-brief');
   briefEl.innerHTML = '<div class="ai-generating"><div class="spinner"></div><p>Generating Intelligence Brief...</p></div>';
 
-  const brief = await generateBriefText({ commander: deck.commander, cards: deck.decklist || [] });
+  const brief = await generateBriefText({ commander: deck.commander, cards: deck.decklist || [], decklist: deck.decklist || [] });
 
   await sbRequest(`decks?id=eq.${deckId}`, 'PATCH', {
     intelligence_brief: brief,
@@ -2467,7 +2469,7 @@ async function generateRoast(deckId) {
   const roastEl = document.getElementById('deck-tab-roast');
   roastEl.innerHTML = '<div class="ai-generating"><div class="spinner"></div><p>Consulting Gordon Ramsay...</p></div>';
 
-  const roast = await generateRoastText({ commander: deck.commander, cards: deck.decklist || [] });
+  const roast = await generateRoastText({ commander: deck.commander, cards: deck.decklist || [], decklist: deck.decklist || [] });
 
   await sbRequest(`decks?id=eq.${deckId}`, 'PATCH', {
     deck_roast: roast,
