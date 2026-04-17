@@ -2297,29 +2297,28 @@ async function submitImport() {
 // ============================================
 function renderMarkdown(text) {
   if (!text) return '';
-  return text
-    // Escape HTML first
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    // Headers
-    .replace(/^### (.+)$/gm, '<h4 style="font-family:Cinzel,serif;font-size:0.85rem;color:var(--gold);margin:1.2rem 0 0.4rem;letter-spacing:0.05em">$1</h4>')
-    .replace(/^## (.+)$/gm, '<h3 style="font-family:Cinzel,serif;font-size:0.95rem;color:var(--gold);margin:1.5rem 0 0.5rem;letter-spacing:0.05em">$1</h3>')
-    .replace(/^# (.+)$/gm, '<h2 style="font-family:Cinzel,serif;font-size:1.1rem;color:var(--gold);margin:1.5rem 0 0.5rem;letter-spacing:0.05em">$1</h2>')
-    // Bold
-    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--text)">$1</strong>')
-    // Italic
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    // Horizontal rules
-    .replace(/^---$/gm, '<hr style="border:none;border-top:1px solid var(--border);margin:1rem 0">')
-    // Bullet points
-    .replace(/^- (.+)$/gm, '<div style="display:flex;gap:0.5rem;margin:0.3rem 0"><span style="color:var(--gold-dim);flex-shrink:0">•</span><span>$1</span></div>')
-    // Numbered lists
-    .replace(/^\d+\. (.+)$/gm, '<div style="margin:0.3rem 0 0.3rem 1rem">$1</div>')
-    // Line breaks
-    .replace(/
+  // Escape HTML
+  let t = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Headers (process longest first)
+  t = t.replace(/^### (.+)$/gm, '<h4 style="font-family:Cinzel,serif;font-size:0.85rem;color:var(--gold);margin:1.2rem 0 0.4rem">$1</h4>');
+  t = t.replace(/^## (.+)$/gm, '<h3 style="font-family:Cinzel,serif;font-size:0.95rem;color:var(--gold);margin:1.5rem 0 0.5rem">$1</h3>');
+  t = t.replace(/^# (.+)$/gm, '<h2 style="font-family:Cinzel,serif;font-size:1.1rem;color:var(--gold);margin:1.5rem 0 0.5rem">$1</h2>');
+  // Bold and italic
+  t = t.replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--text)">$1</strong>');
+  t = t.replace(/\*([^*]+?)\*/g, '<em>$1</em>');
+  // Horizontal rules
+  t = t.replace(/^---$/gm, '<hr style="border:none;border-top:1px solid var(--border);margin:1rem 0">');
+  // Bullet points
+  t = t.replace(/^- (.+)$/gm, '<div style="display:flex;gap:0.5rem;margin:0.3rem 0"><span style="color:var(--gold-dim)">•</span><span>$1</span></div>');
+  // Numbered lists
+  t = t.replace(/^[0-9]+\. (.+)$/gm, '<div style="margin:0.3rem 0 0.3rem 1rem">$1</div>');
+  // Paragraphs
+  t = t.replace(/
 
-/g, '<br><br>')
-    .replace(/
+/g, '<br><br>');
+  t = t.replace(/
 /g, '<br>');
+  return t;
 }
 
 // ============================================
