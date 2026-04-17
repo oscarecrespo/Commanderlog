@@ -2313,11 +2313,8 @@ function renderMarkdown(text) {
   // Numbered lists
   t = t.replace(/^[0-9]+\. (.+)$/gm, '<div style="margin:0.3rem 0 0.3rem 1rem">$1</div>');
   // Paragraphs
-  t = t.replace(/
-
-/g, '<br><br>');
-  t = t.replace(/
-/g, '<br>');
+t = t.replace(/\n\n/g, '<br><br>');
+  t = t.replace(/\n/g, '<br>');
   return t;
 }
 
