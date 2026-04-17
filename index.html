@@ -1320,23 +1320,25 @@ Example:
 // ============================================
 // SUPABASE CLIENT
 // ============================================
-const SUPABASE_URL = 'https://ituoiksaxmukvrakznhu.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0dW9pa3NheG11a3ZyYWt6bmh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNTAzMDEsImV4cCI6MjA5MTkyNjMwMX0.bBFTd4KHcUVJYJgIUvIEWkWZD5fzWmrZbmvtNUY-AKU';
 const ADMIN_PIN = '2992';
 
+const WORKER_URL = 'https://cc-proxy.oscar-crespom.workers.dev';
+
 async function sbRequest(path, method = 'GET', body = null, params = '') {
-  const url = `${SUPABASE_URL}/rest/v1/${path}${params}`;
   const opts = {
-    method,
+    method: 'POST',
     headers: {
-      'apikey': SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       'Content-Type': 'application/json',
-      'Prefer': method === 'POST' ? 'return=representation' : 'return=representation'
+      'X-Target': 'supabase',
+      'X-Method': method,
+      'X-Path': path,
+      'X-Params': params || ''
     }
   };
-  if (body) opts.body = JSON.stringify(body);
-  const res = await fetch(url, opts);
+  if (body && method !== 'GET' && method !== 'DELETE') {
+    opts.body = JSON.stringify(body);
+  }
+  const res = await fetch(WORKER_URL, opts);
   if (!res.ok) {
     const err = await res.text();
     throw new Error(err);
@@ -2313,8 +2315,11 @@ function renderMarkdown(text) {
   // Numbered lists
   t = t.replace(/^[0-9]+\. (.+)$/gm, '<div style="margin:0.3rem 0 0.3rem 1rem">$1</div>');
   // Paragraphs
-t = t.replace(/\n\n/g, '<br><br>');
-  t = t.replace(/\n/g, '<br>');
+  t = t.replace(/
+
+/g, '<br><br>');
+  t = t.replace(/
+/g, '<br>');
   return t;
 }
 
@@ -2433,7 +2438,7 @@ Use card names throughout. Be specific. Be encouraging.`;
 async function generateRoastText(deckData) {
   const cards = Array.isArray(deckData.cards) ? deckData.cards : (Array.isArray(deckData.decklist) ? deckData.decklist : []);
   const cardList = cards.map(c => `${c.qty}x ${c.name}`).join('\n');
-  const prompt = `You are a Commander deck critic delivering a comedy roast — savage, specific, and funny, but with genuine love for the game underneath. Like a roast among MTG friends who all know what they're doing.
+  co  const prompt = `You are a Commander deck critic delivering a comedy roast — savage, specific, and funny, but with genuine love for the game underneath. Like a roast among MTG friends who all know what they're doing.
 
 Commander: ${deckData.commander}
 
