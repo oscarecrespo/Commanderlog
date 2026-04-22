@@ -2435,7 +2435,7 @@ Use card names throughout. Be specific. Be encouraging.`;
 async function generateRoastText(deckData) {
   const cards = Array.isArray(deckData.cards) ? deckData.cards : (Array.isArray(deckData.decklist) ? deckData.decklist : []);
   const cardList = cards.map(c => `${c.qty}x ${c.name}`).join('\n');
-  co  const prompt = `You are a Commander deck critic delivering a comedy roast — savage, specific, and funny, but with genuine love for the game underneath. Like a roast among MTG friends who all know what they're doing.
+  const prompt = `You are a Commander deck critic delivering a comedy roast — savage, specific, and funny, but with genuine love for the game underneath. Like a roast among MTG friends who all know what they're doing.
 
 Commander: ${deckData.commander}
 
