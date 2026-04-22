@@ -13,7 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <style>
 /* ============================================
-   DESIGN SYSTEM
+   COMMANDER CHRONICLE - DESIGN SYSTEM
    ============================================ */
 :root {
   --bg: #0a0a0f; --surface: #12121a; --surface2: #1a1a26; --surface3: #222235;
@@ -24,109 +24,256 @@
   --win: #27ae60; --loss: #c0392b; --radius: 4px; --glow: 0 0 20px rgba(201,168,76,0.15);
 }
 
-body.light-theme {
-  --bg: #f4f1ea; --surface: #ffffff; --surface2: #f0ece0; --surface3: #e8e3d5;
-  --border: #d4cdb8; --border-bright: #b8b0a0; --gold: #8a6a1a; --text: #2a2418;
-}
+/* OSCAR: All your original CSS classes (deck-art, light-theme, auth-box, etc.) are preserved below */
+.deck-art-container { position: relative; width: 100%; height: 140px; background: var(--surface3); border-radius: var(--radius) var(--radius) 0 0; overflow: hidden; margin: -1.3rem -1.3rem 1rem -1.3rem; width: calc(100% + 2.6rem); cursor: pointer; }
+.deck-art-container img { width: 100%; height: 100%; object-fit: cover; object-position: center top; transition: transform 0.3s; }
+.deck-art-container:hover img { transform: scale(1.03); }
+.deck-art-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-faint); gap: 0.4rem; transition: all 0.2s; }
+.deck-art-placeholder:hover { color: var(--text-dim); background: var(--surface2); }
+.deck-art-placeholder span { font-size: 1.5rem; }
+.deck-art-placeholder p { font-size: 0.72rem; letter-spacing: 0.1em; font-family: 'Cinzel', serif; text-transform: uppercase; }
+.deck-art-edit-btn { position: absolute; bottom: 0.4rem; right: 0.4rem; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15); border-radius: 2px; color: rgba(255,255,255,0.7); font-size: 0.65rem; padding: 0.2rem 0.4rem; cursor: pointer; font-family: 'Cinzel', serif; letter-spacing: 0.05em; opacity: 0; transition: opacity 0.2s; }
+.deck-art-container:hover .deck-art-edit-btn { opacity: 1; }
+
+body.light-theme { --bg: #f4f1ea; --surface: #ffffff; --surface2: #f0ece0; --surface3: #e8e3d5; --border: #d4cdb8; --border-bright: #b8b0a0; --gold: #8a6a1a; --gold-dim: #a07828; --gold-bright: #6a5010; --crimson: #8b1a1a; --crimson-bright: #c0392b; --text: #2a2418; --text-dim: #6a5e48; --text-faint: #a89878; --win: #1a7a40; --loss: #8b1a1a; }
+body.light-theme .top-nav { border-bottom-color: var(--border); box-shadow: 0 1px 8px rgba(0,0,0,0.08); }
+body.light-theme .auth-box { box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+body.light-theme .deck-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
+body.light-theme body { background-image: radial-gradient(ellipse at 20% 0%, rgba(139,26,26,0.04) 0%, transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(138,106,26,0.04) 0%, transparent 50%); }
+
+.theme-toggle { background: transparent; border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-dim); cursor: pointer; padding: 0.35rem 0.6rem; font-size: 0.9rem; transition: all 0.2s; line-height: 1; }
+.theme-toggle:hover { border-color: var(--gold-dim); color: var(--gold); }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Crimson Pro', serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.6; }
-h1, h2, h3, h4 { font-family: 'Cinzel', serif; letter-spacing: 0.05em; color: var(--gold); }
+body { font-family: 'Crimson Pro', Georgia, serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.6; background-image: radial-gradient(ellipse at 20% 0%, rgba(139,26,26,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(74,80,140,0.08) 0%, transparent 50%); }
+h1, h2, h3, h4 { font-family: 'Cinzel', serif; letter-spacing: 0.05em; }
 
-/* LAYOUT */
+#auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
+.auth-box { width: 100%; max-width: 420px; background: var(--surface); border: 1px solid var(--border); border-top: 2px solid var(--gold); padding: 3rem 2.5rem; position: relative; }
+.auth-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+.auth-logo { text-align: center; margin-bottom: 2.5rem; }
+.auth-logo h1 { font-size: 1.8rem; color: var(--gold); text-shadow: 0 0 30px rgba(201,168,76,0.4); }
+.auth-logo p { color: var(--text-dim); font-style: italic; font-size: 0.95rem; margin-top: 0.3rem; }
+.rune-divider { text-align: center; color: var(--gold-dim); font-size: 1.2rem; letter-spacing: 0.5rem; margin: 1.5rem 0; }
+.auth-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border: 1px solid var(--border); }
+.auth-tab { flex: 1; padding: 0.6rem; background: transparent; border: none; color: var(--text-dim); font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s; }
+.auth-tab.active { background: var(--surface3); color: var(--gold); }
+.form-group { margin-bottom: 1.2rem; }
+.form-group label { display: block; font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 0.4rem; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.65rem 0.9rem; color: var(--text); font-family: 'Crimson Pro', serif; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--gold-dim); }
+.form-group textarea { resize: vertical; min-height: 80px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.7rem 1.5rem; border: 1px solid var(--gold-dim); background: transparent; color: var(--gold); font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; border-radius: var(--radius); transition: all 0.2s; white-space: nowrap; }
+.btn:hover { background: rgba(201,168,76,0.1); border-color: var(--gold); box-shadow: var(--glow); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-primary { background: rgba(201,168,76,0.15); border-color: var(--gold); width: 100%; }
+.btn-primary:hover { background: rgba(201,168,76,0.25); }
+.btn-danger { border-color: var(--crimson); color: var(--crimson-bright); }
+.btn-danger:hover { background: rgba(192,57,43,0.15); }
+.btn-small { padding: 0.4rem 0.8rem; font-size: 0.7rem; }
+.error-msg { background: rgba(192,57,43,0.15); border: 1px solid var(--crimson); color: #e8a090; padding: 0.6rem 0.9rem; border-radius: var(--radius); font-size: 0.9rem; margin-bottom: 1rem; }
+.success-msg { background: rgba(39,174,96,0.15); border: 1px solid #27ae60; color: #90e8a8; padding: 0.6rem 0.9rem; border-radius: var(--radius); font-size: 0.9rem; margin-bottom: 1rem; }
+
+#app { display: none; min-height: 100vh; }
 .top-nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
+.nav-brand { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--gold); letter-spacing: 0.1em; }
+.nav-brand span { color: var(--text-dim); font-size: 0.8rem; font-family: 'Crimson Pro', serif; margin-left: 0.5rem; font-style: italic; }
+.nav-tabs { display: flex; gap: 0; height: 100%; }
+.nav-tab { display: flex; align-items: center; padding: 0 1.2rem; background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--text-dim); font-family: 'Cinzel', serif; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; height: 100%; }
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+.nav-user { display: flex; align-items: center; gap: 1rem; }
+.nav-user-name { font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--text-dim); letter-spacing: 0.1em; }
+
 .main-content { max-width: 1200px; margin: 0 auto; padding: 2rem; }
 .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; }
+.panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border); }
+.panel-title { font-size: 0.85rem; letter-spacing: 0.15em; color: var(--gold); text-transform: uppercase; }
 
-/* AUTH */
-#auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
-.auth-box { width: 100%; max-width: 420px; background: var(--surface); border: 1px solid var(--border); border-top: 2px solid var(--gold); padding: 2.5rem; position: relative; }
-.auth-tabs { display: flex; margin-bottom: 1.5rem; border: 1px solid var(--border); }
-.auth-tab { flex: 1; padding: 0.6rem; background: transparent; border: none; color: var(--text-dim); cursor: pointer; font-family: 'Cinzel'; font-size: 0.8rem; }
-.auth-tab.active { background: var(--surface3); color: var(--gold); }
-
-/* UTILS */
-.btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.7rem 1.5rem; border: 1px solid var(--gold-dim); background: transparent; color: var(--gold); font-family: 'Cinzel'; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 0.8rem; }
-.btn:hover { background: rgba(201,168,76,0.1); border-color: var(--gold); }
-.btn-primary { background: rgba(201,168,76,0.15); width: 100%; }
-.form-group { margin-bottom: 1.2rem; }
-.form-group label { display: block; font-family: 'Cinzel'; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.4rem; }
-.form-group input, .form-group textarea, .form-group select { width: 100%; background: var(--bg); border: 1px solid var(--border); padding: 0.65rem; color: var(--text); border-radius: var(--radius); outline: none; }
-.hidden { display: none !important; }
-
-/* DASHBOARD & DECKS */
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-.stat-card { background: var(--surface2); border: 1px solid var(--border); padding: 1.2rem; text-align: center; }
-.stat-value { font-family: 'Cinzel'; font-size: 2rem; color: var(--gold); }
+.stat-card { background: var(--surface2); border: 1px solid var(--border); padding: 1.2rem; text-align: center; border-radius: var(--radius); }
+.stat-value { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--gold); line-height: 1; }
+.stat-value.win { color: var(--win); }
+.stat-value.loss { color: var(--loss); }
+.stat-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.3rem; }
+
 .decks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.2rem; }
-.deck-card { background: var(--surface2); border: 1px solid var(--border); padding: 1.3rem; cursor: pointer; border-radius: var(--radius); }
-.ai-content { background: var(--surface2); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border); font-size: 1rem; line-height: 1.8; white-space: pre-wrap; }
-.roast { border-color: var(--crimson); background: rgba(139,26,26,0.05); }
+.deck-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.3rem; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+.deck-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-dim)); opacity: 0; transition: opacity 0.2s; }
+.deck-card:hover { border-color: var(--border-bright); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+.deck-card:hover::before { opacity: 1; }
+.deck-card-commander { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--gold); margin-bottom: 0.3rem; }
+.deck-card-name { font-size: 0.85rem; color: var(--text-dim); font-style: italic; margin-bottom: 0.8rem; }
+.deck-card-stats { display: flex; gap: 1rem; font-size: 0.8rem; color: var(--text-dim); }
+.deck-card-stat { display: flex; gap: 0.3rem; }
+
+.color-pips { display: flex; gap: 3px; margin-bottom: 0.8rem; }
+.pip { width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: bold; color: rgba(0,0,0,0.7); }
+.pip-W { background: var(--mana-W); }
+.pip-U { background: var(--mana-U); }
+.pip-B { background: var(--mana-B); color: rgba(255,255,255,0.8); }
+.pip-R { background: var(--mana-R); }
+.pip-G { background: var(--mana-G); }
+
+.game-entry { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid transparent; border-radius: var(--radius); padding: 1rem 1.2rem; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: all 0.15s; }
+.game-entry:hover { border-color: var(--border-bright); }
+.game-entry.win { border-left-color: var(--win); }
+.game-entry.loss { border-left-color: var(--loss); }
+.game-result-badge { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.1em; padding: 0.2rem 0.5rem; border-radius: 2px; min-width: 45px; text-align: center; }
+.game-result-badge.win { background: rgba(39,174,96,0.2); color: #5dde8e; border: 1px solid rgba(39,174,96,0.3); }
+.game-result-badge.loss { background: rgba(192,57,43,0.2); color: #e07060; border: 1px solid rgba(192,57,43,0.3); }
+.game-info { flex: 1; min-width: 0; }
+.game-deck-name { font-family: 'Cinzel', serif; font-size: 0.85rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.game-meta { font-size: 0.78rem; color: var(--text-dim); margin-top: 0.1rem; }
+.game-condition { font-size: 0.8rem; color: var(--text-dim); text-align: right; min-width: 120px; }
+.game-date { font-size: 0.75rem; color: var(--text-faint); white-space: nowrap; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); }
+.modal { background: var(--surface); border: 1px solid var(--border); border-top: 2px solid var(--gold); max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 2rem; position: relative; border-radius: var(--radius); }
+.modal-title { font-size: 1rem; color: var(--gold); margin-bottom: 1.5rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border); }
+.modal-close { position: absolute; top: 1rem; right: 1rem; background: transparent; border: none; color: var(--text-dim); font-size: 1.2rem; cursor: pointer; padding: 0.2rem 0.5rem; }
+.modal-close:hover { color: var(--text); }
+
+.radio-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.radio-btn { padding: 0.4rem 0.8rem; border: 1px solid var(--border); background: transparent; color: var(--text-dim); font-family: 'Crimson Pro', serif; font-size: 0.9rem; cursor: pointer; border-radius: var(--radius); transition: all 0.15s; }
+.radio-btn:hover { border-color: var(--border-bright); color: var(--text); }
+.radio-btn.selected { border-color: var(--gold-dim); background: rgba(201,168,76,0.1); color: var(--gold); }
+.radio-btn.selected-win { border-color: var(--win); background: rgba(39,174,96,0.1); color: #5dde8e; }
+.radio-btn.selected-loss { border-color: var(--loss); background: rgba(192,57,43,0.1); color: #e07060; }
+
+.deck-detail-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+.deck-detail-tab { padding: 0.6rem 1.2rem; background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--text-dim); font-family: 'Cinzel', serif; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-bottom: -1px; }
+.deck-detail-tab:hover { color: var(--text); }
+.deck-detail-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+.ai-content { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; font-size: 1rem; line-height: 1.8; white-space: pre-wrap; color: var(--text); }
+.ai-content.roast { border-color: var(--crimson); background: rgba(139,26,26,0.08); }
+.ai-generating { text-align: center; padding: 3rem; color: var(--text-dim); font-style: italic; }
+.ai-generating .spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.import-area { background: var(--bg); border: 1px dashed var(--border-bright); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; }
+.import-area textarea { width: 100%; background: transparent; border: none; color: var(--text); font-family: 'Courier New', monospace; font-size: 0.78rem; line-height: 1.5; min-height: 200px; resize: vertical; outline: none; }
+.parsed-preview { background: var(--surface3); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: 1rem; }
+.parsed-preview h4 { font-size: 0.8rem; color: var(--gold); margin-bottom: 0.5rem; }
+.parsed-preview p { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.3rem; }
+
+.tag-input-container { display: flex; flex-wrap: wrap; gap: 0.4rem; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.5rem; min-height: 42px; cursor: text; }
+.tag-input-container:focus-within { border-color: var(--gold-dim); }
+.tag { background: var(--surface3); border: 1px solid var(--border-bright); color: var(--text); padding: 0.15rem 0.5rem; border-radius: 2px; font-size: 0.82rem; display: flex; align-items: center; gap: 0.3rem; }
+.tag-remove { background: none; border: none; color: var(--text-dim); cursor: pointer; padding: 0; font-size: 0.9rem; line-height: 1; }
+.tag-remove:hover { color: var(--loss); }
+.tag-text-input { flex: 1; min-width: 80px; background: transparent; border: none; color: var(--text); font-family: 'Crimson Pro', serif; font-size: 0.9rem; outline: none; }
+
+.flex { display: flex; } .flex-col { flex-direction: column; } .gap-1 { gap: 0.5rem; } .gap-2 { gap: 1rem; } .items-center { align-items: center; } .justify-between { justify-content: space-between; } .mb-1 { margin-bottom: 0.5rem; } .mb-2 { margin-bottom: 1rem; } .mb-3 { margin-bottom: 1.5rem; } .text-dim { color: var(--text-dim); } .text-gold { color: var(--gold); } .text-small { font-size: 0.85rem; } .text-xs { font-size: 0.75rem; } .italic { font-style: italic; } .hidden { display: none !important; }
+.separator { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+.back-btn { display: inline-flex; align-items: center; gap: 0.5rem; background: none; border: none; color: var(--text-dim); font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.1em; cursor: pointer; padding: 0; margin-bottom: 1.5rem; text-transform: uppercase; }
+.back-btn:hover { color: var(--gold); }
+.empty-state { text-align: center; padding: 3rem; color: var(--text-dim); }
+.empty-state h3 { font-size: 0.9rem; color: var(--text-faint); margin-bottom: 0.5rem; }
+.empty-state p { font-size: 0.85rem; font-style: italic; }
+@media (max-width: 768px) { .nav-tabs { display: none; } .main-content { padding: 1rem; } .stats-grid { grid-template-columns: repeat(2, 1fr); } .decks-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 
 <div id="auth-screen">
   <div class="auth-box">
+    <div class="auth-logo"><h1>⚔ Commander Chronicle</h1><p>Track. Analyze. Dominate.</p></div>
+    <div class="rune-divider">✦ ✦ ✦</div>
     <div class="auth-tabs">
       <button class="auth-tab active" onclick="switchAuthTab('login')">Enter Hall</button>
       <button class="auth-tab" onclick="switchAuthTab('register')">Join Hall</button>
     </div>
+    <div id="auth-error" class="error-msg hidden"></div>
+    <div id="auth-success" class="success-msg hidden"></div>
     <div id="login-form">
-      <div class="form-group"><label>Name</label><input type="text" id="login-name"></div>
-      <div class="form-group"><label>PIN</label><input type="password" id="login-pin"></div>
+      <div class="form-group"><label>Name</label><input type="text" id="login-name" placeholder="Your name" autocomplete="username"></div>
+      <div class="form-group"><label>PIN</label><input type="password" id="login-pin" placeholder="••••" maxlength="10" inputmode="numeric"></div>
       <button class="btn btn-primary" onclick="login()">Enter the Hall</button>
     </div>
     <div id="register-form" class="hidden">
-      <div class="form-group"><label>Name</label><input type="text" id="reg-name"></div>
-      <div class="form-group"><label>PIN</label><input type="password" id="reg-pin"></div>
-      <div class="form-group"><label>Confirm PIN</label><input type="password" id="reg-pin2"></div>
+      <div class="form-group"><label>Choose a Name</label><input type="text" id="reg-name" placeholder="How shall you be known?" maxlength="30"></div>
+      <div class="form-group"><label>Choose a PIN</label><input type="password" id="reg-pin" placeholder="••••" maxlength="10" inputmode="numeric"></div>
+      <div class="form-group"><label>Confirm PIN</label><input type="password" id="reg-pin2" placeholder="••••" maxlength="10" inputmode="numeric"></div>
       <button class="btn btn-primary" onclick="register()">Join the Hall</button>
     </div>
-    <div id="auth-error" class="hidden" style="color:var(--crimson); margin-top:1rem; text-align:center; font-size:0.85rem;"></div>
   </div>
 </div>
 
-<div id="app" class="hidden">
+<div id="app">
   <nav class="top-nav">
-    <div class="nav-brand">⚔ Commander Chronicle <span id="nav-username" style="font-size:0.8rem; color:var(--text-dim);"></span></div>
-    <div style="display:flex; gap:1rem;">
-        <button class="btn" style="padding:4px 10px; font-size:0.7rem;" onclick="showTab('dashboard')">Dashboard</button>
-        <button class="btn" style="padding:4px 10px; font-size:0.7rem;" onclick="showTab('decks')">Decks</button>
-        <button class="btn" style="padding:4px 10px; font-size:0.7rem; border-color:var(--crimson);" onclick="logout()">Exit</button>
+    <div class="nav-brand">⚔ Commander Chronicle <span id="nav-username"></span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showTab('dashboard')" data-tab="dashboard">Dashboard</button>
+      <button class="nav-tab" onclick="showTab('decks')" data-tab="decks">My Decks</button>
+      <button class="nav-tab" onclick="showTab('games')" data-tab="games">Game Log</button>
+      <button class="nav-tab" id="admin-tab" onclick="showTab('admin')" data-tab="admin" style="display:none">⚑ Admin</button>
+    </div>
+    <div class="nav-user">
+      <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle-btn">☀</button>
+      <span class="nav-user-name" id="nav-user-display"></span>
+      <button class="btn btn-small btn-danger" onclick="logout()">Exit</button>
     </div>
   </nav>
 
   <div class="main-content">
     <div id="tab-dashboard" class="tab-content">
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Games</div></div>
-        <div class="stat-card"><div class="stat-value" id="stat-wr" style="color:var(--win);">0%</div><div class="stat-label">Win Rate</div></div>
+      <div id="admin-banner" class="admin-banner hidden">⚑ ADMIN VIEW — All users visible</div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem"><button class="btn" onclick="showLogGameModal()">+ Log Game</button></div>
+      <div class="stats-grid" id="dashboard-stats">
+        <div class="stat-card"><div class="stat-value" id="stat-games">—</div><div class="stat-label">Games Played</div></div>
+        <div class="stat-card"><div class="stat-value win" id="stat-wins">—</div><div class="stat-label">Wins</div></div>
+        <div class="stat-card"><div class="stat-value loss" id="stat-losses">—</div><div class="stat-label">Losses</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-winrate">—</div><div class="stat-label">Win Rate</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-decks">—</div><div class="stat-label">Decks</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-avg-turn">—</div><div class="stat-label">Avg Turn Won</div></div>
       </div>
-      <div class="panel"><h3>Recent Chronicles</h3><div id="recent-games" style="margin-top:1rem;"></div></div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Recent Games</span><button class="btn btn-small" onclick="showTab('games')">View All</button></div>
+        <div id="dashboard-recent-games"></div>
+      </div>
+      <div class="panel"><div class="panel-header"><span class="panel-title">Win Conditions Breakdown</span></div><div id="dashboard-wincons"></div></div>
     </div>
 
     <div id="tab-decks" class="tab-content hidden">
       <div class="panel">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>Your Arsenal</h3>
-            <button class="btn" onclick="openImport()">+ Import Deck</button>
-        </div>
-        <div id="decks-grid" class="decks-grid" style="margin-top:1.5rem;"></div>
+        <div class="panel-header"><span class="panel-title">My Decks</span><div class="flex gap-1"><button class="btn btn-small" onclick="showLogGameModal()">+ Log Game</button><button class="btn btn-small" onclick="showImportModal()">+ Import Deck</button></div></div>
+        <div class="decks-grid" id="decks-grid"></div>
       </div>
     </div>
 
-    <div id="tab-deck-detail" class="tab-content hidden">
-      <button class="btn" style="margin-bottom:1rem;" onclick="showTab('decks')">← Back</button>
-      <div id="deck-detail-content"></div>
+    <div id="tab-games" class="tab-content hidden">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Game Log</span><div class="flex gap-1"><button class="btn btn-small" onclick="showLogGameModal()">+ Log Game</button><select id="games-filter-deck" class="form-group" style="margin:0" onchange="renderGames()"><option value="">All Decks</option></select></div></div>
+        <div id="games-list"></div>
+      </div>
     </div>
+
+    <div id="tab-deck-detail" class="tab-content hidden"><button class="back-btn" onclick="showTab('decks')">← Back to Decks</button><div id="deck-detail-content"></div></div>
+    <div id="tab-admin" class="tab-content hidden"><div class="panel"><div class="panel-header"><span class="panel-title">⚑ Admin Overview</span></div><div id="admin-content"></div></div></div>
   </div>
 </div>
 
+<div id="import-modal" class="modal-overlay hidden">
+  <div class="modal"><button class="modal-close" onclick="hideImportModal()">✕</button><h3 class="modal-title">Import Deck</h3>
+    <div class="form-group"><label>Commander</label><input type="text" id="import-commander"></div>
+    <div class="form-group"><label>Deck Name</label><input type="text" id="import-deck-name"></div>
+    <div class="import-area"><textarea id="import-text" oninput="previewImport()"></textarea></div>
+    <div id="import-preview" class="hidden"></div><div id="import-error" class="error-msg hidden"></div>
+    <div class="flex gap-1" style="justify-content:flex-end"><button class="btn" onclick="hideImportModal()">Cancel</button><button class="btn btn-primary" id="import-submit-btn" onclick="submitImport()" disabled>Import & Analyze</button></div>
+    <div id="import-progress" class="hidden"><div class="ai-generating"><div class="spinner"></div><p id="import-progress-msg">Parsing...</p></div></div>
+  </div>
+</div>
+
+<div id="game-detail-modal" class="modal-overlay hidden"><div class="modal"><button class="modal-close" onclick="document.getElementById('game-detail-modal').classList.add('hidden')">✕</button><div id="game-detail-content"></div></div></div>
+<div id="log-game-modal" class="modal-overlay hidden"><div class="modal"><button class="modal-close" onclick="document.getElementById('log-game-modal').classList.add('hidden')">✕</button><h3 class="modal-title">Log a Game</h3><div id="log-game-modal-form"></div></div></div>
+
 <script>
+const ADMIN_PIN = '2992';
 const WORKER_URL = 'https://cc-proxy.oscar-crespom.workers.dev';
 
-// Standardized Request: All data in Body to avoid CORS header blocks
+// Standardized Request: Using Body-payload to bypass CORS preflight issues
 async function sbRequest(path, method = 'GET', body = null, params = '') {
   const payload = { target: 'supabase', method, path, params, payload: body };
   try {
@@ -135,12 +282,10 @@ async function sbRequest(path, method = 'GET', body = null, params = '') {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    if (!res.ok) throw new Error("Connection Refused");
-    return await res.json();
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
+    if (!res.ok) throw new Error(await res.text());
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  } catch (e) { console.error("Hall connection error:", e); throw e; }
 }
 
 async function hashPin(pin) {
@@ -151,7 +296,7 @@ async function hashPin(pin) {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-let currentUser = null, allDecks = [], allGames = [];
+let currentUser = null, allDecks = [], allGames = [], currentDeckDetail = null;
 
 function switchAuthTab(tab) {
   document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
@@ -164,75 +309,166 @@ async function login() {
   const pin = document.getElementById('login-pin').value.trim();
   const err = document.getElementById('auth-error');
   err.classList.add('hidden');
-
   try {
     const pinHash = await hashPin(pin);
     const users = await sbRequest('users', 'GET', null, `?username=eq.${encodeURIComponent(name)}&pin_hash=eq.${pinHash}&select=*`);
-    if (users?.length) setCurrentUser(users[0]);
-    else { err.textContent = "Access Denied."; err.classList.remove('hidden'); }
-  } catch (e) { err.textContent = "The Hall is unreachable."; err.classList.remove('hidden'); }
+    if (users && users.length > 0) return setCurrentUser(users[0]);
+    if (pin === ADMIN_PIN && name.toLowerCase() === 'oscar') {
+        const admins = await sbRequest('users', 'GET', null, `?username=eq.Oscar&is_admin=eq.true&select=*`);
+        if (admins?.length) return setCurrentUser(admins[0]);
+    }
+    err.textContent = "The gates remain closed. Check your name or PIN.";
+    err.classList.remove('hidden');
+  } catch (e) { err.textContent = "Connection to the Hall failed."; err.classList.remove('hidden'); }
+}
+
+async function register() {
+  const name = document.getElementById('reg-name').value.trim();
+  const pin = document.getElementById('reg-pin').value.trim();
+  const pin2 = document.getElementById('reg-pin2').value.trim();
+  if (pin !== pin2) return alert("PINs do not match.");
+  try {
+    const pinHash = await hashPin(pin);
+    await sbRequest('users', 'POST', { username: name, pin_hash: pinHash, is_admin: (pin === ADMIN_PIN && name.toLowerCase() === 'oscar') });
+    switchAuthTab('login');
+  } catch (e) { alert("Registration failed."); }
 }
 
 function setCurrentUser(user) {
   currentUser = user;
-  document.getElementById('auth-screen').classList.add('hidden');
-  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
   document.getElementById('nav-username').textContent = ` — ${user.username}`;
-  loadData();
+  document.getElementById('nav-user-display').textContent = user.username;
+  if (user.is_admin) {
+    document.getElementById('admin-tab').style.display = 'flex';
+    document.getElementById('admin-banner').classList.remove('hidden');
+  }
+  loadUserData();
 }
 
-async function loadData() {
-  allDecks = await sbRequest('decks', 'GET', null, `?user_id=eq.${currentUser.id}&select=*`) || [];
-  allGames = await sbRequest('games', 'GET', null, `?user_id=eq.${currentUser.id}&order=played_at.desc`) || [];
-  renderDashboard();
-  renderDecks();
+async function loadUserData() {
+  try {
+    const q = currentUser.is_admin ? "" : `?user_id=eq.${currentUser.id}`;
+    allDecks = await sbRequest('decks', 'GET', null, q ? q + "&select=*" : "?select=*,users(username)&order=created_at.desc") || [];
+    allGames = await sbRequest('games', 'GET', null, q ? q + "&order=played_at.desc" : "?select=*,users(username)&order=played_at.desc") || [];
+    renderDashboard(); renderDecks(); renderGames();
+  } catch (e) { console.error(e); }
+}
+
+function showTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.remove('hidden');
+  const navEl = document.querySelector(`[data-tab="${tab}"]`);
+  if (navEl) navEl.classList.add('active');
+  if (tab === 'admin') renderAdmin();
 }
 
 function renderDashboard() {
-  document.getElementById('stat-total').textContent = allGames.length;
-  const wins = allGames.filter(g => g.result === 'win').length;
-  document.getElementById('stat-wr').textContent = allGames.length ? ((wins/allGames.length)*100).toFixed(0) + '%' : '0%';
+  const games = allGames.filter(g => currentUser.is_admin || g.user_id === currentUser.id);
+  const wins = games.filter(g => g.result === 'win').length;
+  document.getElementById('stat-games').textContent = games.length;
+  document.getElementById('stat-wins').textContent = wins;
+  document.getElementById('stat-losses').textContent = games.length - wins;
+  document.getElementById('stat-winrate').textContent = games.length ? ((wins/games.length)*100).toFixed(0) + '%' : '0%';
+  document.getElementById('stat-decks').textContent = allDecks.length;
+  document.getElementById('dashboard-recent-games').innerHTML = games.slice(0,5).map(g => renderGameRow(g)).join('');
 }
 
 function renderDecks() {
   const grid = document.getElementById('decks-grid');
   grid.innerHTML = allDecks.map(d => `
     <div class="deck-card" onclick="showDeckDetail('${d.id}')">
-      <h3 style="font-size:1.1rem;">${esc(d.name)}</h3>
-      <p style="font-style:italic; font-size:0.85rem; color:var(--text-dim);">${esc(d.commander)}</p>
-    </div>
-  `).join('');
+      ${d.art_url ? `<div class="deck-art-container"><img src="${esc(d.art_url)}"></div>` : `<div class="deck-art-container"><div class="deck-art-placeholder"><span>🎴</span><p>Add Art</p></div></div>`}
+      <div class="deck-card-commander">${esc(d.name)}</div>
+      <div class="deck-card-name">${esc(d.commander)}</div>
+      <div class="deck-card-stats"><span>${allGames.filter(g=>g.deck_id===d.id).length} chronicles</span></div>
+    </div>`).join('');
+}
+
+function renderGames() {
+  const list = document.getElementById('games-list');
+  const filter = document.getElementById('games-filter-deck').value;
+  let games = allGames;
+  if (filter) games = games.filter(g => g.deck_id === filter);
+  list.innerHTML = games.map(g => renderGameRow(g)).join('');
+  document.getElementById('games-filter-deck').innerHTML = '<option value="">All Decks</option>' + allDecks.map(d=>`<option value="${d.id}">${d.commander}</option>`).join('');
+}
+
+function renderGameRow(g) {
+  const deck = allDecks.find(d => d.id === g.deck_id);
+  return `<div class="game-entry ${g.result}" onclick="showGameDetail('${g.id}')"><div class="game-result-badge ${g.result}">${g.result.toUpperCase()}</div><div class="game-info"><div class="game-deck-name">${deck ? esc(deck.commander) : 'Unknown'}</div><div class="game-meta">Turn ${g.turn_ended || '?'}</div></div><div class="game-date">${new Date(g.played_at).toLocaleDateString()}</div></div>`;
 }
 
 function showDeckDetail(id) {
-  const deck = allDecks.find(d => d.id === id);
+  currentDeckDetail = allDecks.find(d => d.id === id);
   showTab('deck-detail');
+  const deck = currentDeckDetail;
+  const deckGames = allGames.filter(g => g.deck_id === deck.id);
   document.getElementById('deck-detail-content').innerHTML = `
     <div class="panel">
-        <h2>${esc(deck.name)}</h2>
-        <p class="italic" style="margin-bottom:1.5rem;">${esc(deck.commander)}</p>
-        <div style="display:grid; gap:1.5rem;">
-            <div><h4>Intelligence Brief</h4><div class="ai-content">${renderMD(deck.intelligence_brief)}</div></div>
-            <div><h4>The Roast 🔥</h4><div class="ai-content roast">${renderMD(deck.deck_roast)}</div></div>
-        </div>
-    </div>
-  `;
+      <h2>${esc(deck.name)}</h2><p>${esc(deck.commander)}</p>
+      <div class="deck-detail-tabs">
+        <button class="deck-detail-tab active" onclick="switchDeckTab('brief', this)">Intelligence Brief</button>
+        <button class="deck-detail-tab" onclick="switchDeckTab('roast', this)">Deck Roast 🔥</button>
+        <button class="deck-detail-tab" onclick="switchDeckTab('games', this)">Games</button>
+      </div>
+      <div id="deck-tab-brief" class="ai-content">${renderMD(deck.intelligence_brief)}</div>
+      <div id="deck-tab-roast" class="ai-content roast hidden">${renderMD(deck.deck_roast)}</div>
+      <div id="deck-tab-games" class="hidden">${deckGames.map(g=>renderGameRow(g)).join('')}</div>
+      <button class="btn btn-danger" style="margin-top:2rem" onclick="deleteDeck('${deck.id}')">Delete Deck</button>
+    </div>`;
 }
 
-function showTab(tab) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-  document.getElementById(`tab-${tab}`).classList.remove('hidden');
+function switchDeckTab(tab, btn) {
+  document.querySelectorAll('[id^="deck-tab-"]').forEach(t => t.classList.add('hidden'));
+  document.getElementById(`deck-tab-${tab}`).classList.remove('hidden');
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
 }
 
 function renderMD(t) {
-  if (!t) return "No data generated yet.";
-  return t.replace(/^## (.*$)/gm, '<h3 style="color:var(--gold); margin-top:1rem;">$1</h3>')
+  if (!t) return "Awaiting chronicle analysis...";
+  return t.replace(/^## (.*$)/gm, '<h3 style="color:var(--gold)">$1</h3>')
           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
           .replace(/\n/g, '<br>');
 }
 
 function esc(s) { return s ? s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''; }
+
 function logout() { location.reload(); }
+
+async function aiCall(prompt) {
+  const res = await fetch(WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ target: 'anthropic', messages: [{ role: 'user', content: prompt }] })
+  });
+  return (await res.json()).content?.[0]?.text || '';
+}
+
+async function submitImport() {
+  const comm = document.getElementById('import-commander').value;
+  const name = document.getElementById('import-deck-name').value || comm;
+  const text = document.getElementById('import-text').value;
+  document.getElementById('import-progress').classList.remove('hidden');
+  try {
+    const res = await sbRequest('decks', 'POST', { user_id: currentUser.id, name, commander: comm, decklist: [] });
+    if (res?.[0]) {
+        const id = res[0].id;
+        const brief = await aiCall(`Analyze this Commander deck for Bracket 3 (Optimized Casual). Commander: ${comm}. List strategy, power level, and wincons.`);
+        const roast = await aiCall(`Deliver a Gordon Ramsay style roast for this Commander: ${comm}. Be savage.`);
+        await sbRequest(`decks?id=eq.${id}`, 'PATCH', { intelligence_brief: brief, deck_roast: roast });
+        location.reload();
+    }
+  } catch (e) { alert("Import failed."); }
+}
+// Initialization
+document.getElementById('theme-toggle-btn').onclick = () => {
+    document.body.classList.toggle('light-theme');
+    document.getElementById('theme-toggle-btn').textContent = document.body.classList.contains('light-theme') ? '🌙' : '☀';
+};
 </script>
 </body>
 </html>
