@@ -2,208 +2,1142 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Commander Chronicle</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="CommanderLog">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚔️</text></svg>">
-<link rel="apple-touch-icon" href="https://oscarecrespo.github.io/CommanderLog/icon.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚔</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <style>
 /* ============================================
    COMMANDER CHRONICLE - DESIGN SYSTEM
+   Theme: Dark arcane grimoire meets data dashboard
    ============================================ */
+
 :root {
-  --bg: #0a0a0f; --surface: #12121a; --surface2: #1a1a26; --surface3: #222235;
-  --border: #2a2a40; --border-bright: #3a3a58; --gold: #c9a84c; --gold-dim: #7a6530;
-  --gold-bright: #e8c46a; --crimson: #8b1a1a; --crimson-bright: #c0392b;
-  --mana-W: #f9f6e8; --mana-U: #4a90d9; --mana-B: #9b59b6; --mana-R: #e74c3c;
-  --mana-G: #27ae60; --text: #e8e0cc; --text-dim: #9a9080; --text-faint: #5a5448;
-  --win: #27ae60; --loss: #c0392b; --radius: 4px; --glow: 0 0 20px rgba(201,168,76,0.15);
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --surface2: #1a1a26;
+  --surface3: #222235;
+  --border: #2a2a40;
+  --border-bright: #3a3a58;
+  --gold: #c9a84c;
+  --gold-dim: #7a6530;
+  --gold-bright: #e8c46a;
+  --crimson: #8b1a1a;
+  --crimson-bright: #c0392b;
+  --mana-W: #f9f6e8;
+  --mana-U: #4a90d9;
+  --mana-B: #9b59b6;
+  --mana-R: #e74c3c;
+  --mana-G: #27ae60;
+  --text: #e8e0cc;
+  --text-dim: #9a9080;
+  --text-faint: #5a5448;
+  --win: #27ae60;
+  --loss: #c0392b;
+  --radius: 4px;
+  --glow: 0 0 20px rgba(201,168,76,0.15);
 }
 
-/* OSCAR: All your original CSS classes (deck-art, light-theme, auth-box, etc.) are preserved below */
-.deck-art-container { position: relative; width: 100%; height: 140px; background: var(--surface3); border-radius: var(--radius) var(--radius) 0 0; overflow: hidden; margin: -1.3rem -1.3rem 1rem -1.3rem; width: calc(100% + 2.6rem); cursor: pointer; }
-.deck-art-container img { width: 100%; height: 100%; object-fit: cover; object-position: center top; transition: transform 0.3s; }
-.deck-art-container:hover img { transform: scale(1.03); }
-.deck-art-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-faint); gap: 0.4rem; transition: all 0.2s; }
-.deck-art-placeholder:hover { color: var(--text-dim); background: var(--surface2); }
-.deck-art-placeholder span { font-size: 1.5rem; }
-.deck-art-placeholder p { font-size: 0.72rem; letter-spacing: 0.1em; font-family: 'Cinzel', serif; text-transform: uppercase; }
-.deck-art-edit-btn { position: absolute; bottom: 0.4rem; right: 0.4rem; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15); border-radius: 2px; color: rgba(255,255,255,0.7); font-size: 0.65rem; padding: 0.2rem 0.4rem; cursor: pointer; font-family: 'Cinzel', serif; letter-spacing: 0.05em; opacity: 0; transition: opacity 0.2s; }
-.deck-art-container:hover .deck-art-edit-btn { opacity: 1; }
+/* DECK ART */
+.deck-art-container {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  background: var(--surface3);
+  border-radius: var(--radius) var(--radius) 0 0;
+  overflow: hidden;
+  margin: -1.3rem -1.3rem 1rem -1.3rem;
+  width: calc(100% + 2.6rem);
+  cursor: pointer;
+}
 
-body.light-theme { --bg: #f4f1ea; --surface: #ffffff; --surface2: #f0ece0; --surface3: #e8e3d5; --border: #d4cdb8; --border-bright: #b8b0a0; --gold: #8a6a1a; --gold-dim: #a07828; --gold-bright: #6a5010; --crimson: #8b1a1a; --crimson-bright: #c0392b; --text: #2a2418; --text-dim: #6a5e48; --text-faint: #a89878; --win: #1a7a40; --loss: #8b1a1a; }
-body.light-theme .top-nav { border-bottom-color: var(--border); box-shadow: 0 1px 8px rgba(0,0,0,0.08); }
-body.light-theme .auth-box { box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
-body.light-theme .deck-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
-body.light-theme body { background-image: radial-gradient(ellipse at 20% 0%, rgba(139,26,26,0.04) 0%, transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(138,106,26,0.04) 0%, transparent 50%); }
+.deck-art-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  transition: transform 0.3s;
+}
 
-.theme-toggle { background: transparent; border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-dim); cursor: pointer; padding: 0.35rem 0.6rem; font-size: 0.9rem; transition: all 0.2s; line-height: 1; }
-.theme-toggle:hover { border-color: var(--gold-dim); color: var(--gold); }
+.deck-art-container:hover img {
+  transform: scale(1.03);
+}
+
+.deck-art-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  gap: 0.4rem;
+  transition: all 0.2s;
+}
+
+.deck-art-placeholder:hover {
+  color: var(--text-dim);
+  background: var(--surface2);
+}
+
+.deck-art-placeholder span {
+  font-size: 1.5rem;
+}
+
+.deck-art-placeholder p {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  font-family: 'Cinzel', serif;
+  text-transform: uppercase;
+}
+
+.deck-art-edit-btn {
+  position: absolute;
+  bottom: 0.4rem;
+  right: 0.4rem;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 2px;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.65rem;
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.deck-art-container:hover .deck-art-edit-btn {
+  opacity: 1;
+}
+
+/* LIGHT THEME */
+body.light-theme {
+  --bg: #f4f1ea;
+  --surface: #ffffff;
+  --surface2: #f0ece0;
+  --surface3: #e8e3d5;
+  --border: #d4cdb8;
+  --border-bright: #b8b0a0;
+  --gold: #8a6a1a;
+  --gold-dim: #a07828;
+  --gold-bright: #6a5010;
+  --crimson: #8b1a1a;
+  --crimson-bright: #c0392b;
+  --text: #2a2418;
+  --text-dim: #6a5e48;
+  --text-faint: #a89878;
+  --win: #1a7a40;
+  --loss: #8b1a1a;
+}
+
+body.light-theme .top-nav {
+  border-bottom-color: var(--border);
+  box-shadow: 0 1px 8px rgba(0,0,0,0.08);
+}
+
+body.light-theme .auth-box {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+body.light-theme .deck-card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+
+body.light-theme body {
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(139,26,26,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(138,106,26,0.04) 0%, transparent 50%);
+}
+
+/* THEME TOGGLE BUTTON */
+.theme-toggle {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.theme-toggle:hover {
+  border-color: var(--gold-dim);
+  color: var(--gold);
+}
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Crimson Pro', Georgia, serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.6; background-image: radial-gradient(ellipse at 20% 0%, rgba(139,26,26,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(74,80,140,0.08) 0%, transparent 50%); }
-h1, h2, h3, h4 { font-family: 'Cinzel', serif; letter-spacing: 0.05em; }
 
-#auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
-.auth-box { width: 100%; max-width: 420px; background: var(--surface); border: 1px solid var(--border); border-top: 2px solid var(--gold); padding: 3rem 2.5rem; position: relative; }
-.auth-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
-.auth-logo { text-align: center; margin-bottom: 2.5rem; }
-.auth-logo h1 { font-size: 1.8rem; color: var(--gold); text-shadow: 0 0 30px rgba(201,168,76,0.4); }
-.auth-logo p { color: var(--text-dim); font-style: italic; font-size: 0.95rem; margin-top: 0.3rem; }
-.rune-divider { text-align: center; color: var(--gold-dim); font-size: 1.2rem; letter-spacing: 0.5rem; margin: 1.5rem 0; }
-.auth-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border: 1px solid var(--border); }
-.auth-tab { flex: 1; padding: 0.6rem; background: transparent; border: none; color: var(--text-dim); font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s; }
-.auth-tab.active { background: var(--surface3); color: var(--gold); }
-.form-group { margin-bottom: 1.2rem; }
-.form-group label { display: block; font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 0.4rem; }
-.form-group input, .form-group select, .form-group textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.65rem 0.9rem; color: var(--text); font-family: 'Crimson Pro', serif; font-size: 1rem; outline: none; transition: border-color 0.2s; }
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--gold-dim); }
-.form-group textarea { resize: vertical; min-height: 80px; }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.7rem 1.5rem; border: 1px solid var(--gold-dim); background: transparent; color: var(--gold); font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; border-radius: var(--radius); transition: all 0.2s; white-space: nowrap; }
-.btn:hover { background: rgba(201,168,76,0.1); border-color: var(--gold); box-shadow: var(--glow); }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn-primary { background: rgba(201,168,76,0.15); border-color: var(--gold); width: 100%; }
-.btn-primary:hover { background: rgba(201,168,76,0.25); }
-.btn-danger { border-color: var(--crimson); color: var(--crimson-bright); }
-.btn-danger:hover { background: rgba(192,57,43,0.15); }
-.btn-small { padding: 0.4rem 0.8rem; font-size: 0.7rem; }
-.error-msg { background: rgba(192,57,43,0.15); border: 1px solid var(--crimson); color: #e8a090; padding: 0.6rem 0.9rem; border-radius: var(--radius); font-size: 0.9rem; margin-bottom: 1rem; }
-.success-msg { background: rgba(39,174,96,0.15); border: 1px solid #27ae60; color: #90e8a8; padding: 0.6rem 0.9rem; border-radius: var(--radius); font-size: 0.9rem; margin-bottom: 1rem; }
+body {
+  font-family: 'Crimson Pro', Georgia, serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(139,26,26,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(74,80,140,0.08) 0%, transparent 50%);
+}
 
-#app { display: none; min-height: 100vh; }
-.top-nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
-.nav-brand { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--gold); letter-spacing: 0.1em; }
-.nav-brand span { color: var(--text-dim); font-size: 0.8rem; font-family: 'Crimson Pro', serif; margin-left: 0.5rem; font-style: italic; }
-.nav-tabs { display: flex; gap: 0; height: 100%; }
-.nav-tab { display: flex; align-items: center; padding: 0 1.2rem; background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--text-dim); font-family: 'Cinzel', serif; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; height: 100%; }
+h1, h2, h3, h4 {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================
+   AUTH SCREEN
+   ============================================ */
+
+#auth-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.auth-box {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--gold);
+  padding: 3rem 2.5rem;
+  position: relative;
+}
+
+.auth-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.auth-logo {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.auth-logo h1 {
+  font-size: 1.8rem;
+  color: var(--gold);
+  text-shadow: 0 0 30px rgba(201,168,76,0.4);
+}
+
+.auth-logo p {
+  color: var(--text-dim);
+  font-style: italic;
+  font-size: 0.95rem;
+  margin-top: 0.3rem;
+}
+
+.rune-divider {
+  text-align: center;
+  color: var(--gold-dim);
+  font-size: 1.2rem;
+  letter-spacing: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 0.6rem;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.auth-tab.active {
+  background: var(--surface3);
+  color: var(--gold);
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-group label {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.65rem 0.9rem;
+  color: var(--text);
+  font-family: 'Crimson Pro', serif;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--gold-dim);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  border: 1px solid var(--gold-dim);
+  background: transparent;
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  background: rgba(201,168,76,0.1);
+  border-color: var(--gold);
+  box-shadow: var(--glow);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: rgba(201,168,76,0.15);
+  border-color: var(--gold);
+  width: 100%;
+}
+
+.btn-primary:hover {
+  background: rgba(201,168,76,0.25);
+}
+
+.btn-danger {
+  border-color: var(--crimson);
+  color: var(--crimson-bright);
+}
+
+.btn-danger:hover {
+  background: rgba(192,57,43,0.15);
+}
+
+.btn-small {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.7rem;
+}
+
+.error-msg {
+  background: rgba(192,57,43,0.15);
+  border: 1px solid var(--crimson);
+  color: #e8a090;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.success-msg {
+  background: rgba(39,174,96,0.15);
+  border: 1px solid #27ae60;
+  color: #90e8a8;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+/* ============================================
+   MAIN APP LAYOUT
+   ============================================ */
+
+#app {
+  display: none;
+  min-height: 100vh;
+}
+
+/* TOP NAV */
+.top-nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-brand {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+}
+
+.nav-brand span {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-family: 'Crimson Pro', serif;
+  margin-left: 0.5rem;
+  font-style: italic;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 0;
+  height: 100%;
+}
+
+.nav-tab {
+  display: flex;
+  align-items: center;
+  padding: 0 1.2rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  height: 100%;
+}
+
 .nav-tab:hover { color: var(--text); }
-.nav-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
-.nav-user { display: flex; align-items: center; gap: 1rem; }
-.nav-user-name { font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--text-dim); letter-spacing: 0.1em; }
 
-.main-content { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; }
-.panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border); }
-.panel-title { font-size: 0.85rem; letter-spacing: 0.15em; color: var(--gold); text-transform: uppercase; }
+.nav-tab.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
 
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-.stat-card { background: var(--surface2); border: 1px solid var(--border); padding: 1.2rem; text-align: center; border-radius: var(--radius); }
-.stat-value { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--gold); line-height: 1; }
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-user-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+}
+
+/* MAIN CONTENT */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* PANELS */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-title {
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+/* ============================================
+   STAT CARDS
+   ============================================ */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 1.2rem;
+  text-align: center;
+  border-radius: var(--radius);
+}
+
+.stat-value {
+  font-family: 'Cinzel', serif;
+  font-size: 2rem;
+  color: var(--gold);
+  line-height: 1;
+}
+
 .stat-value.win { color: var(--win); }
 .stat-value.loss { color: var(--loss); }
-.stat-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.3rem; }
 
-.decks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.2rem; }
-.deck-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.3rem; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
-.deck-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-dim)); opacity: 0; transition: opacity 0.2s; }
-.deck-card:hover { border-color: var(--border-bright); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 0.3rem;
+}
+
+/* ============================================
+   DECK CARDS
+   ============================================ */
+
+.decks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.2rem;
+}
+
+.deck-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.3rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.deck-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-dim));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.deck-card:hover {
+  border-color: var(--border-bright);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
 .deck-card:hover::before { opacity: 1; }
-.deck-card-commander { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--gold); margin-bottom: 0.3rem; }
-.deck-card-name { font-size: 0.85rem; color: var(--text-dim); font-style: italic; margin-bottom: 0.8rem; }
-.deck-card-stats { display: flex; gap: 1rem; font-size: 0.8rem; color: var(--text-dim); }
+
+.deck-card-commander {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  color: var(--gold);
+  margin-bottom: 0.3rem;
+}
+
+.deck-card-name {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 0.8rem;
+}
+
+.deck-card-stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
 .deck-card-stat { display: flex; gap: 0.3rem; }
 
-.color-pips { display: flex; gap: 3px; margin-bottom: 0.8rem; }
-.pip { width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: bold; color: rgba(0,0,0,0.7); }
+.color-pips {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 0.8rem;
+}
+
+.pip {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0,0,0,0.7);
+}
+
 .pip-W { background: var(--mana-W); }
 .pip-U { background: var(--mana-U); }
 .pip-B { background: var(--mana-B); color: rgba(255,255,255,0.8); }
 .pip-R { background: var(--mana-R); }
 .pip-G { background: var(--mana-G); }
+.pip-C { background: #888; color: white; }
 
-.game-entry { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid transparent; border-radius: var(--radius); padding: 1rem 1.2rem; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: all 0.15s; }
+/* ============================================
+   GAME LOG
+   ============================================ */
+
+.game-entry {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-left: 3px solid transparent;
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
 .game-entry:hover { border-color: var(--border-bright); }
 .game-entry.win { border-left-color: var(--win); }
 .game-entry.loss { border-left-color: var(--loss); }
-.game-result-badge { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.1em; padding: 0.2rem 0.5rem; border-radius: 2px; min-width: 45px; text-align: center; }
-.game-result-badge.win { background: rgba(39,174,96,0.2); color: #5dde8e; border: 1px solid rgba(39,174,96,0.3); }
-.game-result-badge.loss { background: rgba(192,57,43,0.2); color: #e07060; border: 1px solid rgba(192,57,43,0.3); }
-.game-info { flex: 1; min-width: 0; }
-.game-deck-name { font-family: 'Cinzel', serif; font-size: 0.85rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.game-meta { font-size: 0.78rem; color: var(--text-dim); margin-top: 0.1rem; }
-.game-condition { font-size: 0.8rem; color: var(--text-dim); text-align: right; min-width: 120px; }
-.game-date { font-size: 0.75rem; color: var(--text-faint); white-space: nowrap; }
 
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); }
-.modal { background: var(--surface); border: 1px solid var(--border); border-top: 2px solid var(--gold); max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 2rem; position: relative; border-radius: var(--radius); }
-.modal-title { font-size: 1rem; color: var(--gold); margin-bottom: 1.5rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border); }
-.modal-close { position: absolute; top: 1rem; right: 1rem; background: transparent; border: none; color: var(--text-dim); font-size: 1.2rem; cursor: pointer; padding: 0.2rem 0.5rem; }
+.game-result-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+  min-width: 45px;
+  text-align: center;
+}
+
+.game-result-badge.win {
+  background: rgba(39,174,96,0.2);
+  color: #5dde8e;
+  border: 1px solid rgba(39,174,96,0.3);
+}
+
+.game-result-badge.loss {
+  background: rgba(192,57,43,0.2);
+  color: #e07060;
+  border: 1px solid rgba(192,57,43,0.3);
+}
+
+.game-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.game-deck-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.game-meta {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-top: 0.1rem;
+}
+
+.game-condition {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-align: right;
+  min-width: 120px;
+}
+
+.game-date {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+/* ============================================
+   LOG GAME FORM (MODAL)
+   ============================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--gold);
+  max-width: 560px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
+  position: relative;
+  border-radius: var(--radius);
+}
+
+.modal-title {
+  font-size: 1rem;
+  color: var(--gold);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+}
+
 .modal-close:hover { color: var(--text); }
 
-.radio-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.radio-btn { padding: 0.4rem 0.8rem; border: 1px solid var(--border); background: transparent; color: var(--text-dim); font-family: 'Crimson Pro', serif; font-size: 0.9rem; cursor: pointer; border-radius: var(--radius); transition: all 0.15s; }
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.radio-btn {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: all 0.15s;
+}
+
 .radio-btn:hover { border-color: var(--border-bright); color: var(--text); }
-.radio-btn.selected { border-color: var(--gold-dim); background: rgba(201,168,76,0.1); color: var(--gold); }
-.radio-btn.selected-win { border-color: var(--win); background: rgba(39,174,96,0.1); color: #5dde8e; }
-.radio-btn.selected-loss { border-color: var(--loss); background: rgba(192,57,43,0.1); color: #e07060; }
 
-.deck-detail-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
-.deck-detail-tab { padding: 0.6rem 1.2rem; background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--text-dim); font-family: 'Cinzel', serif; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-bottom: -1px; }
+.radio-btn.selected {
+  border-color: var(--gold-dim);
+  background: rgba(201,168,76,0.1);
+  color: var(--gold);
+}
+
+.radio-btn.selected-win {
+  border-color: var(--win);
+  background: rgba(39,174,96,0.1);
+  color: #5dde8e;
+}
+
+.radio-btn.selected-loss {
+  border-color: var(--loss);
+  background: rgba(192,57,43,0.1);
+  color: #e07060;
+}
+
+/* ============================================
+   DECK DETAIL VIEW
+   ============================================ */
+
+.deck-detail-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+
+.deck-detail-tab {
+  padding: 0.6rem 1.2rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: -1px;
+}
+
 .deck-detail-tab:hover { color: var(--text); }
-.deck-detail-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
 
-.ai-content { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; font-size: 1rem; line-height: 1.8; white-space: pre-wrap; color: var(--text); }
-.ai-content.roast { border-color: var(--crimson); background: rgba(139,26,26,0.08); }
-.ai-generating { text-align: center; padding: 3rem; color: var(--text-dim); font-style: italic; }
-.ai-generating .spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
+.deck-detail-tab.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+/* Intelligence Brief & Roast */
+.ai-content {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  color: var(--text);
+}
+
+.ai-content.roast {
+  border-color: var(--crimson);
+  background: rgba(139,26,26,0.08);
+}
+
+.ai-generating {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.ai-generating .spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.import-area { background: var(--bg); border: 1px dashed var(--border-bright); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; }
-.import-area textarea { width: 100%; background: transparent; border: none; color: var(--text); font-family: 'Courier New', monospace; font-size: 0.78rem; line-height: 1.5; min-height: 200px; resize: vertical; outline: none; }
-.parsed-preview { background: var(--surface3); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: 1rem; }
-.parsed-preview h4 { font-size: 0.8rem; color: var(--gold); margin-bottom: 0.5rem; }
-.parsed-preview p { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.3rem; }
+/* ============================================
+   DECK IMPORT
+   ============================================ */
 
-.tag-input-container { display: flex; flex-wrap: wrap; gap: 0.4rem; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.5rem; min-height: 42px; cursor: text; }
+.import-area {
+  background: var(--bg);
+  border: 1px dashed var(--border-bright);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.import-area textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: 'Courier New', monospace;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  min-height: 200px;
+  resize: vertical;
+  outline: none;
+}
+
+.parsed-preview {
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.parsed-preview h4 {
+  font-size: 0.8rem;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+
+.parsed-preview p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 0.3rem;
+}
+
+/* ============================================
+   ADMIN VIEW
+   ============================================ */
+
+.admin-banner {
+  background: rgba(139,26,26,0.2);
+  border: 1px solid var(--crimson);
+  padding: 0.5rem 1rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: #e07060;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.user-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.user-row:last-child { border-bottom: none; }
+
+/* ============================================
+   TREND CHART (simple CSS bars)
+   ============================================ */
+
+.chart-bar-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 80px;
+  margin-top: 1rem;
+}
+
+.chart-bar {
+  flex: 1;
+  background: var(--gold-dim);
+  border-radius: 2px 2px 0 0;
+  min-height: 2px;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.chart-bar.win-bar { background: rgba(39,174,96,0.5); }
+.chart-bar.loss-bar { background: rgba(192,57,43,0.5); }
+
+/* ============================================
+   STRANDED CARDS TAG INPUT
+   ============================================ */
+
+.tag-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.5rem;
+  min-height: 42px;
+  cursor: text;
+}
+
 .tag-input-container:focus-within { border-color: var(--gold-dim); }
-.tag { background: var(--surface3); border: 1px solid var(--border-bright); color: var(--text); padding: 0.15rem 0.5rem; border-radius: 2px; font-size: 0.82rem; display: flex; align-items: center; gap: 0.3rem; }
-.tag-remove { background: none; border: none; color: var(--text-dim); cursor: pointer; padding: 0; font-size: 0.9rem; line-height: 1; }
-.tag-remove:hover { color: var(--loss); }
-.tag-text-input { flex: 1; min-width: 80px; background: transparent; border: none; color: var(--text); font-family: 'Crimson Pro', serif; font-size: 0.9rem; outline: none; }
 
-.flex { display: flex; } .flex-col { flex-direction: column; } .gap-1 { gap: 0.5rem; } .gap-2 { gap: 1rem; } .items-center { align-items: center; } .justify-between { justify-content: space-between; } .mb-1 { margin-bottom: 0.5rem; } .mb-2 { margin-bottom: 1rem; } .mb-3 { margin-bottom: 1.5rem; } .text-dim { color: var(--text-dim); } .text-gold { color: var(--gold); } .text-small { font-size: 0.85rem; } .text-xs { font-size: 0.75rem; } .italic { font-style: italic; } .hidden { display: none !important; }
-.separator { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
-.back-btn { display: inline-flex; align-items: center; gap: 0.5rem; background: none; border: none; color: var(--text-dim); font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.1em; cursor: pointer; padding: 0; margin-bottom: 1.5rem; text-transform: uppercase; }
+.tag {
+  background: var(--surface3);
+  border: 1px solid var(--border-bright);
+  color: var(--text);
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.tag-remove:hover { color: var(--loss); }
+
+.tag-text-input {
+  flex: 1;
+  min-width: 80px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+/* ============================================
+   UTILITY
+   ============================================ */
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.gap-1 { gap: 0.5rem; }
+.gap-2 { gap: 1rem; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.text-dim { color: var(--text-dim); }
+.text-gold { color: var(--gold); }
+.text-small { font-size: 0.85rem; }
+.text-xs { font-size: 0.75rem; }
+.italic { font-style: italic; }
+.hidden { display: none !important; }
+
+.separator {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.5rem 0;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+}
+
 .back-btn:hover { color: var(--gold); }
-.empty-state { text-align: center; padding: 3rem; color: var(--text-dim); }
-.empty-state h3 { font-size: 0.9rem; color: var(--text-faint); margin-bottom: 0.5rem; }
-.empty-state p { font-size: 0.85rem; font-style: italic; }
-@media (max-width: 768px) { .nav-tabs { display: none; } .main-content { padding: 1rem; } .stats-grid { grid-template-columns: repeat(2, 1fr); } .decks-grid { grid-template-columns: 1fr; } }
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-dim);
+}
+
+.empty-state h3 {
+  font-size: 0.9rem;
+  color: var(--text-faint);
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-tabs { display: none; }
+  .main-content { padding: 1rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .decks-grid { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
 
+<!-- ============================================
+     AUTH SCREEN
+     ============================================ -->
 <div id="auth-screen">
   <div class="auth-box">
-    <div class="auth-logo"><h1>⚔ Commander Chronicle</h1><p>Track. Analyze. Dominate.</p></div>
-    <div class="rune-divider">✦ ✦ ✦</div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchAuthTab('login')">Enter Hall</button>
-      <button class="auth-tab" onclick="switchAuthTab('register')">Join Hall</button>
+    <div class="auth-logo">
+      <h1>⚔ Commander Chronicle</h1>
+      <p>Track. Analyze. Dominate.</p>
     </div>
+    <div class="rune-divider">✦ ✦ ✦</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Enter the Hall</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">Join the Hall</button>
+    </div>
+
     <div id="auth-error" class="error-msg hidden"></div>
     <div id="auth-success" class="success-msg hidden"></div>
+
+    <!-- LOGIN -->
     <div id="login-form">
-      <div class="form-group"><label>Name</label><input type="text" id="login-name" placeholder="Your name" autocomplete="username"></div>
-      <div class="form-group"><label>PIN</label><input type="password" id="login-pin" placeholder="••••" maxlength="10" inputmode="numeric"></div>
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="login-name" placeholder="Your name" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>PIN</label>
+        <input type="password" id="login-pin" placeholder="••••" maxlength="10" inputmode="numeric">
+      </div>
       <button class="btn btn-primary" onclick="login()">Enter the Hall</button>
     </div>
+
+    <!-- REGISTER -->
     <div id="register-form" class="hidden">
-      <div class="form-group"><label>Choose a Name</label><input type="text" id="reg-name" placeholder="How shall you be known?" maxlength="30"></div>
-      <div class="form-group"><label>Choose a PIN</label><input type="password" id="reg-pin" placeholder="••••" maxlength="10" inputmode="numeric"></div>
-      <div class="form-group"><label>Confirm PIN</label><input type="password" id="reg-pin2" placeholder="••••" maxlength="10" inputmode="numeric"></div>
+      <div class="form-group">
+        <label>Choose a Name</label>
+        <input type="text" id="reg-name" placeholder="How shall you be known?" maxlength="30">
+      </div>
+      <div class="form-group">
+        <label>Choose a PIN (numbers only)</label>
+        <input type="password" id="reg-pin" placeholder="••••" maxlength="10" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label>Confirm PIN</label>
+        <input type="password" id="reg-pin2" placeholder="••••" maxlength="10" inputmode="numeric">
+      </div>
       <button class="btn btn-primary" onclick="register()">Join the Hall</button>
     </div>
   </div>
 </div>
 
+<!-- ============================================
+     MAIN APP
+     ============================================ -->
 <div id="app">
+
+  <!-- TOP NAV -->
   <nav class="top-nav">
-    <div class="nav-brand">⚔ Commander Chronicle <span id="nav-username"></span></div>
+    <div class="nav-brand">
+      ⚔ Commander Chronicle
+      <span id="nav-username"></span>
+    </div>
     <div class="nav-tabs">
       <button class="nav-tab active" onclick="showTab('dashboard')" data-tab="dashboard">Dashboard</button>
       <button class="nav-tab" onclick="showTab('decks')" data-tab="decks">My Decks</button>
@@ -211,16 +1145,23 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; letter-spacing: 0.05em; }
       <button class="nav-tab" id="admin-tab" onclick="showTab('admin')" data-tab="admin" style="display:none">⚑ Admin</button>
     </div>
     <div class="nav-user">
-      <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle-btn">☀</button>
+      <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle-btn" title="Toggle light/dark theme">☀</button>
       <span class="nav-user-name" id="nav-user-display"></span>
       <button class="btn btn-small btn-danger" onclick="logout()">Exit</button>
     </div>
   </nav>
 
+  <!-- CONTENT AREAS -->
   <div class="main-content">
+
+    <!-- DASHBOARD TAB -->
     <div id="tab-dashboard" class="tab-content">
       <div id="admin-banner" class="admin-banner hidden">⚑ ADMIN VIEW — All users visible</div>
-      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem"><button class="btn" onclick="showLogGameModal()">+ Log Game</button></div>
+
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
+        <button class="btn" onclick="showLogGameModal()">+ Log Game</button>
+      </div>
+
       <div class="stats-grid" id="dashboard-stats">
         <div class="stat-card"><div class="stat-value" id="stat-games">—</div><div class="stat-label">Games Played</div></div>
         <div class="stat-card"><div class="stat-value win" id="stat-wins">—</div><div class="stat-label">Wins</div></div>
@@ -229,65 +1170,186 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; letter-spacing: 0.05em; }
         <div class="stat-card"><div class="stat-value" id="stat-decks">—</div><div class="stat-label">Decks</div></div>
         <div class="stat-card"><div class="stat-value" id="stat-avg-turn">—</div><div class="stat-label">Avg Turn Won</div></div>
       </div>
+
       <div class="panel">
-        <div class="panel-header"><span class="panel-title">Recent Games</span><button class="btn btn-small" onclick="showTab('games')">View All</button></div>
+        <div class="panel-header">
+          <span class="panel-title">Recent Games</span>
+          <button class="btn btn-small" onclick="showTab('games')">View All</button>
+        </div>
         <div id="dashboard-recent-games"></div>
       </div>
-      <div class="panel"><div class="panel-header"><span class="panel-title">Win Conditions Breakdown</span></div><div id="dashboard-wincons"></div></div>
-    </div>
 
-    <div id="tab-decks" class="tab-content hidden">
       <div class="panel">
-        <div class="panel-header"><span class="panel-title">My Decks</span><div class="flex gap-1"><button class="btn btn-small" onclick="showLogGameModal()">+ Log Game</button><button class="btn btn-small" onclick="showImportModal()">+ Import Deck</button></div></div>
-        <div class="decks-grid" id="decks-grid"></div>
+        <div class="panel-header">
+          <span class="panel-title">Win Conditions Breakdown</span>
+        </div>
+        <div id="dashboard-wincons"></div>
       </div>
     </div>
 
+    <!-- DECKS TAB -->
+    <div id="tab-decks" class="tab-content hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">My Decks</span>
+          <div class="flex gap-1">
+            <button class="btn btn-small" onclick="showLogGameModal()">+ Log Game</button>
+            <button class="btn btn-small" onclick="showImportModal()">+ Import Deck</button>
+          </div>
+        </div>
+        <div class="decks-grid" id="decks-grid">
+          <div class="empty-state">
+            <h3>No Decks Yet</h3>
+            <p>Import your first deck from Moxfield to begin.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAMES TAB -->
     <div id="tab-games" class="tab-content hidden">
       <div class="panel">
-        <div class="panel-header"><span class="panel-title">Game Log</span><div class="flex gap-1"><button class="btn btn-small" onclick="showLogGameModal()">+ Log Game</button><select id="games-filter-deck" class="form-group" style="margin:0" onchange="renderGames()"><option value="">All Decks</option></select></div></div>
+        <div class="panel-header">
+          <span class="panel-title">Game Log</span>
+          <div class="flex gap-1">
+            <button class="btn btn-small" onclick="showLogGameModal()">+ Log Game</button>
+            <select id="games-filter-deck" class="form-group" style="margin:0;padding:0.4rem 0.7rem;font-size:0.85rem;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:var(--radius)" onchange="renderGames()">
+              <option value="">All Decks</option>
+            </select>
+            <select id="games-filter-result" style="margin:0;padding:0.4rem 0.7rem;font-size:0.85rem;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:var(--radius)" onchange="renderGames()">
+              <option value="">All Results</option>
+              <option value="win">Wins</option>
+              <option value="loss">Losses</option>
+            </select>
+          </div>
+        </div>
         <div id="games-list"></div>
       </div>
     </div>
 
-    <div id="tab-deck-detail" class="tab-content hidden"><button class="back-btn" onclick="showTab('decks')">← Back to Decks</button><div id="deck-detail-content"></div></div>
-    <div id="tab-admin" class="tab-content hidden"><div class="panel"><div class="panel-header"><span class="panel-title">⚑ Admin Overview</span></div><div id="admin-content"></div></div></div>
-  </div>
-</div>
+    <!-- LOG GAME TAB -->
+    <div id="tab-log-game" class="tab-content hidden">
+      <div class="panel" style="max-width:600px">
+        <div class="panel-header">
+          <span class="panel-title">Log a Game</span>
+        </div>
+        <div id="log-game-form"></div>
+      </div>
+    </div>
 
+    <!-- DECK DETAIL VIEW -->
+    <div id="tab-deck-detail" class="tab-content hidden">
+      <button class="back-btn" onclick="showTab('decks')">← Back to Decks</button>
+      <div id="deck-detail-content"></div>
+    </div>
+
+    <!-- ADMIN TAB -->
+    <div id="tab-admin" class="tab-content hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">⚑ Admin Overview</span>
+        </div>
+        <div id="admin-content"></div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /app -->
+
+<!-- ============================================
+     IMPORT DECK MODAL
+     ============================================ -->
 <div id="import-modal" class="modal-overlay hidden">
-  <div class="modal"><button class="modal-close" onclick="hideImportModal()">✕</button><h3 class="modal-title">Import Deck</h3>
-    <div class="form-group"><label>Commander</label><input type="text" id="import-commander"></div>
-    <div class="form-group"><label>Deck Name</label><input type="text" id="import-deck-name"></div>
-    <div class="import-area"><textarea id="import-text" oninput="previewImport()"></textarea></div>
-    <div id="import-preview" class="hidden"></div><div id="import-error" class="error-msg hidden"></div>
-    <div class="flex gap-1" style="justify-content:flex-end"><button class="btn" onclick="hideImportModal()">Cancel</button><button class="btn btn-primary" id="import-submit-btn" onclick="submitImport()" disabled>Import & Analyze</button></div>
-    <div id="import-progress" class="hidden"><div class="ai-generating"><div class="spinner"></div><p id="import-progress-msg">Parsing...</p></div></div>
+  <div class="modal">
+    <button class="modal-close" onclick="hideImportModal()">✕</button>
+    <h3 class="modal-title">Import Deck from Moxfield</h3>
+
+    <p class="text-dim text-small mb-2">
+      In Moxfield, open your deck → Export → <strong style="color:var(--text)">Copy Plain Text</strong> → paste below.
+      Sideboard and considering cards are excluded automatically.
+    </p>
+
+    <div class="form-group">
+      <label>Commander</label>
+      <input type="text" id="import-commander" placeholder="e.g. Sauron, the Dark Lord" autocomplete="off">
+    </div>
+
+    <div class="form-group">
+      <label>Deck Name <span style="color:var(--text-faint);font-size:0.8rem">(optional — your nickname for this deck)</span></label>
+      <input type="text" id="import-deck-name" placeholder="e.g. An Army Worthy of Mordor">
+    </div>
+
+    <div class="import-area">
+      <textarea id="import-text" placeholder="Paste your Moxfield plain text export here...
+      
+Example:
+1 Sauron, the Dark Lord (LTR) 224
+1 Animate Dead (5ED) 140
+1 Yawgmoth, Thran Physician (DMR) 315
+..." oninput="previewImport()"></textarea>
+    </div>
+
+    <div id="import-preview" class="hidden"></div>
+    <div id="import-error" class="error-msg hidden"></div>
+
+    <div class="flex gap-1" style="justify-content:flex-end">
+      <button class="btn" onclick="hideImportModal()">Cancel</button>
+      <button class="btn btn-primary" id="import-submit-btn" style="width:auto" onclick="submitImport()" disabled>Import & Analyze</button>
+    </div>
+
+    <div id="import-progress" class="hidden" style="margin-top:1rem">
+      <div class="ai-generating">
+        <div class="spinner"></div>
+        <p id="import-progress-msg">Parsing deck...</p>
+      </div>
+    </div>
   </div>
 </div>
 
-<div id="game-detail-modal" class="modal-overlay hidden"><div class="modal"><button class="modal-close" onclick="document.getElementById('game-detail-modal').classList.add('hidden')">✕</button><div id="game-detail-content"></div></div></div>
-<div id="log-game-modal" class="modal-overlay hidden"><div class="modal"><button class="modal-close" onclick="document.getElementById('log-game-modal').classList.add('hidden')">✕</button><h3 class="modal-title">Log a Game</h3><div id="log-game-modal-form"></div></div></div>
+<!-- ============================================
+     GAME DETAIL MODAL
+     ============================================ -->
+<div id="game-detail-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('game-detail-modal').classList.add('hidden')">✕</button>
+    <div id="game-detail-content"></div>
+  </div>
+</div>
 
 <script>
+// ============================================
+// SUPABASE CLIENT
+// ============================================
 const ADMIN_PIN = '2992';
+
 const WORKER_URL = 'https://cc-proxy.oscar-crespom.workers.dev';
 
-// Standardized Request: Using Body-payload to bypass CORS preflight issues
 async function sbRequest(path, method = 'GET', body = null, params = '') {
-  const payload = { target: 'supabase', method, path, params, payload: body };
-  try {
-    const res = await fetch(WORKER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) throw new Error(await res.text());
-    const text = await res.text();
-    return text ? JSON.parse(text) : null;
-  } catch (e) { console.error("Hall connection error:", e); throw e; }
+  const opts = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Target': 'supabase',
+      'X-Method': method,
+      'X-Path': path,
+      'X-Params': params || ''
+    }
+  };
+  if (body && method !== 'GET' && method !== 'DELETE') {
+    opts.body = JSON.stringify(body);
+  }
+  const res = await fetch(WORKER_URL, opts);
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }
 
+// ============================================
+// SIMPLE PIN HASH (SHA-256)
+// ============================================
 async function hashPin(pin) {
   const encoder = new TextEncoder();
   const data = encoder.encode(pin + 'commander_chronicle_salt');
@@ -296,179 +1358,1635 @@ async function hashPin(pin) {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-let currentUser = null, allDecks = [], allGames = [], currentDeckDetail = null;
+// ============================================
+// APP STATE
+// ============================================
+let currentUser = null;
+let allDecks = [];
+let allGames = [];
+let currentDeckDetail = null;
 
+// ============================================
+// AUTH
+// ============================================
 function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
+  });
   document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
   document.getElementById('register-form').classList.toggle('hidden', tab !== 'register');
-  document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', (i===0 && tab==='login') || (i===1 && tab==='register')));
+  clearAuthMessages();
+}
+
+function clearAuthMessages() {
+  document.getElementById('auth-error').classList.add('hidden');
+  document.getElementById('auth-success').classList.add('hidden');
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+}
+
+function showAuthSuccess(msg) {
+  const el = document.getElementById('auth-success');
+  el.textContent = msg;
+  el.classList.remove('hidden');
 }
 
 async function login() {
   const name = document.getElementById('login-name').value.trim();
   const pin = document.getElementById('login-pin').value.trim();
-  const err = document.getElementById('auth-error');
-  err.classList.add('hidden');
+  if (!name || !pin) return showAuthError('Please enter your name and PIN.');
+
   try {
-    const pinHash = await hashPin(pin);
-    const users = await sbRequest('users', 'GET', null, `?username=eq.${encodeURIComponent(name)}&pin_hash=eq.${pinHash}&select=*`);
-    if (users && users.length > 0) return setCurrentUser(users[0]);
-    if (pin === ADMIN_PIN && name.toLowerCase() === 'oscar') {
-        const admins = await sbRequest('users', 'GET', null, `?username=eq.Oscar&is_admin=eq.true&select=*`);
-        if (admins?.length) return setCurrentUser(admins[0]);
+    // Check admin
+    if (pin === ADMIN_PIN) {
+      // Admin login — find or create admin user
+      const users = await sbRequest('users', 'GET', null, `?username=eq.${encodeURIComponent(name)}&select=*`);
+      if (users && users.length > 0 && users[0].is_admin) {
+        setCurrentUser(users[0]);
+        return;
+      }
     }
-    err.textContent = "The gates remain closed. Check your name or PIN.";
-    err.classList.remove('hidden');
-  } catch (e) { err.textContent = "Connection to the Hall failed."; err.classList.remove('hidden'); }
+
+    const pinHash = await hashPin(pin);
+    const users = await sbRequest('users', 'GET', null,
+      `?username=eq.${encodeURIComponent(name)}&pin_hash=eq.${pinHash}&select=*`);
+
+    if (!users || users.length === 0) {
+      return showAuthError('Invalid name or PIN. Check your credentials or register.');
+    }
+    setCurrentUser(users[0]);
+  } catch (e) {
+    showAuthError('Connection error. Please try again.');
+    console.error(e);
+  }
 }
 
 async function register() {
   const name = document.getElementById('reg-name').value.trim();
   const pin = document.getElementById('reg-pin').value.trim();
   const pin2 = document.getElementById('reg-pin2').value.trim();
-  if (pin !== pin2) return alert("PINs do not match.");
+
+  if (!name) return showAuthError('Please enter a name.');
+  if (!pin) return showAuthError('Please choose a PIN.');
+  if (pin !== pin2) return showAuthError('PINs do not match.');
+  if (!/^\d+$/.test(pin)) return showAuthError('PIN must be numbers only.');
+  if (name.length < 2) return showAuthError('Name must be at least 2 characters.');
+
+  // Reserve admin PIN
+  if (pin === ADMIN_PIN && name.toLowerCase() !== 'oscar') {
+    return showAuthError('That PIN is reserved.');
+  }
+
   try {
     const pinHash = await hashPin(pin);
-    await sbRequest('users', 'POST', { username: name, pin_hash: pinHash, is_admin: (pin === ADMIN_PIN && name.toLowerCase() === 'oscar') });
-    switchAuthTab('login');
-  } catch (e) { alert("Registration failed."); }
+    const isAdmin = (pin === ADMIN_PIN);
+
+    const result = await sbRequest('users', 'POST', {
+      username: name,
+      pin_hash: pinHash,
+      is_admin: isAdmin
+    });
+
+    if (result && result.length > 0) {
+      showAuthSuccess('Welcome to the Hall! You can now log in.');
+      switchAuthTab('login');
+      document.getElementById('login-name').value = name;
+    }
+  } catch (e) {
+    if (e.message.includes('duplicate') || e.message.includes('unique')) {
+      showAuthError('That name is already taken. Choose another.');
+    } else {
+      showAuthError('Registration failed. Please try again.');
+      console.error(e);
+    }
+  }
 }
 
 function setCurrentUser(user) {
   currentUser = user;
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  document.getElementById('nav-username').textContent = ` — ${user.username}`;
+  document.getElementById('nav-username').textContent = `— ${user.username}`;
   document.getElementById('nav-user-display').textContent = user.username;
+
   if (user.is_admin) {
     document.getElementById('admin-tab').style.display = 'flex';
     document.getElementById('admin-banner').classList.remove('hidden');
   }
+
   loadUserData();
 }
 
-async function loadUserData() {
-  try {
-    const q = currentUser.is_admin ? "" : `?user_id=eq.${currentUser.id}`;
-    allDecks = await sbRequest('decks', 'GET', null, q ? q + "&select=*" : "?select=*,users(username)&order=created_at.desc") || [];
-    allGames = await sbRequest('games', 'GET', null, q ? q + "&order=played_at.desc" : "?select=*,users(username)&order=played_at.desc") || [];
-    renderDashboard(); renderDecks(); renderGames();
-  } catch (e) { console.error(e); }
+function logout() {
+  currentUser = null;
+  allDecks = [];
+  allGames = [];
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('login-pin').value = '';
+  clearAuthMessages();
 }
 
+// ============================================
+// DATA LOADING
+// ============================================
+async function loadUserData() {
+  try {
+    if (currentUser.is_admin) {
+      allDecks = await sbRequest('decks', 'GET', null, '?select=*,users(username)&order=created_at.desc') || [];
+      allGames = await sbRequest('games', 'GET', null, '?select=*,users(username)&order=played_at.desc') || [];
+    } else {
+      allDecks = await sbRequest('decks', 'GET', null,
+        `?user_id=eq.${currentUser.id}&select=*&order=created_at.desc`) || [];
+      allGames = await sbRequest('games', 'GET', null,
+        `?user_id=eq.${currentUser.id}&select=*&order=played_at.desc`) || [];
+    }
+    renderDashboard();
+    renderDecks();
+    renderGames();
+    buildLogGameForm();
+  } catch (e) {
+    console.error('Failed to load data:', e);
+  }
+}
+
+// ============================================
+// NAVIGATION
+// ============================================
 function showTab(tab) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
   document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-  document.getElementById(`tab-${tab}`).classList.remove('hidden');
+
+  const tabEl = document.getElementById(`tab-${tab}`);
+  if (tabEl) tabEl.classList.remove('hidden');
+
   const navEl = document.querySelector(`[data-tab="${tab}"]`);
   if (navEl) navEl.classList.add('active');
-  if (tab === 'admin') renderAdmin();
+
+  if (tab === 'log-game') buildLogGameForm();
+  if (tab === 'admin' && currentUser.is_admin) renderAdmin();
 }
 
+// ============================================
+// DASHBOARD
+// ============================================
 function renderDashboard() {
   const games = allGames.filter(g => currentUser.is_admin || g.user_id === currentUser.id);
   const wins = games.filter(g => g.result === 'win').length;
-  document.getElementById('stat-games').textContent = games.length;
-  document.getElementById('stat-wins').textContent = wins;
-  document.getElementById('stat-losses').textContent = games.length - wins;
-  document.getElementById('stat-winrate').textContent = games.length ? ((wins/games.length)*100).toFixed(0) + '%' : '0%';
-  document.getElementById('stat-decks').textContent = allDecks.length;
-  document.getElementById('dashboard-recent-games').innerHTML = games.slice(0,5).map(g => renderGameRow(g)).join('');
+  const losses = games.filter(g => g.result === 'loss').length;
+  const total = games.length;
+  const winRate = total > 0 ? ((wins / total) * 100).toFixed(0) : '—';
+  const avgTurn = total > 0
+    ? (games.filter(g => g.turn_ended).reduce((a, g) => a + g.turn_ended, 0) /
+       games.filter(g => g.turn_ended).length || 0).toFixed(1)
+    : '—';
+
+  document.getElementById('stat-games').textContent = total || '—';
+  document.getElementById('stat-wins').textContent = wins || '—';
+  document.getElementById('stat-losses').textContent = losses || '—';
+  document.getElementById('stat-winrate').textContent = total > 0 ? `${winRate}%` : '—';
+  document.getElementById('stat-decks').textContent = allDecks.length || '—';
+  document.getElementById('stat-avg-turn').textContent = avgTurn;
+
+  // Recent games
+  const recentEl = document.getElementById('dashboard-recent-games');
+  const recent = games.slice(0, 5);
+  if (recent.length === 0) {
+    recentEl.innerHTML = '<div class="empty-state"><p>No games logged yet.</p></div>';
+  } else {
+    recentEl.innerHTML = recent.map(g => renderGameRow(g)).join('');
+  }
+
+  // Win condition breakdown
+  const winconsEl = document.getElementById('dashboard-wincons');
+  const winGames = games.filter(g => g.result === 'win' && g.win_condition);
+  if (winGames.length === 0) {
+    winconsEl.innerHTML = '<p class="text-dim text-small italic">No wins logged yet.</p>';
+  } else {
+    const counts = {};
+    winGames.forEach(g => { counts[g.win_condition] = (counts[g.win_condition] || 0) + 1; });
+    const maxCount = Math.max(...Object.values(counts));
+    winconsEl.innerHTML = Object.entries(counts).map(([cond, count]) => `
+      <div class="flex items-center gap-2 mb-1" style="font-size:0.85rem">
+        <span style="min-width:160px;color:var(--text)">${cond}</span>
+        <div style="flex:1;background:var(--surface3);border-radius:2px;height:8px">
+          <div style="width:${(count/maxCount*100).toFixed(0)}%;background:var(--win);height:100%;border-radius:2px"></div>
+        </div>
+        <span style="color:var(--text-dim);min-width:30px;text-align:right">${count}x</span>
+      </div>
+    `).join('');
+  }
 }
 
+// ============================================
+// DECKS
+// ============================================
 function renderDecks() {
   const grid = document.getElementById('decks-grid');
-  grid.innerHTML = allDecks.map(d => `
-    <div class="deck-card" onclick="showDeckDetail('${d.id}')">
-      ${d.art_url ? `<div class="deck-art-container"><img src="${esc(d.art_url)}"></div>` : `<div class="deck-art-container"><div class="deck-art-placeholder"><span>🎴</span><p>Add Art</p></div></div>`}
-      <div class="deck-card-commander">${esc(d.name)}</div>
-      <div class="deck-card-name">${esc(d.commander)}</div>
-      <div class="deck-card-stats"><span>${allGames.filter(g=>g.deck_id===d.id).length} chronicles</span></div>
-    </div>`).join('');
+  const decks = allDecks.filter(d => currentUser.is_admin || d.user_id === currentUser.id);
+
+  if (decks.length === 0) {
+    grid.innerHTML = `<div class="empty-state"><h3>No Decks Yet</h3><p>Import your first deck from Moxfield to begin.</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = decks.map(deck => {
+    const deckGames = allGames.filter(g => g.deck_id === deck.id);
+    const wins = deckGames.filter(g => g.result === 'win').length;
+    const total = deckGames.length;
+    const wr = total > 0 ? `${((wins/total)*100).toFixed(0)}%` : '—';
+    const colors = deck.color_identity || [];
+
+    const ownerTag = currentUser.is_admin && deck.users
+      ? `<span style="font-size:0.7rem;color:var(--text-faint)">${deck.users.username}</span>` : '';
+
+    const artHtml = deck.art_url
+      ? `<div class="deck-art-container" onclick="event.stopPropagation();promptArtUrl('${deck.id}')">
+          <img src="${escHtml(deck.art_url)}" alt="${escHtml(deck.commander)}" onerror="this.style.display='none';this.parentElement.style.background='var(--surface3)'">
+          <button class="deck-art-edit-btn">✎ Edit Art</button>
+        </div>`
+      : `<div class="deck-art-container" onclick="event.stopPropagation();promptArtUrl('${deck.id}')">
+          <div class="deck-art-placeholder"><span>🎴</span><p>Add Art</p></div>
+        </div>`;
+
+    return `
+      <div class="deck-card" onclick="showDeckDetail('${deck.id}')">
+        ${artHtml}
+        <div class="flex justify-between items-center mb-1">
+          <div class="deck-card-commander">${escHtml(deck.name)}</div>
+          ${ownerTag}
+        </div>
+        <div class="deck-card-name">${escHtml(deck.commander)}</div>
+        <div class="color-pips">${colors.map(c => `<span class="pip pip-${c}">${c}</span>`).join('')}</div>
+        <div class="deck-card-stats">
+          <div class="deck-card-stat"><span class="text-dim">${total}</span> games</div>
+          <div class="deck-card-stat"><span style="color:var(--win)">${wins}</span>W</div>
+          <div class="deck-card-stat"><span>${total - wins}</span>L</div>
+          <div class="deck-card-stat"><span style="color:var(--gold)">${wr}</span> WR</div>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
+// ============================================
+// GAMES
+// ============================================
 function renderGames() {
   const list = document.getElementById('games-list');
-  const filter = document.getElementById('games-filter-deck').value;
-  let games = allGames;
-  if (filter) games = games.filter(g => g.deck_id === filter);
+  const filterDeck = document.getElementById('games-filter-deck').value;
+  const filterResult = document.getElementById('games-filter-result').value;
+
+  let games = allGames.filter(g => currentUser.is_admin || g.user_id === currentUser.id);
+  if (filterDeck) games = games.filter(g => g.deck_id === filterDeck);
+  if (filterResult) games = games.filter(g => g.result === filterResult);
+
+  // Populate deck filter
+  const deckFilter = document.getElementById('games-filter-deck');
+  const currentVal = deckFilter.value;
+  deckFilter.innerHTML = '<option value="">All Decks</option>' +
+    allDecks.filter(d => currentUser.is_admin || d.user_id === currentUser.id)
+      .map(d => `<option value="${d.id}" ${d.id === currentVal ? 'selected' : ''}>${escHtml(d.commander)}</option>`)
+      .join('');
+
+  if (games.length === 0) {
+    list.innerHTML = '<div class="empty-state"><p>No games match your filters.</p></div>';
+    return;
+  }
+
   list.innerHTML = games.map(g => renderGameRow(g)).join('');
-  document.getElementById('games-filter-deck').innerHTML = '<option value="">All Decks</option>' + allDecks.map(d=>`<option value="${d.id}">${d.commander}</option>`).join('');
 }
 
-function renderGameRow(g) {
-  const deck = allDecks.find(d => d.id === g.deck_id);
-  return `<div class="game-entry ${g.result}" onclick="showGameDetail('${g.id}')"><div class="game-result-badge ${g.result}">${g.result.toUpperCase()}</div><div class="game-info"><div class="game-deck-name">${deck ? esc(deck.commander) : 'Unknown'}</div><div class="game-meta">Turn ${g.turn_ended || '?'}</div></div><div class="game-date">${new Date(g.played_at).toLocaleDateString()}</div></div>`;
+function renderGameRow(game) {
+  const deck = allDecks.find(d => d.id === game.deck_id);
+  const deckName = deck ? deck.commander : 'Unknown Deck';
+  const condition = game.result === 'win' ? game.win_condition : game.loss_reason;
+  const date = new Date(game.played_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+  return `
+    <div class="game-entry ${game.result}" onclick="showGameDetail('${game.id}')">
+      <div class="game-result-badge ${game.result}">${game.result.toUpperCase()}</div>
+      <div class="game-info">
+        <div class="game-deck-name">${escHtml(deckName)}</div>
+        <div class="game-meta">Turn ${game.turn_ended || '?'} · ${game.pod_size}-player pod · Seat ${game.seat_position}</div>
+      </div>
+      <div class="game-condition">${escHtml(condition || '')}</div>
+      <div class="game-date">${date}</div>
+    </div>
+  `;
 }
 
-function showDeckDetail(id) {
-  currentDeckDetail = allDecks.find(d => d.id === id);
+function showGameDetail(gameId) {
+  const game = allGames.find(g => g.id === gameId);
+  if (!game) return;
+  const deck = allDecks.find(d => d.id === game.deck_id);
+
+  const content = document.getElementById('game-detail-content');
+  // Get flavor message if deck has one
+  const winTitle = deck?.win_message_title || null;
+  const winBody = deck?.win_message_body || null;
+  const lossTitle = deck?.loss_message_title || null;
+  const lossBody = deck?.loss_message_body || null;
+
+  const flavorTitle = game.result === 'win' ? winTitle : lossTitle;
+  const flavorBody = game.result === 'win' ? winBody : lossBody;
+
+  content.innerHTML = `
+    ${flavorTitle ? `
+    <div style="text-align:center;padding:1.2rem 0 0.5rem;border-bottom:1px solid var(--border);margin-bottom:1.2rem">
+      <div style="font-family:'Cinzel',serif;font-size:1.2rem;color:${game.result === 'win' ? 'var(--win)' : 'var(--loss)'};margin-bottom:0.4rem">${escHtml(flavorTitle)}</div>
+      <div style="font-style:italic;color:var(--text-dim);font-size:0.95rem">${escHtml(flavorBody)}</div>
+    </div>` : `
+    <h3 class="modal-title" style="color:${game.result === 'win' ? 'var(--win)' : 'var(--loss)'}">
+      ${game.result.toUpperCase()} — ${deck ? escHtml(deck.commander) : 'Unknown'}
+    </h3>`}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+      <div><span class="text-dim text-xs">DATE</span><br>${new Date(game.played_at).toLocaleDateString()}</div>
+      <div><span class="text-dim text-xs">POD SIZE</span><br>${game.pod_size} players</div>
+      <div><span class="text-dim text-xs">SEAT</span><br>${game.seat_position}</div>
+      <div><span class="text-dim text-xs">TURN ENDED</span><br>${game.turn_ended || 'Not recorded'}</div>
+      <div><span class="text-dim text-xs">COMMANDER LANDED</span><br>${game.commander_hit_battlefield ? 'Yes' : 'No'}</div>
+      <div><span class="text-dim text-xs">COMMANDER REMOVED</span><br>${game.commander_removed ? 'Yes' : 'No'}</div>
+      <div><span class="text-dim text-xs">${game.result === 'win' ? 'WIN CONDITION' : 'LOSS REASON'}</span><br>
+        ${escHtml(game.result === 'win' ? (game.win_condition || '—') : (game.loss_reason || '—'))}
+      </div>
+    </div>
+    ${game.stranded_cards && game.stranded_cards.length > 0 ? `
+      <div class="mb-2"><span class="text-dim text-xs">STRANDED CARDS</span><br>
+        <div class="flex" style="flex-wrap:wrap;gap:0.4rem;margin-top:0.4rem">
+          ${game.stranded_cards.map(c => `<span class="tag">${escHtml(c)}</span>`).join('')}
+        </div>
+      </div>` : ''}
+    ${game.notes ? `<div><span class="text-dim text-xs">NOTES</span><br><p style="margin-top:0.3rem;font-style:italic">${escHtml(game.notes)}</p></div>` : ''}
+    <div class="flex gap-1" style="margin-top:1.5rem;justify-content:flex-end">
+      <button class="btn btn-small btn-danger" onclick="deleteGame('${game.id}')">Delete Game</button>
+    </div>
+  `;
+  document.getElementById('game-detail-modal').classList.remove('hidden');
+}
+
+async function deleteGame(gameId) {
+  if (!confirm('Delete this game record? This cannot be undone.')) return;
+  try {
+    await sbRequest(`games?id=eq.${gameId}`, 'DELETE');
+    allGames = allGames.filter(g => g.id !== gameId);
+    document.getElementById('game-detail-modal').classList.add('hidden');
+    renderDashboard();
+    renderGames();
+  } catch (e) {
+    alert('Failed to delete game.');
+  }
+}
+
+// ============================================
+// DECK DETAIL
+// ============================================
+function showDeckDetail(deckId) {
+  currentDeckDetail = allDecks.find(d => d.id === deckId);
+  if (!currentDeckDetail) return;
   showTab('deck-detail');
+  renderDeckDetail();
+}
+
+function renderDeckDetail() {
   const deck = currentDeckDetail;
   const deckGames = allGames.filter(g => g.deck_id === deck.id);
-  document.getElementById('deck-detail-content').innerHTML = `
+  const wins = deckGames.filter(g => g.result === 'win').length;
+  const total = deckGames.length;
+  const colors = deck.color_identity || [];
+
+  const content = document.getElementById('deck-detail-content');
+  content.innerHTML = `
     <div class="panel">
-      <h2>${esc(deck.name)}</h2><p>${esc(deck.commander)}</p>
-      <div class="deck-detail-tabs">
-        <button class="deck-detail-tab active" onclick="switchDeckTab('brief', this)">Intelligence Brief</button>
-        <button class="deck-detail-tab" onclick="switchDeckTab('roast', this)">Deck Roast 🔥</button>
-        <button class="deck-detail-tab" onclick="switchDeckTab('games', this)">Games</button>
+      <div class="flex justify-between items-center mb-3">
+        <div style="display:flex;gap:1.2rem;align-items:flex-start">
+          ${deck.art_url ? `<div style="width:80px;height:60px;border-radius:var(--radius);overflow:hidden;flex-shrink:0;cursor:pointer" onclick="promptArtUrl('${deck.id}')">
+            <img src="${escHtml(deck.art_url)}" style="width:100%;height:100%;object-fit:cover;object-position:center top" onerror="this.style.display='none'">
+          </div>` : `<div style="width:80px;height:60px;border-radius:var(--radius);background:var(--surface3);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--text-faint);font-size:0.65rem;font-family:'Cinzel',serif;letter-spacing:0.05em;text-align:center;padding:0.3rem" onclick="promptArtUrl('${deck.id}')">ADD ART</div>`}
+          <div>
+            <h2 style="font-size:1.4rem;color:var(--gold)">${escHtml(deck.name)}</h2>
+            <p class="text-dim italic">${escHtml(deck.commander)}</p>
+            <div class="color-pips" style="margin-top:0.5rem">${colors.map(c => `<span class="pip pip-${c}">${c}</span>`).join('')}</div>
+          </div>
+        </div>
+        <div class="flex gap-1">
+          <button class="btn btn-small" onclick="showUpdateDecklistModal('${deck.id}')">↺ Update Decklist</button>
+          <button class="btn btn-small btn-danger" onclick="deleteDeck('${deck.id}')">Delete Deck</button>
+        </div>
       </div>
-      <div id="deck-tab-brief" class="ai-content">${renderMD(deck.intelligence_brief)}</div>
-      <div id="deck-tab-roast" class="ai-content roast hidden">${renderMD(deck.deck_roast)}</div>
-      <div id="deck-tab-games" class="hidden">${deckGames.map(g=>renderGameRow(g)).join('')}</div>
-      <button class="btn btn-danger" style="margin-top:2rem" onclick="deleteDeck('${deck.id}')">Delete Deck</button>
-    </div>`;
+
+      <div class="stats-grid" style="margin-bottom:1.5rem">
+        <div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Games</div></div>
+        <div class="stat-card"><div class="stat-value win">${wins}</div><div class="stat-label">Wins</div></div>
+        <div class="stat-card"><div class="stat-value loss">${total - wins}</div><div class="stat-label">Losses</div></div>
+        <div class="stat-card"><div class="stat-value">${total > 0 ? ((wins/total)*100).toFixed(0) + '%' : '—'}</div><div class="stat-label">Win Rate</div></div>
+      </div>
+
+      <div class="deck-detail-tabs">
+        <button class="deck-detail-tab active" onclick="switchDeckTab('games', this)">Games</button>
+        <button class="deck-detail-tab" onclick="switchDeckTab('decklist', this)">Decklist</button>
+        <button class="deck-detail-tab" onclick="switchDeckTab('brief', this)">Intelligence Brief</button>
+        <button class="deck-detail-tab" onclick="switchDeckTab('roast', this)">Deck Roast 🔥</button>
+        <button class="deck-detail-tab" onclick="switchDeckTab('dropped', this)">Cards Dropped</button>
+      </div>
+
+      <div id="deck-tab-games">
+        ${deckGames.length === 0
+          ? '<div class="empty-state"><p>No games logged for this deck yet.</p></div>'
+          : deckGames.map(g => renderGameRow(g)).join('')}
+      </div>
+
+      <div id="deck-tab-decklist" class="hidden">
+        <div style="column-count:2;column-gap:2rem;font-size:0.82rem;font-family:'Courier New',monospace;color:var(--text-dim)">
+          ${renderDecklistHTML(deck.decklist)}
+        </div>
+      </div>
+
+      <div id="deck-tab-brief" class="hidden">
+        ${renderBriefTab(deck)}
+      </div>
+
+      <div id="deck-tab-roast" class="hidden">
+        ${renderRoastTab(deck)}
+      </div>
+
+      <div id="deck-tab-dropped" class="hidden">
+        ${renderDroppedTab(deck)}
+      </div>
+    </div>
+  `;
 }
 
 function switchDeckTab(tab, btn) {
-  document.querySelectorAll('[id^="deck-tab-"]').forEach(t => t.classList.add('hidden'));
+  document.querySelectorAll('[id^="deck-tab-"]').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.deck-detail-tab').forEach(el => el.classList.remove('active'));
   document.getElementById(`deck-tab-${tab}`).classList.remove('hidden');
-  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 }
 
-function renderMD(t) {
-  if (!t) return "Awaiting chronicle analysis...";
-  return t.replace(/^## (.*$)/gm, '<h3 style="color:var(--gold)">$1</h3>')
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\n/g, '<br>');
+function renderDecklistHTML(decklist) {
+  if (!decklist || !Array.isArray(decklist)) return '<p class="text-dim">No decklist data.</p>';
+  return decklist.map(c => `<div style="break-inside:avoid">${c.qty}x ${escHtml(c.name)}</div>`).join('');
 }
 
-function esc(s) { return s ? s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''; }
+function renderBriefTab(deck) {
+  if (deck.intelligence_brief) {
+    return `
+      <div class="ai-content">${renderMarkdown(deck.intelligence_brief)}</div>
+      <p class="text-dim text-xs italic" style="margin-top:0.5rem">Generated ${deck.brief_generated_at ? new Date(deck.brief_generated_at).toLocaleDateString() : ''}</p>
+      <button class="btn btn-small" style="margin-top:0.5rem" onclick="regenerateBrief('${deck.id}')">↺ Regenerate</button>
+    `;
+  }
+  return `
+    <div class="empty-state">
+      <p>Intelligence Brief not yet generated.</p>
+      <button class="btn" style="margin-top:1rem" onclick="generateBrief('${deck.id}')">Generate Brief</button>
+    </div>
+  `;
+}
 
-function logout() { location.reload(); }
+function renderRoastTab(deck) {
+  if (deck.deck_roast) {
+    return `
+      <div class="ai-content roast">${renderMarkdown(deck.deck_roast)}</div>
+      <p class="text-dim text-xs italic" style="margin-top:0.5rem">Roasted ${deck.roast_generated_at ? new Date(deck.roast_generated_at).toLocaleDateString() : ''}</p>
+      <button class="btn btn-small btn-danger" style="margin-top:0.5rem" onclick="regenerateRoast('${deck.id}')">🔥 Re-Roast</button>
+    `;
+  }
+  return `
+    <div class="empty-state">
+      <p>This deck hasn't been roasted yet.</p>
+      <p class="text-xs italic" style="margin-top:0.3rem;color:var(--text-faint)">Warning: Gordon Ramsay after being kicked in the balls.</p>
+      <button class="btn btn-danger" style="margin-top:1rem" onclick="generateRoast('${deck.id}')">🔥 Roast This Deck</button>
+    </div>
+  `;
+}
 
-async function aiCall(prompt) {
-  const res = await fetch(WORKER_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ target: 'anthropic', messages: [{ role: 'user', content: prompt }] })
+// ============================================
+// CARDS DROPPED TAB
+// ============================================
+function renderDroppedTab(deck) {
+  const dropped = deck.cards_dropped || [];
+  return `
+    <div style="margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center">
+      <p class="text-dim text-small italic">Cards removed from this deck over time, with reasons.</p>
+    </div>
+    ${dropped.length === 0
+      ? '<div class="empty-state"><p>No cards have been dropped from this deck yet.</p><p class="text-xs italic" style="margin-top:0.3rem">Cards are logged here automatically when you update your decklist.</p></div>'
+      : `<div>
+          ${dropped.map((c, i) => `
+            <div style="display:flex;align-items:flex-start;gap:1rem;padding:0.8rem 0;border-bottom:1px solid var(--border)">
+              <div style="flex:1">
+                <div style="font-family:'Cinzel',serif;font-size:0.9rem;color:var(--text)">${escHtml(c.name)}</div>
+                <div style="font-size:0.78rem;color:var(--text-faint);margin-top:0.2rem">${c.dropped_at ? new Date(c.dropped_at).toLocaleDateString() : ''}</div>
+                ${c.reason ? `<div style="font-size:0.85rem;color:var(--text-dim);font-style:italic;margin-top:0.3rem">"${escHtml(c.reason)}"</div>` : ''}
+              </div>
+              ${c.was_stranded ? `<span style="font-size:0.7rem;background:rgba(192,57,43,0.2);border:1px solid var(--crimson);color:#e07060;padding:0.2rem 0.5rem;border-radius:2px;white-space:nowrap">Stranded</span>` : ''}
+            </div>
+          `).join('')}
+        </div>`
+    }
+  `;
+}
+
+// ============================================
+// UPDATE DECKLIST MODAL
+// ============================================
+function showUpdateDecklistModal(deckId) {
+  const deck = allDecks.find(d => d.id === deckId);
+  if (!deck) return;
+
+  // Get stranded cards from this deck's game history
+  const deckGames = allGames.filter(g => g.deck_id === deckId);
+  const strandedCounts = {};
+  deckGames.forEach(g => {
+    if (g.stranded_cards && Array.isArray(g.stranded_cards)) {
+      g.stranded_cards.forEach(card => {
+        const key = card.toLowerCase().trim();
+        strandedCounts[key] = (strandedCounts[key] || 0) + 1;
+      });
+    }
   });
-  return (await res.json()).content?.[0]?.text || '';
+
+  // Create modal
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'update-decklist-modal';
+  overlay.innerHTML = `
+    <div class="modal" style="max-width:640px">
+      <button class="modal-close" onclick="document.getElementById('update-decklist-modal').remove()">✕</button>
+      <h3 class="modal-title">Update Decklist — ${escHtml(deck.commander)}</h3>
+
+      <p class="text-dim text-small mb-2">
+        Paste your updated Moxfield plain text export. The app will detect removed cards automatically
+        and ask you to log reasons for any cuts.
+      </p>
+
+      <div class="import-area">
+        <textarea id="update-decklist-text" placeholder="Paste updated decklist here..." style="min-height:180px"></textarea>
+      </div>
+
+      <div id="update-diff-preview" class="hidden"></div>
+      <div id="update-error" class="error-msg hidden"></div>
+
+      <div class="flex gap-1" style="justify-content:flex-end;margin-top:1rem">
+        <button class="btn" onclick="document.getElementById('update-decklist-modal').remove()">Cancel</button>
+        <button class="btn btn-primary" style="width:auto" onclick="previewDeckUpdate('${deckId}')">Preview Changes</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Store stranded counts for use in preview
+  overlay._strandedCounts = strandedCounts;
+}
+
+async function previewDeckUpdate(deckId) {
+  const deck = allDecks.find(d => d.id === deckId);
+  const text = document.getElementById('update-decklist-text').value.trim();
+  const errEl = document.getElementById('update-error');
+  const previewEl = document.getElementById('update-diff-preview');
+  errEl.classList.add('hidden');
+
+  if (!text) {
+    errEl.textContent = 'Please paste your updated decklist.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
+  let parsed;
+  try {
+    // Temporarily set import-deck-name to deck name for parser
+    const tempInput = document.createElement('input');
+    tempInput.id = 'import-deck-name';
+    tempInput.value = deck.name;
+    tempInput.style.display = 'none';
+    document.body.appendChild(tempInput);
+    const tempCommander = document.createElement('input');
+    tempCommander.id = 'import-commander';
+    tempCommander.value = deck.commander;
+    tempCommander.style.display = 'none';
+    document.body.appendChild(tempCommander);
+
+    parsed = parseMoxfieldText(text);
+
+    document.body.removeChild(tempInput);
+    document.body.removeChild(tempCommander);
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.classList.remove('hidden');
+    return;
+  }
+
+  // Diff: find removed cards
+  const oldCards = new Set((deck.decklist || []).map(c => c.name.toLowerCase().trim()));
+  const newCards = new Set(parsed.cards.map(c => c.name.toLowerCase().trim()));
+  const removedNames = [...oldCards].filter(n => !newCards.has(n));
+  const addedNames = [...newCards].filter(n => !oldCards.has(n));
+
+  const overlay = document.getElementById('update-decklist-modal');
+  const strandedCounts = overlay._strandedCounts || {};
+
+  if (removedNames.length === 0 && addedNames.length === 0) {
+    errEl.textContent = 'No changes detected between the old and new decklist.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
+  // Get display names (original casing) for removed cards
+  const removedDisplayNames = removedNames.map(lower => {
+    const orig = (deck.decklist || []).find(c => c.name.toLowerCase().trim() === lower);
+    return orig ? orig.name : lower;
+  });
+
+  previewEl.innerHTML = `
+    <div style="background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem;margin-bottom:1rem">
+      <div style="margin-bottom:0.8rem">
+        ${addedNames.length > 0 ? `<p style="color:var(--win);font-size:0.85rem;margin-bottom:0.3rem">+${addedNames.length} card${addedNames.length>1?'s':''} added</p>` : ''}
+        ${removedNames.length > 0 ? `<p style="color:var(--loss);font-size:0.85rem">−${removedNames.length} card${removedNames.length>1?'s':''} removed</p>` : ''}
+        <p style="color:var(--text-dim);font-size:0.78rem;margin-top:0.3rem">${parsed.totalCards} total cards in new list</p>
+      </div>
+
+      ${removedNames.length > 0 ? `
+        <div style="border-top:1px solid var(--border);padding-top:0.8rem">
+          <p style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.8rem">Log reasons for cuts (optional)</p>
+          ${removedDisplayNames.map((name, i) => {
+            const isStranded = strandedCounts[name.toLowerCase().trim()] > 0;
+            const strandedCount = strandedCounts[name.toLowerCase().trim()] || 0;
+            return `
+              <div style="margin-bottom:0.8rem;padding:0.8rem;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border)">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
+                  <span style="font-family:'Cinzel',serif;font-size:0.85rem;color:var(--loss)">${escHtml(name)}</span>
+                  <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.78rem;color:${isStranded ? 'var(--loss)' : 'var(--text-dim)'};cursor:pointer">
+                    <input type="checkbox" id="stranded-${i}" ${isStranded ? 'checked' : ''}
+                      style="accent-color:var(--crimson-bright)">
+                    Stranded${strandedCount > 0 ? ` (${strandedCount}x in logs)` : ''}
+                  </label>
+                </div>
+                <input type="text" id="reason-${i}" placeholder="Why was this cut? (optional)"
+                  style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:0.5rem 0.7rem;color:var(--text);font-family:'Crimson Pro',serif;font-size:0.9rem;outline:none">
+              </div>
+            `;
+          }).join('')}
+        </div>
+      ` : ''}
+
+      <div class="flex gap-1" style="justify-content:flex-end;margin-top:1rem">
+        <button class="btn btn-primary" style="width:auto" onclick="submitDeckUpdate('${deckId}', ${JSON.stringify(removedDisplayNames)}, ${JSON.stringify(parsed)})">
+          Save Updated Decklist
+        </button>
+      </div>
+    </div>
+  `;
+  previewEl.classList.remove('hidden');
+}
+
+async function submitDeckUpdate(deckId, removedCards, parsedData) {
+  const deck = allDecks.find(d => d.id === deckId);
+  if (!deck) return;
+
+  // Collect drop reasons
+  const newDropped = removedCards.map((name, i) => ({
+    name,
+    reason: document.getElementById(`reason-${i}`)?.value.trim() || null,
+    was_stranded: document.getElementById(`stranded-${i}`)?.checked || false,
+    dropped_at: new Date().toISOString()
+  }));
+
+  // Merge with existing dropped cards
+  const existingDropped = deck.cards_dropped || [];
+  const allDropped = [...existingDropped, ...newDropped];
+
+  try {
+    await sbRequest(`decks?id=eq.${deckId}`, 'PATCH', {
+      decklist: parsedData.cards,
+      card_count: parsedData.totalCards,
+      cards_dropped: allDropped,
+      updated_at: new Date().toISOString()
+    });
+
+    // Update local state
+    deck.decklist = parsedData.cards;
+    deck.card_count = parsedData.totalCards;
+    deck.cards_dropped = allDropped;
+
+    document.getElementById('update-decklist-modal').remove();
+    renderDeckDetail();
+    renderDecks();
+
+  } catch (e) {
+    alert('Failed to save updated decklist: ' + e.message);
+    console.error(e);
+  }
+}
+
+// ============================================
+// DECK IMPORT
+// ============================================
+function showImportModal() {
+  document.getElementById('import-modal').classList.remove('hidden');
+  document.getElementById('import-text').value = '';
+  document.getElementById('import-preview').classList.add('hidden');
+  document.getElementById('import-error').classList.add('hidden');
+  document.getElementById('import-submit-btn').disabled = true;
+  document.getElementById('import-progress').classList.add('hidden');
+}
+
+function hideImportModal() {
+  document.getElementById('import-modal').classList.add('hidden');
+}
+
+let parsedDeckData = null;
+
+function previewImport() {
+  const text = document.getElementById('import-text').value.trim();
+  const preview = document.getElementById('import-preview');
+  const errEl = document.getElementById('import-error');
+  const submitBtn = document.getElementById('import-submit-btn');
+
+  errEl.classList.add('hidden');
+  submitBtn.disabled = true;
+  parsedDeckData = null;
+
+  if (!text) {
+    preview.classList.add('hidden');
+    return;
+  }
+
+  try {
+    const parsed = parseMoxfieldText(text);
+    parsedDeckData = parsed;
+
+    preview.innerHTML = `
+      <div class="parsed-preview">
+        <h4>✓ Deck Detected</h4>
+        <p><strong>Commander:</strong> ${escHtml(parsed.commander || '⚠ Please fill in the Commander field above')}</p>
+        <p><strong>Cards:</strong> ${parsed.totalCards} across ${parsed.cards.length} unique entries (sideboard excluded)</p>
+        <p><strong>Colors:</strong> ${parsed.colorIdentity.join(', ') || 'Unknown'}</p>
+      </div>
+    `;
+    preview.classList.remove('hidden');
+    submitBtn.disabled = false;
+    errEl.classList.add('hidden');
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.classList.remove('hidden');
+    preview.classList.add('hidden');
+  }
+}
+
+function parseMoxfieldText(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const cards = [];
+  let inSideboard = false;
+  let inConsidering = false;
+
+  const skipSections = ['sideboard', 'considering', 'maybe', 'maybeboard', 'tokens'];
+  const mainSections = ['commander', 'deck', 'main deck', 'mainboard', '// commander', '// deck'];
+
+  for (const line of lines) {
+    const lower = line.toLowerCase().trim();
+    if (!lower) continue;
+
+    // Detect skip sections
+    if (skipSections.some(s => lower === s || lower === `// ${s}` || lower === `${s}:`)) {
+      inSideboard = true;
+      continue;
+    }
+
+    // Detect main deck sections
+    if (mainSections.some(s => lower === s || lower === `${s}:`)) {
+      inSideboard = false;
+      inConsidering = false;
+      continue;
+    }
+
+    if (inSideboard || inConsidering) continue;
+
+    // Parse card line — handles all formats:
+    // "1 Card Name"
+    // "1 Card Name (SET) 123"
+    // "1 Card Name (SET) 123 *F*"
+    const match = line.match(/^(\d+)\s+(.+)$/);
+    if (!match) continue;
+
+    const qty = parseInt(match[1]);
+    if (isNaN(qty) || qty < 1) continue;
+
+    let name = match[2].trim();
+    // Remove set code and collector number
+    name = name.replace(/\s*\([A-Z0-9\-]+\)\s+[\w\-]+.*$/, '').trim();
+    // Remove foil/etched markers
+    name = name.replace(/\s*\*[A-Z]\*\s*$/, '').trim();
+
+    if (!name || name.length < 1) continue;
+    cards.push({ qty, name });
+  }
+
+  const totalCards = cards.reduce((sum, c) => sum + c.qty, 0);
+
+  if (cards.length < 5 || totalCards < 10) {
+    throw new Error('Could not parse deck. Make sure your list has "1 Card Name" format, one per line.');
+  }
+
+  const commanderInput = document.getElementById('import-commander').value.trim();
+  const deckNameInput = document.getElementById('import-deck-name').value.trim();
+  const colorIdentity = detectColors(cards.map(c => c.name).join(' '));
+
+  // Auto-detect commander: user input > last card in list (Moxfield puts commander last) > first card
+  const autoCommander = commanderInput || guessCommander(cards);
+
+  return {
+    commander: autoCommander,
+    cards,
+    colorIdentity,
+    totalCards,
+    rawText: text
+  };
+}
+
+function guessCommander(cards) {
+  // Moxfield plain text puts the commander as the last card
+  // Try to find the last 1-of entry
+  const singletons = cards.filter(c => c.qty === 1);
+  if (singletons.length > 0) return singletons[singletons.length - 1].name;
+  return cards[cards.length - 1].name;
+}
+
+function detectColors(text) {
+  const colors = [];
+  const t = text.toLowerCase();
+  // Very basic — the actual color identity requires the Scryfall API per card
+  // We'll store empty and let user identify, or parse from commander name hints
+  return colors;
 }
 
 async function submitImport() {
-  const comm = document.getElementById('import-commander').value;
-  const name = document.getElementById('import-deck-name').value || comm;
-  const text = document.getElementById('import-text').value;
-  document.getElementById('import-progress').classList.remove('hidden');
+  if (!parsedDeckData) return;
+
+  const progress = document.getElementById('import-progress');
+  const submitBtn = document.getElementById('import-submit-btn');
+  const progressMsg = document.getElementById('import-progress-msg');
+
+  submitBtn.disabled = true;
+  progress.classList.remove('hidden');
+
   try {
-    const res = await sbRequest('decks', 'POST', { user_id: currentUser.id, name, commander: comm, decklist: [] });
-    if (res?.[0]) {
-        const id = res[0].id;
-        const brief = await aiCall(`Analyze this Commander deck for Bracket 3 (Optimized Casual). Commander: ${comm}. List strategy, power level, and wincons.`);
-        const roast = await aiCall(`Deliver a Gordon Ramsay style roast for this Commander: ${comm}. Be savage.`);
-        await sbRequest(`decks?id=eq.${id}`, 'PATCH', { intelligence_brief: brief, deck_roast: roast });
-        location.reload();
-    }
-  } catch (e) { alert("Import failed."); }
+    progressMsg.textContent = 'Saving deck...';
+
+    const commanderName = document.getElementById('import-commander').value.trim()
+      || parsedDeckData.commander || 'Unknown Commander';
+    const deckName = document.getElementById('import-deck-name').value.trim()
+      || commanderName;
+
+    // Insert deck
+    const deckResult = await sbRequest('decks', 'POST', {
+      user_id: currentUser.id,
+      name: deckName,
+      commander: commanderName,
+      color_identity: parsedDeckData.colorIdentity,
+      decklist: parsedDeckData.cards,
+      card_count: parsedDeckData.cards.length
+    });
+
+    if (!deckResult || !deckResult[0]) throw new Error('Failed to save deck.');
+    const newDeckId = deckResult[0].id;
+
+    progressMsg.textContent = 'Generating Intelligence Brief (this takes ~30 seconds)...';
+    const brief = await generateBriefText(parsedDeckData);
+    progressMsg.textContent = 'Generating Deck Roast...';
+    const roast = await generateRoastText(parsedDeckData);
+    progressMsg.textContent = 'Writing flavor messages...';
+    const flavors = await generateFlavorMessages(parsedDeckData);
+
+    // Update deck with AI content
+    await sbRequest(`decks?id=eq.${newDeckId}`, 'PATCH', {
+      intelligence_brief: brief,
+      deck_roast: roast,
+      win_message_title: flavors.winTitle,
+      win_message_body: flavors.winBody,
+      loss_message_title: flavors.lossTitle,
+      loss_message_body: flavors.lossBody,
+      brief_generated_at: new Date().toISOString(),
+      roast_generated_at: new Date().toISOString()
+    });
+
+    // Reload the full deck record from Supabase to get all columns
+    const freshDeck = await sbRequest('decks', 'GET', null, `?id=eq.${newDeckId}&select=*`);
+    const newDeck = freshDeck[0];
+    allDecks.unshift(newDeck);
+
+    hideImportModal();
+    renderDecks();
+    renderDashboard();
+    showTab('decks');
+
+  } catch (e) {
+    document.getElementById('import-error').textContent = `Import failed: ${e.message}`;
+    document.getElementById('import-error').classList.remove('hidden');
+    progress.classList.add('hidden');
+    submitBtn.disabled = false;
+    console.error(e);
+  }
 }
-// Initialization
-document.getElementById('theme-toggle-btn').onclick = () => {
-    document.body.classList.toggle('light-theme');
-    document.getElementById('theme-toggle-btn').textContent = document.body.classList.contains('light-theme') ? '🌙' : '☀';
+
+// ============================================
+// MARKDOWN RENDERER
+// ============================================
+function renderMarkdown(text) {
+  if (!text) return '';
+  // Escape HTML
+  let t = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Headers (process longest first)
+  t = t.replace(/^### (.+)$/gm, '<h4 style="font-family:Cinzel,serif;font-size:0.85rem;color:var(--gold);margin:1.2rem 0 0.4rem">$1</h4>');
+  t = t.replace(/^## (.+)$/gm, '<h3 style="font-family:Cinzel,serif;font-size:0.95rem;color:var(--gold);margin:1.5rem 0 0.5rem">$1</h3>');
+  t = t.replace(/^# (.+)$/gm, '<h2 style="font-family:Cinzel,serif;font-size:1.1rem;color:var(--gold);margin:1.5rem 0 0.5rem">$1</h2>');
+  // Bold and italic
+  t = t.replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--text)">$1</strong>');
+  t = t.replace(/\*([^*]+?)\*/g, '<em>$1</em>');
+  // Horizontal rules
+  t = t.replace(/^---$/gm, '<hr style="border:none;border-top:1px solid var(--border);margin:1rem 0">');
+  // Bullet points
+  t = t.replace(/^- (.+)$/gm, '<div style="display:flex;gap:0.5rem;margin:0.3rem 0"><span style="color:var(--gold-dim)">•</span><span>$1</span></div>');
+  // Numbered lists
+  t = t.replace(/^[0-9]+\. (.+)$/gm, '<div style="margin:0.3rem 0 0.3rem 1rem">$1</div>');
+  // Paragraphs
+  t = t.replace(/\n\n/g, '<br><br>');
+  t = t.replace(/\n/g, '<br>');
+  return t;
+}
+
+// ============================================
+// CLAUDE API — FLAVOR MESSAGES (Win/Loss)
+// ============================================
+async function generateFlavorMessages(deckData) {
+  const prompt = `You are a creative Magic: The Gathering flavor writer. For this Commander deck, write short, evocative win and loss messages that will appear after a game is logged.
+
+Commander: ${deckData.commander}
+Deck style/cards hint: ${deckData.cards.slice(0, 10).map(c => c.name).join(', ')}...
+
+Write exactly 4 lines in this JSON format (no markdown, no backticks, just raw JSON):
+{
+  "winTitle": "A short 2-5 word dramatic title for a win (e.g. 'One Ring Rules All')",
+  "winBody": "One or two sentences of flavor text celebrating the win, written in the voice/theme of this commander. Evocative, dramatic, specific to this deck.",
+  "lossTitle": "A short 2-5 word dramatic title for a loss (e.g. 'The Eye Closes')",
+  "lossBody": "One or two sentences of flavor text for the loss. Not defeated forever — resilient, thematic, true to the commander's identity."
+}
+
+Match the tone perfectly to the commander. Sauron = dark and ominous. Krenko = chaotic and gleeful. Light-Paws = regal and imperial. Morcant = ancient and inevitable. Be specific, not generic.`;
+
+  try {
+    const response = await fetch('https://cc-proxy.oscar-crespom.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Target': 'anthropic' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await response.json();
+    const text = data.content?.[0]?.text || '{}';
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    return {
+      winTitle: parsed.winTitle || 'Victory',
+      winBody: parsed.winBody || 'The battle is won.',
+      lossTitle: parsed.lossTitle || 'Defeated',
+      lossBody: parsed.lossBody || 'The game is lost, but the war continues.'
+    };
+  } catch (e) {
+    return {
+      winTitle: 'Victory',
+      winBody: `${deckData.commander} has prevailed.`,
+      lossTitle: 'Defeated',
+      lossBody: `${deckData.commander} will return.`
+    };
+  }
+}
+
+// ============================================
+// CLAUDE API — INTELLIGENCE BRIEF
+// ============================================
+async function generateBriefText(deckData) {
+  const cards = Array.isArray(deckData.cards) ? deckData.cards : (Array.isArray(deckData.decklist) ? deckData.decklist : []);
+  const cardList = cards.map(c => `${c.qty}x ${c.name}`).join('\n');
+  const prompt = `You are an expert Magic: The Gathering Commander analyst providing a consultative Intelligence Brief. Your tone is that of a knowledgeable friend who loves the game and wants to help the pilot succeed. Be encouraging, specific, and honest without being harsh. This is NOT a cEDH analysis — the target is high-power casual Commander (RC Bracket 3).
+
+Commander: ${deckData.commander}
+
+Decklist:
+${cardList}
+
+IMPORTANT: Before analyzing, understand exactly what the commander card does mechanically. Then evaluate how the decklist supports that specific strategy.
+
+Write the Intelligence Brief using these sections with markdown headers:
+
+## COMMANDER & STRATEGY OVERVIEW
+Explain exactly what this commander does (reference its actual card text) and what the deck's primary strategy is. 2-3 sentences max.
+
+## POWER LEVEL
+Rate 1-10 for high-power casual play. Bracket 3 = optimized casual (target range). Most well-built casual decks sit 6-7. Explain based on actual cards present. Do NOT benchmark against cEDH.
+
+## STRENGTHS
+List 3-5 genuine strengths. Name the actual cards and synergies. What makes this deck dangerous when it's firing? What is its engine?
+
+## VULNERABILITIES
+List 2-3 real vulnerabilities. Frame as things to watch out for, not criticism. Be honest but supportive.
+
+## IDEAL OPENING HAND
+What does a keepable 7 look like? Name specific cards. What mana, what early plays, what pieces do you need? When do you mulligan?
+
+## MIDGAME PLAN
+Walk through the game arc. Turns 1-3, turns 4-6, when do you start threatening to win? What are you assembling?
+
+## WIN CONDITIONS
+All realistic ways this deck wins, in order of likelihood. Name the specific cards and setup required for each.
+
+## SUGGESTED REFINEMENTS
+Only if you see 1-2 genuinely impactful improvements. If the deck is well-constructed, say so and skip this section.
+
+Use card names throughout. Be specific. Be encouraging.`;
+
+  try {
+    const response = await fetch('https://cc-proxy.oscar-crespom.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Target': 'anthropic' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await response.json();
+    console.log('Brief API response:', JSON.stringify(data).substring(0, 200));
+    if (data.error) throw new Error(data.error);
+    return data.content?.[0]?.text || 'Brief generation failed.';
+  } catch (e) {
+    console.error('Brief generation error:', e);
+    return 'Failed to generate brief: ' + e.message;
+  }
+}
+
+async function generateRoastText(deckData) {
+  const cards = Array.isArray(deckData.cards) ? deckData.cards : (Array.isArray(deckData.decklist) ? deckData.decklist : []);
+  const cardList = cards.map(c => `${c.qty}x ${c.name}`).join('\n');
+  co  const prompt = `You are a Commander deck critic delivering a comedy roast — savage, specific, and funny, but with genuine love for the game underneath. Like a roast among MTG friends who all know what they're doing.
+
+Commander: ${deckData.commander}
+
+Decklist:
+${cardList}
+
+CRITICAL: Before roasting, actually understand what the commander does mechanically and what the deck's strategy is. A roast that misidentifies synergy pieces as bad cards makes YOU look foolish. Read the cards carefully.
+
+Structure the roast with markdown headers:
+
+## FIRST IMPRESSIONS
+A punchy, funny one-liner about this deck's identity and the type of player who runs it.
+
+## WHAT YOU'RE ACTUALLY TRYING TO DO
+2-3 sentences explaining the deck's real strategy (showing you read the cards), then immediately undercut it with a funny observation.
+
+## THE GOOD STUFF (BACKHANDED COMPLIMENTS)
+Acknowledge 2-3 things the deck genuinely does well — framed as backhanded compliments. Show you understand the synergies before you roast them.
+
+## THE QUESTIONABLE CHOICES
+Pick 3-4 cards that are genuinely weak or odd choices (NOT key synergy pieces). Roast them specifically and accurately.
+
+## THE VERDICT
+Letter grade (A-F) and one brutal verdict line.
+
+## BUT SERIOUSLY
+End with 2-3 sentences of genuine encouragement. What does this deck have going for it? What would make it truly scary? Leave the player feeling good about their deck.
+
+Be funny. Be accurate. Be specific to these actual cards and this commander's real strategy.`;
+
+  try {
+    const response = await fetch('https://cc-proxy.oscar-crespom.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Target': 'anthropic' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await response.json();
+    return data.content?.[0]?.text || 'Roast generation failed.';
+  } catch (e) {
+    return 'Failed to generate roast. Please try again.';
+  }
+}
+
+async function generateBrief(deckId) {
+  const deck = allDecks.find(d => d.id === deckId);
+  if (!deck) return;
+
+  const briefEl = document.getElementById('deck-tab-brief');
+  briefEl.innerHTML = '<div class="ai-generating"><div class="spinner"></div><p>Generating Intelligence Brief...</p></div>';
+
+  const brief = await generateBriefText({ commander: deck.commander, cards: deck.decklist || [], decklist: deck.decklist || [] });
+
+  await sbRequest(`decks?id=eq.${deckId}`, 'PATCH', {
+    intelligence_brief: brief,
+    brief_generated_at: new Date().toISOString()
+  });
+
+  deck.intelligence_brief = brief;
+  deck.brief_generated_at = new Date().toISOString();
+  briefEl.innerHTML = renderBriefTab(deck);
+}
+
+async function regenerateBrief(deckId) {
+  await generateBrief(deckId);
+}
+
+async function generateRoast(deckId) {
+  const deck = allDecks.find(d => d.id === deckId);
+  if (!deck) return;
+
+  const roastEl = document.getElementById('deck-tab-roast');
+  roastEl.innerHTML = '<div class="ai-generating"><div class="spinner"></div><p>Consulting Gordon Ramsay...</p></div>';
+
+  const roast = await generateRoastText({ commander: deck.commander, cards: deck.decklist || [], decklist: deck.decklist || [] });
+
+  await sbRequest(`decks?id=eq.${deckId}`, 'PATCH', {
+    deck_roast: roast,
+    roast_generated_at: new Date().toISOString()
+  });
+
+  deck.deck_roast = roast;
+  deck.roast_generated_at = new Date().toISOString();
+  roastEl.innerHTML = renderRoastTab(deck);
+}
+
+async function regenerateRoast(deckId) {
+  await generateRoast(deckId);
+}
+
+// ============================================
+// LOG GAME MODAL
+// ============================================
+function showLogGameModal() {
+  const userDecks = allDecks.filter(d => d.user_id === currentUser.id);
+  if (userDecks.length === 0) {
+    alert('You need to import a deck before logging a game.');
+    showTab('decks');
+    return;
+  }
+  buildLogGameForm(true);
+  document.getElementById('log-game-modal').classList.remove('hidden');
+}
+
+// ============================================
+// LOG GAME FORM
+// ============================================
+let logGameState = {
+  deckId: null,
+  podSize: null,
+  seatPosition: null,
+  commanderLanded: null,
+  commanderRemoved: null,
+  result: null,
+  winCondition: null,
+  lossReason: null,
+  turnEnded: null,
+  strandedCards: [],
+  notes: ''
 };
+
+function buildLogGameForm(modalMode = false) {
+  const userDecks = allDecks.filter(d => d.user_id === currentUser.id);
+  const formId = modalMode ? 'log-game-modal-form' : 'log-game-form';
+  const form = document.getElementById(formId);
+  if (!form) return;
+
+  if (userDecks.length === 0) {
+    form.innerHTML = `<div class="empty-state"><h3>No Decks</h3><p>Import a deck first before logging games.</p><button class="btn" style="margin-top:1rem" onclick="showTab('decks');document.getElementById('log-game-modal').classList.add('hidden')">Go to Decks</button></div>`;
+    return;
+  }
+
+  logGameState = { deckId: null, podSize: null, seatPosition: null, commanderLanded: null, commanderRemoved: null, result: null, winCondition: null, lossReason: null, turnEnded: null, strandedCards: [], notes: '' };
+
+  form.innerHTML = `
+    <!-- Step 1: Deck -->
+    <div class="form-group">
+      <label>Which deck did you play?</label>
+      <div class="radio-group">
+        ${userDecks.map(d => `
+          <button class="radio-btn" onclick="setLogField('deckId', '${d.id}', this)">${escHtml(d.commander)}</button>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- Step 2: Pod Size -->
+    <div class="form-group">
+      <label>Pod Size</label>
+      <div class="radio-group">
+        ${[3,4,5].map(n => `<button class="radio-btn" onclick="setLogField('podSize', ${n}, this)">${n} players</button>`).join('')}
+      </div>
+    </div>
+
+    <!-- Step 3: Seat -->
+    <div class="form-group">
+      <label>Your Seat Position</label>
+      <div class="radio-group">
+        ${[1,2,3,4,5].map(n => `<button class="radio-btn" onclick="setLogField('seatPosition', ${n}, this)">${n}</button>`).join('')}
+      </div>
+    </div>
+
+    <!-- Step 4: Commander landed -->
+    <div class="form-group">
+      <label>Did your commander hit the battlefield?</label>
+      <div class="radio-group">
+        <button class="radio-btn" onclick="setLogField('commanderLanded', true, this)">Yes</button>
+        <button class="radio-btn" onclick="setLogField('commanderLanded', false, this)">No</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Commander removed -->
+    <div class="form-group">
+      <label>Was your commander removed?</label>
+      <div class="radio-group">
+        <button class="radio-btn" onclick="setLogField('commanderRemoved', true, this)">Yes</button>
+        <button class="radio-btn" onclick="setLogField('commanderRemoved', false, this)">No</button>
+      </div>
+    </div>
+
+    <!-- Step 6: Result -->
+    <div class="form-group">
+      <label>Result</label>
+      <div class="radio-group">
+        <button class="radio-btn" onclick="setResult('win', this)">🏆 Win</button>
+        <button class="radio-btn" onclick="setResult('loss', this)">💀 Loss</button>
+      </div>
+    </div>
+
+    <!-- Win Condition (shown when win) -->
+    <div class="form-group" id="win-condition-group" style="display:none">
+      <label>How did you win?</label>
+      <div class="radio-group">
+        ${['Combat damage','Commander damage','Drain','Noncombat Damage','Combo','Specific Card'].map(c =>
+          `<button class="radio-btn" onclick="setLogField('winCondition', '${c}', this)">${c}</button>`
+        ).join('')}
+      </div>
+    </div>
+
+    <!-- Loss Reason (shown when loss) -->
+    <div class="form-group" id="loss-reason-group" style="display:none">
+      <label>Why did you lose?</label>
+      <div class="radio-group">
+        ${['No Commander Impact','Board wiped','Mana screwed','Outpaced by opponent','Mana Flood','Targeted Hate'].map(c =>
+          `<button class="radio-btn" onclick="setLogField('lossReason', '${c}', this)">${c}</button>`
+        ).join('')}
+      </div>
+    </div>
+
+    <!-- Turn ended -->
+    <div class="form-group">
+      <label>Turn the game ended</label>
+      <input type="number" id="log-turn" min="1" max="50" placeholder="e.g. 8"
+        onchange="logGameState.turnEnded = parseInt(this.value) || null">
+    </div>
+
+    <!-- Stranded cards -->
+    <div class="form-group">
+      <label>Stranded Cards (optional — press Enter to add)</label>
+      <div class="tag-input-container" onclick="document.getElementById('stranded-input').focus()">
+        <div id="stranded-tags"></div>
+        <input type="text" id="stranded-input" class="tag-text-input"
+          placeholder="Card name..."
+          onkeydown="handleStrandedInput(event)">
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="form-group">
+      <label>Notes (optional)</label>
+      <textarea id="log-notes" placeholder="Anything worth remembering about this game..."
+        onchange="logGameState.notes = this.value"></textarea>
+    </div>
+
+    <div id="log-error" class="error-msg hidden"></div>
+
+    <button class="btn btn-primary" onclick="submitGame()">Save Game</button>
+  `;
+}
+
+function setLogField(field, value, btn) {
+  logGameState[field] = value;
+  // Deselect siblings
+  btn.closest('.radio-group').querySelectorAll('.radio-btn').forEach(b => {
+    b.classList.remove('selected', 'selected-win', 'selected-loss');
+  });
+  btn.classList.add('selected');
+}
+
+function setResult(result, btn) {
+  logGameState.result = result;
+  logGameState.winCondition = null;
+  logGameState.lossReason = null;
+
+  btn.closest('.radio-group').querySelectorAll('.radio-btn').forEach(b => {
+    b.classList.remove('selected', 'selected-win', 'selected-loss');
+  });
+  btn.classList.add(result === 'win' ? 'selected-win' : 'selected-loss');
+
+  document.getElementById('win-condition-group').style.display = result === 'win' ? 'block' : 'none';
+  document.getElementById('loss-reason-group').style.display = result === 'loss' ? 'block' : 'none';
+
+  // Clear win/loss selections
+  ['win-condition-group','loss-reason-group'].forEach(id => {
+    document.getElementById(id).querySelectorAll('.radio-btn').forEach(b => {
+      b.classList.remove('selected','selected-win','selected-loss');
+    });
+  });
+}
+
+function handleStrandedInput(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const val = e.target.value.trim().replace(/,$/, '');
+    if (val) {
+      logGameState.strandedCards.push(val);
+      renderStrandedTags();
+      e.target.value = '';
+    }
+  }
+}
+
+function renderStrandedTags() {
+  const container = document.getElementById('stranded-tags');
+  container.innerHTML = logGameState.strandedCards.map((card, i) => `
+    <span class="tag">
+      ${escHtml(card)}
+      <button class="tag-remove" onclick="removeStrandedCard(${i})">×</button>
+    </span>
+  `).join('');
+}
+
+function removeStrandedCard(i) {
+  logGameState.strandedCards.splice(i, 1);
+  renderStrandedTags();
+}
+
+async function submitGame() {
+  const s = logGameState;
+  const errEl = document.getElementById('log-error');
+  errEl.classList.add('hidden');
+
+  // Validation
+  if (!s.deckId) return showLogError('Please select a deck.');
+  if (!s.podSize) return showLogError('Please select pod size.');
+  if (!s.seatPosition) return showLogError('Please select your seat position.');
+  if (s.commanderLanded === null) return showLogError('Please indicate if your commander hit the battlefield.');
+  if (s.commanderRemoved === null) return showLogError('Please indicate if your commander was removed.');
+  if (!s.result) return showLogError('Please select a result.');
+  if (s.result === 'win' && !s.winCondition) return showLogError('Please select how you won.');
+  if (s.result === 'loss' && !s.lossReason) return showLogError('Please select why you lost.');
+
+  s.notes = document.getElementById('log-notes').value.trim();
+
+  try {
+    const game = {
+      user_id: currentUser.id,
+      deck_id: s.deckId,
+      pod_size: s.podSize,
+      seat_position: s.seatPosition,
+      commander_hit_battlefield: s.commanderLanded,
+      commander_removed: s.commanderRemoved,
+      result: s.result,
+      win_condition: s.result === 'win' ? s.winCondition : null,
+      loss_reason: s.result === 'loss' ? s.lossReason : null,
+      turn_ended: s.turnEnded,
+      stranded_cards: s.strandedCards.length > 0 ? s.strandedCards : null,
+      notes: s.notes || null,
+      played_at: new Date().toISOString()
+    };
+
+    const result = await sbRequest('games', 'POST', game);
+    if (!result || !result[0]) throw new Error('Failed to save game.');
+
+    allGames.unshift(result[0]);
+    renderDashboard();
+    renderGames();
+    // Close modal if open
+    const modal = document.getElementById('log-game-modal');
+    if (modal) modal.classList.add('hidden');
+    showTab('games');
+
+  } catch (e) {
+    showLogError('Failed to save game: ' + e.message);
+    console.error(e);
+  }
+}
+
+function showLogError(msg) {
+  const el = document.getElementById('log-error');
+  if (el) {
+    el.textContent = msg;
+    el.classList.remove('hidden');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// ============================================
+// DECK ART
+// ============================================
+async function promptArtUrl(deckId) {
+  const deck = allDecks.find(d => d.id === deckId);
+  if (!deck) return;
+
+  const url = window.prompt(
+    `Paste a Scryfall art crop URL for ${deck.commander}:
+
+Example: https://cards.scryfall.io/art_crop/front/0/3/034e0929-b2c7-4b5f-94f2-8eaf4fb1a2a1.jpg?1693611218
+
+Leave blank to remove art.`,
+    deck.art_url || ''
+  );
+
+  // null = cancelled
+  if (url === null) return;
+
+  const trimmed = url.trim();
+
+  // Validate if not empty
+  if (trimmed && !trimmed.startsWith('http')) {
+    alert('Please enter a valid URL starting with http.');
+    return;
+  }
+
+  try {
+    await sbRequest(`decks?id=eq.${deckId}`, 'PATCH', {
+      art_url: trimmed || null
+    });
+    deck.art_url = trimmed || null;
+    renderDecks();
+    if (currentDeckDetail && currentDeckDetail.id === deckId) {
+      renderDeckDetail();
+    }
+  } catch (e) {
+    alert('Failed to save art URL.');
+    console.error(e);
+  }
+}
+
+// ============================================
+// DELETE DECK
+// ============================================
+async function deleteDeck(deckId) {
+  if (!confirm('Delete this deck and all its game history? This cannot be undone.')) return;
+  try {
+    await sbRequest(`decks?id=eq.${deckId}`, 'DELETE');
+    allDecks = allDecks.filter(d => d.id !== deckId);
+    allGames = allGames.filter(g => g.deck_id !== deckId);
+    showTab('decks');
+    renderDecks();
+    renderDashboard();
+  } catch (e) {
+    alert('Failed to delete deck.');
+  }
+}
+
+// ============================================
+// ADMIN VIEW
+// ============================================
+async function renderAdmin() {
+  if (!currentUser.is_admin) return;
+  const content = document.getElementById('admin-content');
+  content.innerHTML = '<div class="ai-generating"><div class="spinner"></div><p>Loading admin data...</p></div>';
+
+  try {
+    const users = await sbRequest('users', 'GET', null, '?select=*&order=created_at.asc') || [];
+
+    const rows = await Promise.all(users.filter(u => !u.is_admin).map(async u => {
+      const userDecks = allDecks.filter(d => d.user_id === u.id);
+      const userGames = allGames.filter(g => g.user_id === u.id);
+      const wins = userGames.filter(g => g.result === 'win').length;
+      const wr = userGames.length > 0 ? `${((wins/userGames.length)*100).toFixed(0)}%` : '—';
+
+      return `
+        <div class="user-row">
+          <div>
+            <div style="font-family:'Cinzel',serif;font-size:0.9rem">${escHtml(u.username)}</div>
+            <div class="text-dim text-xs">Joined ${new Date(u.created_at).toLocaleDateString()}</div>
+          </div>
+          <div class="flex gap-2 items-center">
+            <div class="text-small"><span class="text-gold">${userDecks.length}</span> decks</div>
+            <div class="text-small"><span class="text-gold">${userGames.length}</span> games</div>
+            <div class="text-small"><span style="color:var(--win)">${wins}W</span> · <span>${wr}</span></div>
+          </div>
+        </div>
+      `;
+    }));
+
+    // Global stats
+    const totalGames = allGames.length;
+    const totalWins = allGames.filter(g => g.result === 'win').length;
+
+    content.innerHTML = `
+      <div class="stats-grid" style="margin-bottom:1.5rem">
+        <div class="stat-card"><div class="stat-value">${users.filter(u => !u.is_admin).length}</div><div class="stat-label">Players</div></div>
+        <div class="stat-card"><div class="stat-value">${allDecks.length}</div><div class="stat-label">Total Decks</div></div>
+        <div class="stat-card"><div class="stat-value">${totalGames}</div><div class="stat-label">Total Games</div></div>
+        <div class="stat-card"><div class="stat-value">${totalGames > 0 ? ((totalWins/totalGames)*100).toFixed(0) + '%' : '—'}</div><div class="stat-label">Global Win Rate</div></div>
+      </div>
+
+      <h3 style="font-size:0.8rem;color:var(--text-dim);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.8rem">Players</h3>
+      ${rows.join('')}
+
+      <hr class="separator">
+      <h3 style="font-size:0.8rem;color:var(--text-dim);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.8rem">Most Popular Win Conditions</h3>
+      ${renderGlobalWincondBreakdown()}
+    `;
+  } catch (e) {
+    content.innerHTML = '<p class="text-dim">Failed to load admin data.</p>';
+    console.error(e);
+  }
+}
+
+function renderGlobalWincondBreakdown() {
+  const winGames = allGames.filter(g => g.result === 'win' && g.win_condition);
+  if (winGames.length === 0) return '<p class="text-dim italic text-small">No wins logged yet.</p>';
+
+  const counts = {};
+  winGames.forEach(g => { counts[g.win_condition] = (counts[g.win_condition] || 0) + 1; });
+  const maxCount = Math.max(...Object.values(counts));
+
+  return Object.entries(counts).sort((a,b) => b[1]-a[1]).map(([cond, count]) => `
+    <div class="flex items-center gap-2 mb-1" style="font-size:0.85rem">
+      <span style="min-width:160px;color:var(--text)">${cond}</span>
+      <div style="flex:1;background:var(--surface3);border-radius:2px;height:8px">
+        <div style="width:${(count/maxCount*100).toFixed(0)}%;background:var(--win);height:100%;border-radius:2px"></div>
+      </div>
+      <span style="color:var(--text-dim);min-width:30px;text-align:right">${count}x</span>
+    </div>
+  `).join('');
+}
+
+// ============================================
+// UTILITY
+// ============================================
+function escHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Enter key support for auth forms
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const loginForm = document.getElementById('login-form');
+    const regForm = document.getElementById('register-form');
+    if (loginForm && !loginForm.classList.contains('hidden')) login();
+    else if (regForm && !regForm.classList.contains('hidden')) register();
+  }
+});
+
+// ============================================
+// THEME TOGGLE
+// ============================================
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light-theme');
+  localStorage.setItem('cc_theme', isLight ? 'light' : 'dark');
+  document.getElementById('theme-toggle-btn').textContent = isLight ? '🌙' : '☀';
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('cc_theme');
+  if (saved === 'light') {
+    document.body.classList.add('light-theme');
+    const btn = document.getElementById('theme-toggle-btn');
+    if (btn) btn.textContent = '🌙';
+  }
+}
+
+// Run on load
+initTheme();
+
+// ============================================
+// INIT
+// ============================================
+// Check for returning session (none — intentional, PIN required each visit)
 </script>
+<!-- LOG GAME MODAL -->
+<div id="log-game-modal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:580px">
+    <button class="modal-close" onclick="document.getElementById('log-game-modal').classList.add('hidden')">✕</button>
+    <h3 class="modal-title">Log a Game</h3>
+    <div id="log-game-modal-form"></div>
+  </div>
+</div>
+
 </body>
 </html>
