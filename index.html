@@ -19,15 +19,15 @@
    ============================================ */
 
 :root {
-  --bg: #0a0a0f;
-  --surface: #12121a;
-  --surface2: #1a1a26;
-  --surface3: #222235;
-  --border: #2a2a40;
-  --border-bright: #3a3a58;
-  --gold: #c9a84c;
-  --gold-dim: #7a6530;
-  --gold-bright: #e8c46a;
+  --bg: #1a1510;
+  --surface: #272727;
+  --surface2: #2f2820;
+  --surface3: #3a3028;
+  --border: #4a3e34;
+  --border-bright: #6a5a4a;
+  --gold: #d4aa7d;
+  --gold-dim: #815f51;
+  --gold-bright: #e8c9a0;
   --crimson: #8b1a1a;
   --crimson-bright: #c0392b;
   --mana-W: #f9f6e8;
@@ -35,13 +35,13 @@
   --mana-B: #9b59b6;
   --mana-R: #e74c3c;
   --mana-G: #27ae60;
-  --text: #e8e0cc;
-  --text-dim: #9a9080;
-  --text-faint: #5a5448;
+  --text: #e8dfd0;
+  --text-dim: #9a8878;
+  --text-faint: #5a4e44;
   --win: #27ae60;
   --loss: #c0392b;
   --radius: 4px;
-  --glow: 0 0 20px rgba(201,168,76,0.15);
+  --glow: 0 0 20px rgba(212,170,125,0.15);
 }
 
 /* DECK ART */
@@ -120,21 +120,21 @@
 
 /* LIGHT THEME */
 body.light-theme {
-  --bg: #f4f1ea;
-  --surface: #ffffff;
-  --surface2: #f0ece0;
-  --surface3: #e8e3d5;
-  --border: #d4cdb8;
-  --border-bright: #b8b0a0;
-  --gold: #8a6a1a;
-  --gold-dim: #a07828;
-  --gold-bright: #6a5010;
+  --bg: #e1d0c9;
+  --surface: #f0e8e3;
+  --surface2: #dcc8c0;
+  --surface3: #d0b8ae;
+  --border: #b89888;
+  --border-bright: #9a7868;
+  --gold: #3d2e2b;
+  --gold-dim: #764c4e;
+  --gold-bright: #2a1e1c;
   --crimson: #8b1a1a;
   --crimson-bright: #c0392b;
-  --text: #2a2418;
-  --text-dim: #6a5e48;
-  --text-faint: #a89878;
-  --win: #1a7a40;
+  --text: #3d2e2b;
+  --text-dim: #644234;
+  --text-faint: #9a7868;
+  --win: #1a6b35;
   --loss: #8b1a1a;
 }
 
@@ -144,17 +144,17 @@ body.light-theme .top-nav {
 }
 
 body.light-theme .auth-box {
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 24px rgba(61,46,43,0.12);
 }
 
 body.light-theme .deck-card:hover {
-  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 20px rgba(61,46,43,0.15);
 }
 
 body.light-theme body {
   background-image:
-    radial-gradient(ellipse at 20% 0%, rgba(139,26,26,0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 100%, rgba(138,106,26,0.04) 0%, transparent 50%);
+    radial-gradient(ellipse at 20% 0%, rgba(61,46,43,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(118,76,78,0.06) 0%, transparent 50%);
 }
 
 /* THEME TOGGLE BUTTON */
@@ -184,8 +184,8 @@ body {
   min-height: 100vh;
   line-height: 1.6;
   background-image:
-    radial-gradient(ellipse at 20% 0%, rgba(139,26,26,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 100%, rgba(74,80,140,0.08) 0%, transparent 50%);
+    radial-gradient(ellipse at 20% 0%, rgba(106,60,42,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(58,48,40,0.12) 0%, transparent 50%);
 }
 
 h1, h2, h3, h4 {
@@ -2705,15 +2705,20 @@ function setResult(result, btn) {
   });
   btn.classList.add(result === 'win' ? 'selected-win' : 'selected-loss');
 
-  document.getElementById('win-condition-group').style.display = result === 'win' ? 'block' : 'none';
-  document.getElementById('loss-reason-group').style.display = result === 'loss' ? 'block' : 'none';
-
-  // Clear win/loss selections
-  ['win-condition-group','loss-reason-group'].forEach(id => {
-    document.getElementById(id).querySelectorAll('.radio-btn').forEach(b => {
-      b.classList.remove('selected','selected-win','selected-loss');
+  // Search within the parent form container to handle both modal and tab
+  const container = btn.closest('#log-game-modal-form, #log-game-form');
+  if (container) {
+    const winGroup = container.querySelector('#win-condition-group');
+    const lossGroup = container.querySelector('#loss-reason-group');
+    if (winGroup) winGroup.style.display = result === 'win' ? 'block' : 'none';
+    if (lossGroup) lossGroup.style.display = result === 'loss' ? 'block' : 'none';
+    // Clear win/loss selections
+    [winGroup, lossGroup].forEach(group => {
+      if (group) group.querySelectorAll('.radio-btn').forEach(b => {
+        b.classList.remove('selected','selected-win','selected-loss');
+      });
     });
-  });
+  }
 }
 
 function handleStrandedInput(e) {
@@ -2795,7 +2800,12 @@ async function submitGame() {
 }
 
 function showLogError(msg) {
-  const el = document.getElementById('log-error');
+  // Find the visible log-error element (modal takes priority)
+  const modal = document.getElementById('log-game-modal');
+  const modalVisible = modal && !modal.classList.contains('hidden');
+  const el = modalVisible
+    ? modal.querySelector('#log-error')
+    : document.getElementById('log-error');
   if (el) {
     el.textContent = msg;
     el.classList.remove('hidden');
