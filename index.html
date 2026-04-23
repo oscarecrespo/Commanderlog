@@ -134,9 +134,26 @@ body.light-theme {
   --text: #3d2e2b;
   --text-dim: #644234;
   --text-faint: #9a7868;
-  --win: #1a6b35;
-  --loss: #8b1a1a;
+  --win: #155c2a;
+  --loss: #7a1212;
 }
+
+body.light-theme .game-result-badge.win {
+  background: rgba(21,92,42,0.18);
+  color: #0d3d1c;
+  border-color: rgba(21,92,42,0.4);
+}
+
+body.light-theme .game-result-badge.loss {
+  background: rgba(122,18,18,0.15);
+  color: #5a0e0e;
+  border-color: rgba(122,18,18,0.35);
+}
+
+body.light-theme .game-entry.win { border-left-color: #155c2a; }
+body.light-theme .game-entry.loss { border-left-color: #7a1212; }
+body.light-theme .stat-value.win { color: #155c2a; }
+body.light-theme .stat-value.loss { color: #7a1212; }
 
 body.light-theme .top-nav {
   border-bottom-color: var(--border);
