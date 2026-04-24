@@ -1090,9 +1090,68 @@ h1, h2, h3, h4 {
 /* Responsive */
 @media (max-width: 768px) {
   .nav-tabs { display: none; }
-  .main-content { padding: 1rem; }
+  .main-content { padding: 1rem 0.75rem 5rem; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .decks-grid { grid-template-columns: 1fr; }
+  .nav-user-name { display: none; }
+  .top-nav { padding: 0 1rem; }
+}
+
+/* DRAWER NAV BUTTONS */
+.drawer-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.9rem 1.5rem;
+  background: transparent;
+  border: none;
+  border-left: 3px solid transparent;
+  color: var(--text-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+.drawer-nav-btn:hover {
+  color: var(--text);
+  background: var(--surface2);
+}
+.drawer-nav-btn.active {
+  color: var(--gold);
+  border-left-color: var(--gold);
+  background: var(--surface2);
+}
+
+/* MOBILE KEBAB */
+.mobile-kebab {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-kebab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 0.35rem 0.7rem;
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+  .mobile-kebab:hover { color: var(--gold); border-color: var(--gold-dim); }
+  .nav-user-name { display: none; }
+  .top-nav { padding: 0 1rem; }
+  .main-content { padding: 1rem 0.75rem 5rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .decks-grid { grid-template-columns: 1fr; }
+  #mobile-fab { display: flex !important; align-items: center; justify-content: center; }
 }
 </style>
 </head>
@@ -1156,7 +1215,7 @@ h1, h2, h3, h4 {
 
   <!-- TOP NAV -->
   <nav class="top-nav">
-    <div class="nav-brand">
+    <div class="nav-brand" onclick="showTab('dashboard')" style="cursor:pointer" title="Go to Dashboard">
       ⚔ Commander Chronicle
       <span id="nav-username"></span>
     </div>
@@ -1170,6 +1229,7 @@ h1, h2, h3, h4 {
       <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle-btn" title="Toggle light/dark theme">☀</button>
       <span class="nav-user-name" id="nav-user-display"></span>
       <button class="btn btn-small btn-danger" onclick="logout()">Exit</button>
+      <button class="mobile-kebab" onclick="openDrawer()" title="Menu">☰</button>
     </div>
   </nav>
 
@@ -1540,6 +1600,10 @@ async function loadUserData() {
 // NAVIGATION
 // ============================================
 function showTab(tab) {
+  // Update drawer active state
+  document.querySelectorAll('.drawer-nav-btn[data-tab]').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tab);
+  });
   document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
   document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
 
@@ -2805,15 +2869,50 @@ async function submitGame() {
     allGames.unshift(result[0]);
     renderDashboard();
     renderGames();
-    // Close modal if open
+    // Close modal
     const modal = document.getElementById('log-game-modal');
     if (modal) modal.classList.add('hidden');
-    showTab('games');
+    showTab('dashboard');
+    showToast('Game logged! ⚔');
 
   } catch (e) {
     showLogError('Failed to save game: ' + e.message);
     console.error(e);
   }
+}
+
+function openDrawer() {
+  const drawer = document.getElementById('mobile-drawer');
+  const overlay = document.getElementById('mobile-drawer-overlay');
+  if (drawer) { drawer.style.display = 'flex'; }
+  if (overlay) { overlay.style.display = 'block'; }
+  updateDrawerThemeIcon();
+}
+
+function closeDrawer() {
+  const drawer = document.getElementById('mobile-drawer');
+  const overlay = document.getElementById('mobile-drawer-overlay');
+  if (drawer) drawer.style.display = 'none';
+  if (overlay) overlay.style.display = 'none';
+}
+
+function updateDrawerThemeIcon() {
+  const icon = document.getElementById('drawer-theme-icon');
+  if (icon) icon.textContent = document.body.classList.contains('light-theme') ? '🌙' : '☀';
+}
+
+function showToast(msg) {
+  let toast = document.getElementById('cc-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'cc-toast';
+    toast.style.cssText = 'position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:var(--surface3);color:var(--gold);border:1px solid var(--border-bright);padding:0.6rem 1.4rem;border-radius:4px;font-family:Cinzel,serif;font-size:0.8rem;letter-spacing:0.1em;z-index:9999;transition:opacity 0.4s;pointer-events:none;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => toast.style.opacity = '0', 2500);
 }
 
 function showLogError(msg) {
@@ -3014,6 +3113,26 @@ initTheme();
 // ============================================
 // Check for returning session (none — intentional, PIN required each visit)
 </script>
+<!-- MOBILE DRAWER OVERLAY -->
+<div id="mobile-drawer-overlay" onclick="closeDrawer()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;"></div>
+
+<!-- MOBILE SIDE DRAWER -->
+<div id="mobile-drawer" style="display:none;position:fixed;top:0;right:0;bottom:0;width:260px;background:var(--surface);border-left:1px solid var(--border);z-index:301;flex-direction:column;padding:1.5rem 0;">
+  <button onclick="closeDrawer()" style="position:absolute;top:1rem;right:1rem;background:transparent;border:none;color:var(--text-dim);font-size:1.4rem;cursor:pointer;line-height:1;">✕</button>
+  <div style="padding:3rem 0 1rem;flex:1;">
+    <button class="drawer-nav-btn active" data-tab="dashboard" onclick="showTab('dashboard');closeDrawer()"><span>⚔</span> Dashboard</button>
+    <button class="drawer-nav-btn" data-tab="decks" onclick="showTab('decks');closeDrawer()"><span>📚</span> My Decks</button>
+    <button class="drawer-nav-btn" data-tab="games" onclick="showTab('games');closeDrawer()"><span>📜</span> Game Log</button>
+  </div>
+  <div style="border-top:1px solid var(--border);padding:1rem 0;">
+    <button class="drawer-nav-btn" onclick="toggleTheme();updateDrawerThemeIcon()"><span id="drawer-theme-icon">☀</span> Toggle Theme</button>
+    <button class="drawer-nav-btn" id="drawer-admin-btn" data-tab="admin" onclick="showTab('admin');closeDrawer()" style="display:none"><span>⚑</span> Admin View</button>
+  </div>
+</div>
+
+<!-- MOBILE FAB -->
+<button id="mobile-fab" onclick="showLogGameModal()" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;width:56px;height:56px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.6rem;cursor:pointer;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,0.35);align-items:center;justify-content:center;">+</button>
+
 <!-- LOG GAME MODAL -->
 <div id="log-game-modal" class="modal-overlay hidden">
   <div class="modal" style="max-width:580px">
@@ -3025,3 +3144,4 @@ initTheme();
 
 </body>
 </html>
+
