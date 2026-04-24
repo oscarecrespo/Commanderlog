@@ -433,6 +433,13 @@ h1, h2, h3, h4 {
   font-size: 1.1rem;
   color: var(--gold);
   letter-spacing: 0.1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+  .nav-brand { font-size: 0.9rem; letter-spacing: 0.05em; }
 }
 
 .nav-brand span {
@@ -1578,15 +1585,11 @@ function logout() {
 // ============================================
 async function loadUserData() {
   try {
-    if (currentUser.is_admin) {
-      allDecks = await sbRequest('decks', 'GET', null, '?select=*,users(username)&order=created_at.desc') || [];
-      allGames = await sbRequest('games', 'GET', null, '?select=*,users(username)&order=played_at.desc') || [];
-    } else {
-      allDecks = await sbRequest('decks', 'GET', null,
-        `?user_id=eq.${currentUser.id}&select=*&order=created_at.desc`) || [];
-      allGames = await sbRequest('games', 'GET', null,
-        `?user_id=eq.${currentUser.id}&select=*&order=played_at.desc`) || [];
-    }
+    // Always load only own decks/games — admin sees all only in Admin tab
+    allDecks = await sbRequest('decks', 'GET', null,
+      `?user_id=eq.${currentUser.id}&select=*&order=created_at.desc`) || [];
+    allGames = await sbRequest('games', 'GET', null,
+      `?user_id=eq.${currentUser.id}&select=*&order=played_at.desc`) || [];
     renderDashboard();
     renderDecks();
     renderGames();
@@ -1673,7 +1676,7 @@ function renderDashboard() {
 // ============================================
 function renderDecks() {
   const grid = document.getElementById('decks-grid');
-  const decks = allDecks.filter(d => currentUser.is_admin || d.user_id === currentUser.id);
+  const decks = allDecks;
 
   if (decks.length === 0) {
     grid.innerHTML = `<div class="empty-state"><h3>No Decks Yet</h3><p>Import your first deck from Moxfield to begin.</p></div>`;
@@ -1727,7 +1730,7 @@ function renderGames() {
   const filterDeck = document.getElementById('games-filter-deck').value;
   const filterResult = document.getElementById('games-filter-result').value;
 
-  let games = allGames.filter(g => currentUser.is_admin || g.user_id === currentUser.id);
+  let games = allGames;
   if (filterDeck) games = games.filter(g => g.deck_id === filterDeck);
   if (filterResult) games = games.filter(g => g.result === filterResult);
 
@@ -1735,7 +1738,7 @@ function renderGames() {
   const deckFilter = document.getElementById('games-filter-deck');
   const currentVal = deckFilter.value;
   deckFilter.innerHTML = '<option value="">All Decks</option>' +
-    allDecks.filter(d => currentUser.is_admin || d.user_id === currentUser.id)
+    allDecks
       .map(d => `<option value="${d.id}" ${d.id === currentVal ? 'selected' : ''}>${escHtml(d.commander)}</option>`)
       .join('');
 
@@ -2997,19 +3000,24 @@ async function renderAdmin() {
   content.innerHTML = '<div class="ai-generating"><div class="spinner"></div><p>Loading admin data...</p></div>';
 
   try {
+    // Fetch ALL data fresh for admin view — separate from user's own allDecks/allGames
     const users = await sbRequest('users', 'GET', null, '?select=*&order=created_at.asc') || [];
+    const adminAllDecks = await sbRequest('decks', 'GET', null, '?select=*,users(username)&order=created_at.desc') || [];
+    const adminAllGames = await sbRequest('games', 'GET', null, '?select=*&order=played_at.desc') || [];
 
     const rows = await Promise.all(users.filter(u => !u.is_admin).map(async u => {
-      const userDecks = allDecks.filter(d => d.user_id === u.id);
-      const userGames = allGames.filter(g => g.user_id === u.id);
+      const userDecks = adminAllDecks.filter(d => d.user_id === u.id);
+      const userGames = adminAllGames.filter(g => g.user_id === u.id);
       const wins = userGames.filter(g => g.result === 'win').length;
       const wr = userGames.length > 0 ? `${((wins/userGames.length)*100).toFixed(0)}%` : '—';
+      const commanders = [...new Set(userDecks.map(d => d.commander).filter(Boolean))];
 
       return `
         <div class="user-row">
           <div>
             <div style="font-family:'Cinzel',serif;font-size:0.9rem">${escHtml(u.username)}</div>
             <div class="text-dim text-xs">Joined ${new Date(u.created_at).toLocaleDateString()}</div>
+            ${commanders.length ? `<div class="text-dim text-xs" style="margin-top:0.2rem;font-style:italic">${commanders.join(', ')}</div>` : ''}
           </div>
           <div class="flex gap-2 items-center">
             <div class="text-small"><span class="text-gold">${userDecks.length}</span> decks</div>
@@ -3020,14 +3028,13 @@ async function renderAdmin() {
       `;
     }));
 
-    // Global stats
-    const totalGames = allGames.length;
-    const totalWins = allGames.filter(g => g.result === 'win').length;
+    const totalGames = adminAllGames.length;
+    const totalWins = adminAllGames.filter(g => g.result === 'win').length;
 
     content.innerHTML = `
       <div class="stats-grid" style="margin-bottom:1.5rem">
         <div class="stat-card"><div class="stat-value">${users.filter(u => !u.is_admin).length}</div><div class="stat-label">Players</div></div>
-        <div class="stat-card"><div class="stat-value">${allDecks.length}</div><div class="stat-label">Total Decks</div></div>
+        <div class="stat-card"><div class="stat-value">${adminAllDecks.length}</div><div class="stat-label">Total Decks</div></div>
         <div class="stat-card"><div class="stat-value">${totalGames}</div><div class="stat-label">Total Games</div></div>
         <div class="stat-card"><div class="stat-value">${totalGames > 0 ? ((totalWins/totalGames)*100).toFixed(0) + '%' : '—'}</div><div class="stat-label">Global Win Rate</div></div>
       </div>
@@ -3037,7 +3044,7 @@ async function renderAdmin() {
 
       <hr class="separator">
       <h3 style="font-size:0.8rem;color:var(--text-dim);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.8rem">Most Popular Win Conditions</h3>
-      ${renderGlobalWincondBreakdown()}
+      ${renderGlobalWincondBreakdown(adminAllGames)}
     `;
   } catch (e) {
     content.innerHTML = '<p class="text-dim">Failed to load admin data.</p>';
@@ -3045,8 +3052,8 @@ async function renderAdmin() {
   }
 }
 
-function renderGlobalWincondBreakdown() {
-  const winGames = allGames.filter(g => g.result === 'win' && g.win_condition);
+function renderGlobalWincondBreakdown(adminAllGames) {
+  const winGames = adminAllGames.filter(g => g.result === 'win' && g.win_condition);
   if (winGames.length === 0) return '<p class="text-dim italic text-small">No wins logged yet.</p>';
 
   const counts = {};
@@ -3121,7 +3128,7 @@ initTheme();
   <button onclick="closeDrawer()" style="position:absolute;top:1rem;right:1rem;background:transparent;border:none;color:var(--text-dim);font-size:1.4rem;cursor:pointer;line-height:1;">✕</button>
   <div style="padding:3rem 0 1rem;flex:1;">
     <button class="drawer-nav-btn active" data-tab="dashboard" onclick="showTab('dashboard');closeDrawer()"><span>⚔</span> Dashboard</button>
-    <button class="drawer-nav-btn" data-tab="decks" onclick="showTab('decks');closeDrawer()"><span>📚</span> My Decks</button>
+    <button class="drawer-nav-btn" data-tab="decks" onclick="showTab('decks');closeDrawer()"><span>🗡️</span> My Decks</button>
     <button class="drawer-nav-btn" data-tab="games" onclick="showTab('games');closeDrawer()"><span>📜</span> Game Log</button>
   </div>
   <div style="border-top:1px solid var(--border);padding:1rem 0;">
@@ -3144,4 +3151,3 @@ initTheme();
 
 </body>
 </html>
-
