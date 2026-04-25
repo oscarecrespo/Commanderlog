@@ -849,7 +849,7 @@ h1, h2, h3, h4 {
   border-bottom-color: var(--gold);
 }
 
-/* Intelligence Brief & Roast */
+/* Deck Roast */
 .ai-content {
   background: var(--surface2);
   border: 1px solid var(--border);
@@ -1102,6 +1102,35 @@ h1, h2, h3, h4 {
   .decks-grid { grid-template-columns: 1fr; }
   .nav-user-name { display: none; }
   .top-nav { padding: 0 1rem; }
+
+  /* Deck detail header stacks on mobile */
+  .deck-detail-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .deck-header-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+  .deck-header-actions .btn {
+    flex: 1;
+    text-align: center;
+  }
+
+  /* Deck tabs scroll horizontally on mobile */
+  .deck-detail-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap !important;
+    padding-bottom: 2px;
+  }
+  .deck-detail-tabs::-webkit-scrollbar { display: none; }
+  .deck-detail-tab {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
 }
 
 /* DRAWER NAV BUTTONS */
@@ -1918,7 +1947,7 @@ function renderDeckDetail() {
   const content = document.getElementById('deck-detail-content');
   content.innerHTML = `
     <div class="panel">
-      <div class="flex justify-between items-center mb-3">
+      <div class="deck-detail-header mb-3">
         <div style="display:flex;gap:1.2rem;align-items:flex-start">
           ${deck.art_url ? `<div style="width:80px;height:60px;border-radius:var(--radius);overflow:hidden;flex-shrink:0;cursor:pointer" onclick="promptArtUrl('${deck.id}')">
             <img src="${escHtml(deck.art_url)}" style="width:100%;height:100%;object-fit:cover;object-position:center top" onerror="this.style.display='none'">
@@ -1929,7 +1958,7 @@ function renderDeckDetail() {
             <div class="color-pips" style="margin-top:0.5rem">${colors.map(c => `<span class="pip pip-${c}">${c}</span>`).join('')}</div>
           </div>
         </div>
-        <div class="flex gap-1">
+        <div class="deck-header-actions flex gap-1">
           <button class="btn btn-small" onclick="showUpdateDecklistModal('${deck.id}')">↺ Update Decklist</button>
           <button class="btn btn-small btn-danger" onclick="deleteDeck('${deck.id}')">Delete Deck</button>
         </div>
@@ -1944,10 +1973,9 @@ function renderDeckDetail() {
 
       <div class="deck-detail-tabs">
         <button class="deck-detail-tab active" onclick="switchDeckTab('games', this)">Games</button>
-        <button class="deck-detail-tab" onclick="switchDeckTab('decklist', this)">Decklist</button>
-        <button class="deck-detail-tab" onclick="switchDeckTab('brief', this)">Intelligence Brief</button>
         <button class="deck-detail-tab" onclick="switchDeckTab('roast', this)">Deck Roast 🔥</button>
         <button class="deck-detail-tab" onclick="switchDeckTab('dropped', this)">Cards Dropped</button>
+        <button class="deck-detail-tab" onclick="switchDeckTab('decklist', this)">Decklist</button>
       </div>
 
       <div id="deck-tab-games">
@@ -1956,22 +1984,18 @@ function renderDeckDetail() {
           : deckGames.map(g => renderGameRow(g)).join('')}
       </div>
 
-      <div id="deck-tab-decklist" class="hidden">
-        <div style="column-count:2;column-gap:2rem;font-size:0.82rem;font-family:'Courier New',monospace;color:var(--text-dim)">
-          ${renderDecklistHTML(deck.decklist)}
-        </div>
-      </div>
-
-      <div id="deck-tab-brief" class="hidden">
-        ${renderBriefTab(deck)}
-      </div>
-
       <div id="deck-tab-roast" class="hidden">
         ${renderRoastTab(deck)}
       </div>
 
       <div id="deck-tab-dropped" class="hidden">
         ${renderDroppedTab(deck)}
+      </div>
+
+      <div id="deck-tab-decklist" class="hidden">
+        <div style="column-count:2;column-gap:2rem;font-size:0.82rem;font-family:'Courier New',monospace;color:var(--text-dim)">
+          ${renderDecklistHTML(deck.decklist)}
+        </div>
       </div>
     </div>
   `;
@@ -1989,21 +2013,6 @@ function renderDecklistHTML(decklist) {
   return decklist.map(c => `<div style="break-inside:avoid">${c.qty}x ${escHtml(c.name)}</div>`).join('');
 }
 
-function renderBriefTab(deck) {
-  if (deck.intelligence_brief) {
-    return `
-      <div class="ai-content">${renderMarkdown(deck.intelligence_brief)}</div>
-      <p class="text-dim text-xs italic" style="margin-top:0.5rem">Generated ${deck.brief_generated_at ? new Date(deck.brief_generated_at).toLocaleDateString() : ''}</p>
-      <button class="btn btn-small" style="margin-top:0.5rem" onclick="regenerateBrief('${deck.id}')">↺ Regenerate</button>
-    `;
-  }
-  return `
-    <div class="empty-state">
-      <p>Intelligence Brief not yet generated.</p>
-      <button class="btn" style="margin-top:1rem" onclick="generateBrief('${deck.id}')">Generate Brief</button>
-    </div>
-  `;
-}
 
 function renderRoastTab(deck) {
   if (deck.deck_roast) {
@@ -2415,8 +2424,6 @@ async function submitImport() {
     if (!deckResult || !deckResult[0]) throw new Error('Failed to save deck.');
     const newDeckId = deckResult[0].id;
 
-    progressMsg.textContent = 'Generating Intelligence Brief (this takes ~30 seconds)...';
-    const brief = await generateBriefText(parsedDeckData);
     progressMsg.textContent = 'Generating Deck Roast...';
     const roast = await generateRoastText(parsedDeckData);
     progressMsg.textContent = 'Writing flavor messages...';
@@ -2424,13 +2431,11 @@ async function submitImport() {
 
     // Update deck with AI content
     await sbRequest(`decks?id=eq.${newDeckId}`, 'PATCH', {
-      intelligence_brief: brief,
       deck_roast: roast,
       win_message_title: flavors.winTitle,
       win_message_body: flavors.winBody,
       loss_message_title: flavors.lossTitle,
       loss_message_body: flavors.lossBody,
-      brief_generated_at: new Date().toISOString(),
       roast_generated_at: new Date().toISOString()
     });
 
@@ -2531,65 +2536,6 @@ Match the tone perfectly to the commander. Sauron = dark and ominous. Krenko = c
 // ============================================
 // CLAUDE API — INTELLIGENCE BRIEF
 // ============================================
-async function generateBriefText(deckData) {
-  const cards = Array.isArray(deckData.cards) ? deckData.cards : (Array.isArray(deckData.decklist) ? deckData.decklist : []);
-  const cardList = cards.map(c => `${c.qty}x ${c.name}`).join('\n');
-  const prompt = `You are an expert Magic: The Gathering Commander analyst providing a consultative Intelligence Brief. Your tone is that of a knowledgeable friend who loves the game and wants to help the pilot succeed. Be encouraging, specific, and honest without being harsh. This is NOT a cEDH analysis — the target is high-power casual Commander (RC Bracket 3).
-
-Commander: ${deckData.commander}
-
-Decklist:
-${cardList}
-
-IMPORTANT: Before analyzing, understand exactly what the commander card does mechanically. Then evaluate how the decklist supports that specific strategy.
-
-Write the Intelligence Brief using these sections with markdown headers:
-
-## COMMANDER & STRATEGY OVERVIEW
-Explain exactly what this commander does (reference its actual card text) and what the deck's primary strategy is. 2-3 sentences max.
-
-## POWER LEVEL
-Rate 1-10 for high-power casual play. Bracket 3 = optimized casual (target range). Most well-built casual decks sit 6-7. Explain based on actual cards present. Do NOT benchmark against cEDH.
-
-## STRENGTHS
-List 3-5 genuine strengths. Name the actual cards and synergies. What makes this deck dangerous when it's firing? What is its engine?
-
-## VULNERABILITIES
-List 2-3 real vulnerabilities. Frame as things to watch out for, not criticism. Be honest but supportive.
-
-## IDEAL OPENING HAND
-What does a keepable 7 look like? Name specific cards. What mana, what early plays, what pieces do you need? When do you mulligan?
-
-## MIDGAME PLAN
-Walk through the game arc. Turns 1-3, turns 4-6, when do you start threatening to win? What are you assembling?
-
-## WIN CONDITIONS
-All realistic ways this deck wins, in order of likelihood. Name the specific cards and setup required for each.
-
-## SUGGESTED REFINEMENTS
-Only if you see 1-2 genuinely impactful improvements. If the deck is well-constructed, say so and skip this section.
-
-Use card names throughout. Be specific. Be encouraging.`;
-
-  try {
-    const response = await fetch('https://cc-proxy.oscar-crespom.workers.dev', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Target': 'anthropic' },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await response.json();
-    console.log('Brief API response:', JSON.stringify(data).substring(0, 200));
-    if (data.error) throw new Error(data.error);
-    return data.content?.[0]?.text || 'Brief generation failed.';
-  } catch (e) {
-    console.error('Brief generation error:', e);
-    return 'Failed to generate brief: ' + e.message;
-  }
-}
 
 async function generateRoastText(deckData) {
   const cards = Array.isArray(deckData.cards) ? deckData.cards : (Array.isArray(deckData.decklist) ? deckData.decklist : []);
@@ -2642,28 +2588,7 @@ Be funny. Be accurate. Be specific to these actual cards and this commander's re
   }
 }
 
-async function generateBrief(deckId) {
-  const deck = allDecks.find(d => d.id === deckId);
-  if (!deck) return;
 
-  const briefEl = document.getElementById('deck-tab-brief');
-  briefEl.innerHTML = '<div class="ai-generating"><div class="spinner"></div><p>Generating Intelligence Brief...</p></div>';
-
-  const brief = await generateBriefText({ commander: deck.commander, cards: deck.decklist || [], decklist: deck.decklist || [] });
-
-  await sbRequest(`decks?id=eq.${deckId}`, 'PATCH', {
-    intelligence_brief: brief,
-    brief_generated_at: new Date().toISOString()
-  });
-
-  deck.intelligence_brief = brief;
-  deck.brief_generated_at = new Date().toISOString();
-  briefEl.innerHTML = renderBriefTab(deck);
-}
-
-async function regenerateBrief(deckId) {
-  await generateBrief(deckId);
-}
 
 async function generateRoast(deckId) {
   const deck = allDecks.find(d => d.id === deckId);
@@ -2936,7 +2861,10 @@ async function submitGame() {
     const result = await sbRequest('games', 'POST', game);
     if (!result || !result[0]) throw new Error('Failed to save game.');
 
-    allGames.unshift(result[0]);
+    // Re-fetch full game record to ensure all fields (incl. notes) are present
+    const savedId = result[0].id;
+    const fresh = await sbRequest('games', 'GET', null, `?id=eq.${savedId}&select=*`);
+    allGames.unshift(fresh && fresh[0] ? fresh[0] : result[0]);
     renderDashboard();
     renderGames();
     // Close modal
