@@ -1230,6 +1230,7 @@ h1, h2, h3, h4 {
       <button class="nav-tab active" onclick="showTab('dashboard')" data-tab="dashboard">Dashboard</button>
       <button class="nav-tab" onclick="showTab('decks')" data-tab="decks">My Decks</button>
       <button class="nav-tab" onclick="showTab('games')" data-tab="games">Game Log</button>
+      <button class="nav-tab" onclick="showTab('friends')" data-tab="friends">Friends<span id="friends-badge" style="display:none;background:var(--crimson-bright);color:#fff;border-radius:50%;font-size:0.6rem;padding:1px 5px;margin-left:5px;vertical-align:middle"></span></button>
       <button class="nav-tab" id="admin-tab" onclick="showTab('admin')" data-tab="admin" style="display:none">⚑ Admin</button>
     </div>
     <div class="nav-user">
@@ -1330,6 +1331,47 @@ h1, h2, h3, h4 {
     <div id="tab-deck-detail" class="tab-content hidden">
       <button class="back-btn" onclick="showTab('decks')">← Back to Decks</button>
       <div id="deck-detail-content"></div>
+    </div>
+
+    <!-- FRIENDS TAB -->
+    <div id="tab-friends" class="tab-content hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">🤝 Friends</span>
+        </div>
+
+        <!-- Pending invitations received -->
+        <div id="friends-pending-section" style="display:none;margin-bottom:1.5rem">
+          <h3 style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--crimson-bright);margin-bottom:0.75rem">⚔ Pending Invitations</h3>
+          <div id="friends-pending-list"></div>
+        </div>
+
+        <!-- Add friend -->
+        <div style="margin-bottom:1.5rem">
+          <h3 style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.75rem">Add a Friend</h3>
+          <div class="flex gap-1">
+            <input id="add-friend-input" type="text" placeholder="Enter username..." class="form-control" style="flex:1" onkeydown="if(event.key==='Enter')sendFriendRequest()">
+            <button class="btn btn-primary" style="width:auto" onclick="sendFriendRequest()">Send Request</button>
+          </div>
+          <div id="add-friend-msg" style="font-size:0.8rem;margin-top:0.5rem"></div>
+        </div>
+
+        <!-- Friends list -->
+        <div>
+          <h3 style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.75rem">My Friends</h3>
+          <div id="friends-list"><p class="text-dim text-small italic">No friends yet. Add someone by username!</p></div>
+        </div>
+
+        <!-- Data Export -->
+        <div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border)">
+          <h3 style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.75rem">📦 Export My Data</h3>
+          <p class="text-dim text-small" style="margin-bottom:0.75rem">Download your game history and deck list as CSV files.</p>
+          <div class="flex gap-1">
+            <button class="btn" style="width:auto" onclick="exportGamesCSV()">⬇ Games CSV</button>
+            <button class="btn" style="width:auto" onclick="exportDecksCSV()">⬇ Decks CSV</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ADMIN TAB -->
@@ -1557,13 +1599,30 @@ async function register() {
 
 function setCurrentUser(user) {
   currentUser = user;
+  // Save 2-hour session to localStorage
+  const session = {
+    user,
+    expiresAt: Date.now() + 2 * 60 * 60 * 1000 // 2 hours
+  };
+  localStorage.setItem('cc_session', JSON.stringify(session));
+  applyCurrentUser(user);
+}
+
+function applyCurrentUser(user) {
+  currentUser = user;
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   document.getElementById('nav-username').textContent = `— ${user.username}`;
   document.getElementById('nav-user-display').textContent = user.username;
 
+  // Show mobile FAB only when logged in
+  const fab = document.getElementById('mobile-fab');
+  if (fab) fab.style.display = 'flex';
+
   if (user.is_admin) {
     document.getElementById('admin-tab').style.display = 'flex';
+    const drawerAdminBtn = document.getElementById('drawer-admin-btn');
+    if (drawerAdminBtn) drawerAdminBtn.style.display = 'flex';
     document.getElementById('admin-banner').classList.remove('hidden');
   }
 
@@ -1571,12 +1630,18 @@ function setCurrentUser(user) {
 }
 
 function logout() {
+  localStorage.removeItem('cc_session');
   currentUser = null;
   allDecks = [];
   allGames = [];
+  allFriends = [];
+  pendingRequests = [];
   document.getElementById('app').style.display = 'none';
   document.getElementById('auth-screen').style.display = 'flex';
   document.getElementById('login-pin').value = '';
+  // Hide FAB on logout
+  const fab = document.getElementById('mobile-fab');
+  if (fab) fab.style.display = 'none';
   clearAuthMessages();
 }
 
@@ -1594,6 +1659,7 @@ async function loadUserData() {
     renderDecks();
     renderGames();
     buildLogGameForm();
+    loadFriendsData();
   } catch (e) {
     console.error('Failed to load data:', e);
   }
@@ -1618,6 +1684,7 @@ function showTab(tab) {
 
   if (tab === 'log-game') buildLogGameForm();
   if (tab === 'admin' && currentUser.is_admin) renderAdmin();
+  if (tab === 'friends') renderFriends();
 }
 
 // ============================================
@@ -3084,6 +3151,242 @@ function escHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+// ============================================
+// FAB MENU
+// ============================================
+function openFabMenu() {
+  const menu = document.getElementById('fab-menu');
+  const overlay = document.getElementById('fab-overlay');
+  if (menu) menu.style.display = 'flex';
+  if (overlay) overlay.style.display = 'block';
+}
+function closeFabMenu() {
+  const menu = document.getElementById('fab-menu');
+  const overlay = document.getElementById('fab-overlay');
+  if (menu) menu.style.display = 'none';
+  if (overlay) overlay.style.display = 'none';
+}
+
+// ============================================
+// FRIENDS STATE
+// ============================================
+let allFriends = [];
+let pendingRequests = [];
+
+// ============================================
+// FRIENDS — LOAD & BADGE
+// ============================================
+async function loadFriendsData() {
+  if (!currentUser) return;
+  try {
+    // Fetch accepted friendships (both directions)
+    const sent = await sbRequest('friendships', 'GET', null,
+      `?requester_id=eq.${currentUser.id}&status=eq.accepted&select=*,users!friendships_addressee_id_fkey(id,username)`) || [];
+    const received = await sbRequest('friendships', 'GET', null,
+      `?addressee_id=eq.${currentUser.id}&status=eq.accepted&select=*,users!friendships_requester_id_fkey(id,username)`) || [];
+
+    allFriends = [
+      ...sent.map(f => ({ friendshipId: f.id, userId: f.users?.id, username: f.users?.username })),
+      ...received.map(f => ({ friendshipId: f.id, userId: f.users?.id, username: f.users?.username }))
+    ].filter(f => f.username);
+
+    // Fetch pending requests addressed TO current user
+    const pending = await sbRequest('friendships', 'GET', null,
+      `?addressee_id=eq.${currentUser.id}&status=eq.pending&select=*,users!friendships_requester_id_fkey(id,username)`) || [];
+    pendingRequests = pending.map(f => ({ friendshipId: f.id, userId: f.users?.id, username: f.users?.username }));
+
+    // Update badge
+    updateFriendsBadge();
+  } catch(e) {
+    console.error('Failed to load friends:', e);
+  }
+}
+
+function updateFriendsBadge() {
+  const count = pendingRequests.length;
+  ['friends-badge', 'drawer-friends-badge'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (count > 0) {
+      el.textContent = count;
+      el.style.display = 'inline';
+    } else {
+      el.style.display = 'none';
+    }
+  });
+}
+
+// ============================================
+// FRIENDS — RENDER TAB
+// ============================================
+function renderFriends() {
+  // Pending section
+  const pendingSection = document.getElementById('friends-pending-section');
+  const pendingList = document.getElementById('friends-pending-list');
+  if (pendingRequests.length > 0) {
+    pendingSection.style.display = 'block';
+    pendingList.innerHTML = pendingRequests.map(r => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:var(--surface2);border-radius:var(--radius);margin-bottom:0.5rem;border:1px solid var(--border)">
+        <span style="font-family:'Cinzel',serif;font-size:0.85rem;color:var(--text)">${escHtml(r.username)}</span>
+        <div class="flex gap-1">
+          <button class="btn btn-small" style="background:var(--win);border-color:var(--win);color:#fff;width:auto" onclick="acceptFriend('${r.friendshipId}','${escHtml(r.username)}')">Accept</button>
+          <button class="btn btn-small btn-danger" style="width:auto" onclick="declineFriend('${r.friendshipId}')">Decline</button>
+        </div>
+      </div>
+    `).join('');
+  } else {
+    pendingSection.style.display = 'none';
+  }
+
+  // Friends list
+  const friendsList = document.getElementById('friends-list');
+  if (allFriends.length === 0) {
+    friendsList.innerHTML = '<p class="text-dim text-small italic">No friends yet. Add someone by username!</p>';
+  } else {
+    friendsList.innerHTML = allFriends.map(f => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:var(--surface2);border-radius:var(--radius);margin-bottom:0.5rem;border:1px solid var(--border)">
+        <span style="font-family:'Cinzel',serif;font-size:0.85rem;color:var(--gold)">⚔ ${escHtml(f.username)}</span>
+        <button class="btn btn-small btn-danger" style="width:auto;font-size:0.65rem" onclick="removeFriend('${f.friendshipId}','${escHtml(f.username)}')">Remove</button>
+      </div>
+    `).join('');
+  }
+
+  // Clear add friend message
+  const msg = document.getElementById('add-friend-msg');
+  if (msg) msg.textContent = '';
+}
+
+// ============================================
+// FRIENDS — ACTIONS
+// ============================================
+async function sendFriendRequest() {
+  const input = document.getElementById('add-friend-input');
+  const msg = document.getElementById('add-friend-msg');
+  const username = input.value.trim();
+  if (!username) return;
+  if (username.toLowerCase() === currentUser.username.toLowerCase()) {
+    msg.style.color = 'var(--loss)';
+    msg.textContent = 'You cannot add yourself.';
+    return;
+  }
+
+  try {
+    // Find user
+    const users = await sbRequest('users', 'GET', null, `?username=eq.${encodeURIComponent(username)}&select=id,username`);
+    if (!users || users.length === 0) {
+      msg.style.color = 'var(--loss)';
+      msg.textContent = 'User not found. Check the username.';
+      return;
+    }
+    const target = users[0];
+
+    // Check not already friends or pending
+    const existing = await sbRequest('friendships', 'GET', null,
+      `?or=(and(requester_id.eq.${currentUser.id},addressee_id.eq.${target.id}),and(requester_id.eq.${target.id},addressee_id.eq.${currentUser.id}))&select=id,status`);
+    if (existing && existing.length > 0) {
+      msg.style.color = 'var(--loss)';
+      msg.textContent = existing[0].status === 'accepted' ? 'Already friends!' : 'Request already pending.';
+      return;
+    }
+
+    // Send request
+    await sbRequest('friendships', 'POST', {
+      requester_id: currentUser.id,
+      addressee_id: target.id,
+      status: 'pending'
+    });
+
+    msg.style.color = 'var(--win)';
+    msg.textContent = `Friend request sent to ${username}!`;
+    input.value = '';
+  } catch(e) {
+    msg.style.color = 'var(--loss)';
+    msg.textContent = 'Failed to send request. Try again.';
+    console.error(e);
+  }
+}
+
+async function acceptFriend(friendshipId, username) {
+  try {
+    await sbRequest('friendships', 'PATCH', { status: 'accepted' }, `?id=eq.${friendshipId}`);
+    showToast(`Now friends with ${username}! ⚔`);
+    await loadFriendsData();
+    renderFriends();
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+async function declineFriend(friendshipId) {
+  try {
+    await sbRequest('friendships', 'DELETE', null, `?id=eq.${friendshipId}`);
+    await loadFriendsData();
+    renderFriends();
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+async function removeFriend(friendshipId, username) {
+  if (!confirm(`Remove ${username} from your friends?`)) return;
+  try {
+    await sbRequest('friendships', 'DELETE', null, `?id=eq.${friendshipId}`);
+    showToast(`Removed ${username} from friends.`);
+    await loadFriendsData();
+    renderFriends();
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+// ============================================
+// DATA EXPORT
+// ============================================
+function exportGamesCSV() {
+  if (!allGames.length) { showToast('No games to export.'); return; }
+  const headers = ['Date','Deck','Result','Win Condition','Loss Reason','Pod Size','Seat','Commander Hit','Commander Removed','Turn Ended','Notes'];
+  const rows = allGames.map(g => {
+    const deck = allDecks.find(d => d.id === g.deck_id);
+    return [
+      g.played_at ? new Date(g.played_at).toLocaleDateString() : '',
+      deck ? `${deck.name} (${deck.commander})` : g.deck_id,
+      g.result || '',
+      g.win_condition || '',
+      g.loss_reason || '',
+      g.pod_size || '',
+      g.seat_position || '',
+      g.commander_hit_battlefield ? 'Yes' : 'No',
+      g.commander_removed ? 'Yes' : 'No',
+      g.turn_ended || '',
+      (g.notes || '').replace(/,/g, ';')
+    ].map(v => `"${v}"`).join(',');
+  });
+  downloadCSV([headers.join(','), ...rows].join('\n'), 'my_games.csv');
+}
+
+function exportDecksCSV() {
+  if (!allDecks.length) { showToast('No decks to export.'); return; }
+  const headers = ['Deck Name','Commander','Color Identity','Card Count','Created'];
+  const rows = allDecks.map(d => [
+    d.name || '',
+    d.commander || '',
+    (d.color_identity || []).join(''),
+    d.card_count || '',
+    d.updated_at ? new Date(d.updated_at).toLocaleDateString() : ''
+  ].map(v => `"${v}"`).join(','));
+  downloadCSV([headers.join(','), ...rows].join('\n'), 'my_decks.csv');
+}
+
+function downloadCSV(content, filename) {
+  const blob = new Blob([content], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 // Enter key support for auth forms
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter') {
@@ -3112,14 +3415,39 @@ function initTheme() {
   }
 }
 
+function initSession() {
+  try {
+    const raw = localStorage.getItem('cc_session');
+    if (!raw) return;
+    const session = JSON.parse(raw);
+    if (!session || !session.user || !session.expiresAt) return;
+    if (Date.now() > session.expiresAt) {
+      localStorage.removeItem('cc_session');
+      return;
+    }
+    // Valid session — restore without PIN
+    applyCurrentUser(session.user);
+  } catch(e) {
+    localStorage.removeItem('cc_session');
+  }
+}
+
 // Run on load
 initTheme();
+initSession();
 
 // ============================================
 // INIT
 // ============================================
 // Check for returning session (none — intentional, PIN required each visit)
 </script>
+<!-- FAB CHOICE MENU -->
+<div id="fab-menu" style="display:none;position:fixed;bottom:5.5rem;right:1.5rem;z-index:199;display:none;flex-direction:column;gap:0.5rem;align-items:flex-end;">
+  <button onclick="closeFabMenu();showLogGameModal()" style="background:var(--surface);border:1px solid var(--border-bright);color:var(--gold);font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.6rem 1rem;border-radius:20px;cursor:pointer;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.3);">📜 Log a Game</button>
+  <button onclick="closeFabMenu();showToast('Live Game coming soon! 🎮')" style="background:var(--surface);border:1px solid var(--border-bright);color:var(--gold);font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.6rem 1rem;border-radius:20px;cursor:pointer;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.3);">⚔ Live Game</button>
+</div>
+<div id="fab-overlay" onclick="closeFabMenu()" style="display:none;position:fixed;inset:0;z-index:198;"></div>
+
 <!-- MOBILE DRAWER OVERLAY -->
 <div id="mobile-drawer-overlay" onclick="closeDrawer()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;"></div>
 
@@ -3130,6 +3458,7 @@ initTheme();
     <button class="drawer-nav-btn active" data-tab="dashboard" onclick="showTab('dashboard');closeDrawer()"><span>⚔</span> Dashboard</button>
     <button class="drawer-nav-btn" data-tab="decks" onclick="showTab('decks');closeDrawer()"><span>🗡️</span> My Decks</button>
     <button class="drawer-nav-btn" data-tab="games" onclick="showTab('games');closeDrawer()"><span>📜</span> Game Log</button>
+    <button class="drawer-nav-btn" data-tab="friends" onclick="showTab('friends');closeDrawer()"><span>🤝</span> Friends<span id="drawer-friends-badge" style="display:none;background:var(--crimson-bright);color:#fff;border-radius:50%;font-size:0.6rem;padding:1px 5px;margin-left:5px;vertical-align:middle"></span></button>
   </div>
   <div style="border-top:1px solid var(--border);padding:1rem 0;">
     <button class="drawer-nav-btn" onclick="toggleTheme();updateDrawerThemeIcon()"><span id="drawer-theme-icon">☀</span> Toggle Theme</button>
@@ -3138,7 +3467,7 @@ initTheme();
 </div>
 
 <!-- MOBILE FAB -->
-<button id="mobile-fab" onclick="showLogGameModal()" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;width:56px;height:56px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.6rem;cursor:pointer;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,0.35);align-items:center;justify-content:center;">+</button>
+<button id="mobile-fab" onclick="openFabMenu()" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;width:56px;height:56px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.6rem;cursor:pointer;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,0.35);align-items:center;justify-content:center;">+</button>
 
 <!-- LOG GAME MODAL -->
 <div id="log-game-modal" class="modal-overlay hidden">
