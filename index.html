@@ -1291,7 +1291,8 @@ h1, h2, h3, h4 {
   .main-content { padding: 1rem 0.75rem 5rem; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .decks-grid { grid-template-columns: 1fr; }
-  #mobile-fab { display: flex !important; align-items: center; justify-content: center; }
+  #mobile-fab:not(.fab-hidden) { display: flex !important; align-items: center; justify-content: center; }
+  #mobile-fab.fab-hidden { display: none !important; }
 }
 </style>
 </head>
@@ -1369,7 +1370,7 @@ h1, h2, h3, h4 {
     <div class="nav-user">
       <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle-btn" title="Toggle light/dark theme">☀</button>
       <span class="nav-user-name" id="nav-user-display"></span>
-      <button class="btn btn-small btn-danger" onclick="logout()">Exit</button>
+      <button class="btn btn-small btn-danger" onclick="logout()">Leave the Hall</button>
       <button class="mobile-kebab" onclick="openDrawer()" title="Menu">☰</button>
     </div>
   </nav>
@@ -1757,7 +1758,7 @@ function applyCurrentUser(user) {
 
   // Show mobile FAB only when logged in
   const fab = document.getElementById('mobile-fab');
-  if (fab) fab.style.display = 'flex';
+  if (fab) fab.classList.remove('fab-hidden');
 
   if (user.is_admin) {
     document.getElementById('admin-tab').style.display = 'flex';
@@ -1781,7 +1782,7 @@ function logout() {
   document.getElementById('login-pin').value = '';
   // Hide FAB on logout
   const fab = document.getElementById('mobile-fab');
-  if (fab) fab.style.display = 'none';
+  if (fab) fab.classList.add('fab-hidden');
   clearAuthMessages();
 }
 
@@ -4080,7 +4081,7 @@ async function finalizeLiveGame() {
 </div>
 
 <!-- MOBILE FAB -->
-<button id="mobile-fab" onclick="openFabMenu()" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;width:56px;height:56px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.6rem;cursor:pointer;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,0.35);align-items:center;justify-content:center;">+</button>
+<button id="mobile-fab" onclick="openFabMenu()" class="fab-hidden" style="position:fixed;bottom:1.5rem;right:1.5rem;width:56px;height:56px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.6rem;cursor:pointer;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,0.35);align-items:center;justify-content:center;">+</button>
 
 <!-- LOG GAME MODAL -->
 <div id="log-game-modal" class="modal-overlay hidden">
