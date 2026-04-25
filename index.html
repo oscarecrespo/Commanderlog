@@ -118,22 +118,22 @@
   opacity: 1;
 }
 
-/* LIGHT THEME */
+/* LIGHT THEME — Plum Noir + Cool Blue */
 body.light-theme {
-  --bg: #e1d0c9;
-  --surface: #f0e8e3;
-  --surface2: #dcc8c0;
-  --surface3: #d0b8ae;
-  --border: #b89888;
-  --border-bright: #9a7868;
-  --gold: #3d2e2b;
-  --gold-dim: #764c4e;
-  --gold-bright: #2a1e1c;
-  --crimson: #8b1a1a;
-  --crimson-bright: #c0392b;
-  --text: #3d2e2b;
-  --text-dim: #644234;
-  --text-faint: #9a7868;
+  --bg: #d8effd;
+  --surface: #eaf6ff;
+  --surface2: #c8e4f5;
+  --surface3: #b8d8ee;
+  --border: #8ab8d8;
+  --border-bright: #6898b8;
+  --gold: #341f28;
+  --gold-dim: #5a3848;
+  --gold-bright: #1e1018;
+  --crimson: #3a1020;
+  --crimson-bright: #6a1828;
+  --text: #341f28;
+  --text-dim: #5a3848;
+  --text-faint: #8a6878;
   --win: #155c2a;
   --loss: #7a1212;
 }
@@ -3222,23 +3222,41 @@ let pendingRequests = [];
 async function loadFriendsData() {
   if (!currentUser) return;
   try {
-    // Fetch accepted friendships (both directions)
-    const sent = await sbRequest('friendships', 'GET', null,
-      `?requester_id=eq.${currentUser.id}&status=eq.accepted&select=*,users!friendships_addressee_id_fkey(id,username)`) || [];
-    const received = await sbRequest('friendships', 'GET', null,
-      `?addressee_id=eq.${currentUser.id}&status=eq.accepted&select=*,users!friendships_requester_id_fkey(id,username)`) || [];
+    // Fetch all friendships involving current user (simple, no joins)
+    const allRows = await sbRequest('friendships', 'GET', null,
+      `?or=(requester_id.eq.${currentUser.id},addressee_id.eq.${currentUser.id})&select=*`) || [];
 
-    allFriends = [
-      ...sent.map(f => ({ friendshipId: f.id, userId: f.users?.id, username: f.users?.username })),
-      ...received.map(f => ({ friendshipId: f.id, userId: f.users?.id, username: f.users?.username }))
-    ].filter(f => f.username);
+    // Collect all other user IDs we need to look up
+    const otherIds = [...new Set(allRows.map(f =>
+      f.requester_id === currentUser.id ? f.addressee_id : f.requester_id
+    ))];
 
-    // Fetch pending requests addressed TO current user
-    const pending = await sbRequest('friendships', 'GET', null,
-      `?addressee_id=eq.${currentUser.id}&status=eq.pending&select=*,users!friendships_requester_id_fkey(id,username)`) || [];
-    pendingRequests = pending.map(f => ({ friendshipId: f.id, userId: f.users?.id, username: f.users?.username }));
+    // Fetch usernames in one query
+    let userMap = {};
+    if (otherIds.length > 0) {
+      const users = await sbRequest('users', 'GET', null,
+        `?id=in.(${otherIds.join(',')})&select=id,username`) || [];
+      users.forEach(u => { userMap[u.id] = u.username; });
+    }
 
-    // Update badge
+    // Split into accepted friends and pending requests
+    allFriends = allRows
+      .filter(f => f.status === 'accepted')
+      .map(f => {
+        const otherId = f.requester_id === currentUser.id ? f.addressee_id : f.requester_id;
+        return { friendshipId: f.id, userId: otherId, username: userMap[otherId] };
+      })
+      .filter(f => f.username);
+
+    pendingRequests = allRows
+      .filter(f => f.status === 'pending' && f.addressee_id === currentUser.id)
+      .map(f => ({
+        friendshipId: f.id,
+        userId: f.requester_id,
+        username: userMap[f.requester_id]
+      }))
+      .filter(f => f.username);
+
     updateFriendsBadge();
   } catch(e) {
     console.error('Failed to load friends:', e);
