@@ -1095,6 +1095,110 @@ h1, h2, h3, h4 {
 }
 
 /* Responsive */
+/* ============================================
+   LIVE GAME TRACKER STYLES
+   ============================================ */
+.player-panel {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.player-panel.eliminated {
+  filter: grayscale(0.8);
+  opacity: 0.5;
+}
+.panel-art {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center top;
+  opacity: 0.35;
+}
+.panel-tap-left {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 50%;
+  cursor: pointer;
+  z-index: 2;
+}
+.panel-tap-right {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 50%;
+  cursor: pointer;
+  z-index: 2;
+}
+.panel-tap-left:active { background: rgba(192,57,43,0.2); }
+.panel-tap-right:active { background: rgba(39,174,96,0.2); }
+.panel-content {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  pointer-events: none;
+}
+.panel-player-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  color: rgba(212,170,125,0.9);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.1rem;
+}
+.panel-commander-name {
+  font-style: italic;
+  font-size: 0.65rem;
+  color: rgba(154,136,120,0.8);
+  margin-bottom: 0.5rem;
+}
+.panel-life {
+  font-family: 'Cinzel', serif;
+  font-size: 4rem;
+  font-weight: bold;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+  transition: transform 0.1s;
+}
+.panel-life.bump { transform: scale(1.15); }
+.panel-life.low { color: #e74c3c; }
+.panel-skull {
+  font-size: 2.5rem;
+  margin-bottom: 0.3rem;
+}
+.cmd-damage-row {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+  pointer-events: all;
+  z-index: 4;
+  position: relative;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.cmd-dmg-chip {
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(212,170,125,0.3);
+  border-radius: 3px;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.6rem;
+  font-family: 'Cinzel', serif;
+  color: #d4aa7d;
+  cursor: pointer;
+  text-align: center;
+  min-width: 38px;
+}
+.cmd-dmg-chip:active { background: rgba(192,57,43,0.3); }
+.cmd-dmg-chip.danger { border-color: #e74c3c; color: #e74c3c; }
+
+@media (max-width: 768px) {
+  .nav-tabs { display: none; }
+
 @media (max-width: 768px) {
   .nav-tabs { display: none; }
   .main-content { padding: 1rem 0.75rem 5rem; }
@@ -1276,6 +1380,13 @@ h1, h2, h3, h4 {
     <!-- DASHBOARD TAB -->
     <div id="tab-dashboard" class="tab-content">
       <div id="admin-banner" class="admin-banner hidden">⚑ ADMIN VIEW — All users visible</div>
+      <div id="live-resume-banner" style="display:none;background:rgba(212,170,125,0.12);border:1px solid var(--gold);border-radius:var(--radius);padding:0.75rem 1rem;margin-bottom:1rem;align-items:center;justify-content:space-between;gap:1rem">
+        <span style="font-family:'Cinzel',serif;font-size:0.8rem;color:var(--gold)">⚔ Unfinished live game found</span>
+        <div class="flex gap-1">
+          <button class="btn btn-small" style="width:auto" onclick="resumeLiveGame()">Resume</button>
+          <button class="btn btn-small btn-danger" style="width:auto" onclick="discardLiveGame()">Discard</button>
+        </div>
+      </div>
 
       <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
         <button class="btn" onclick="showLogGameModal()">+ Log Game</button>
@@ -1689,6 +1800,7 @@ async function loadUserData() {
     renderGames();
     buildLogGameForm();
     loadFriendsData();
+    checkLiveGameRecovery();
   } catch (e) {
     console.error('Failed to load data:', e);
   }
@@ -3360,6 +3472,18 @@ function initSession() {
   }
 }
 
+function checkLiveGameRecovery() {
+  const saved = localStorage.getItem('cc_live_game');
+  if (!saved) return;
+  try {
+    const state = JSON.parse(saved);
+    if (!state || state.ended) { localStorage.removeItem('cc_live_game'); return; }
+    // Show resume banner on dashboard
+    const banner = document.getElementById('live-resume-banner');
+    if (banner) banner.style.display = 'flex';
+  } catch(e) { localStorage.removeItem('cc_live_game'); }
+}
+
 // Run on load
 initTheme();
 initSession();
@@ -3368,11 +3492,572 @@ initSession();
 // INIT
 // ============================================
 // Check for returning session (none — intentional, PIN required each visit)
+
+// ============================================
+// PHASE 3: LIVE GAME SETUP
+// ============================================
+let liveSetupState = {
+  podSize: 4,
+  players: [] // { userId, username, deckId, commander, artUrl }
+};
+
+function showLiveGameSetup() {
+  // Check for existing live game in localStorage
+  const saved = localStorage.getItem('cc_live_game');
+  if (saved) {
+    try {
+      const existing = JSON.parse(saved);
+      if (existing && existing.players && !existing.ended) {
+        if (confirm('You have an unfinished live game. Resume it?')) {
+          liveGameState = existing;
+          launchTracker();
+          return;
+        } else {
+          localStorage.removeItem('cc_live_game');
+        }
+      }
+    } catch(e) { localStorage.removeItem('cc_live_game'); }
+  }
+
+  liveSetupState = { podSize: 4, players: [] };
+  document.getElementById('live-setup-modal').classList.remove('hidden');
+  renderLiveSetup();
+}
+
+function hideLiveSetup() {
+  document.getElementById('live-setup-modal').classList.add('hidden');
+}
+
+function renderLiveSetup() {
+  const content = document.getElementById('live-setup-content');
+  const ps = liveSetupState.podSize;
+
+  content.innerHTML = `
+    <div style="margin-bottom:1.5rem">
+      <div class="form-label">POD SIZE</div>
+      <div class="radio-group">
+        ${[2,3,4,5].map(n => `
+          <button class="radio-btn ${ps === n ? 'selected' : ''}" onclick="setLivePodSize(${n})">${n} Players</button>
+        `).join('')}
+      </div>
+    </div>
+
+    <div id="live-seats"></div>
+
+    <div style="margin-top:1.5rem">
+      <button class="btn btn-primary" style="width:100%" onclick="launchLiveGame()">⚔ Launch Game</button>
+    </div>
+  `;
+
+  renderLiveSeats();
+}
+
+function setLivePodSize(n) {
+  liveSetupState.podSize = n;
+  // Trim players if needed
+  liveSetupState.players = liveSetupState.players.slice(0, n);
+  renderLiveSetup();
+}
+
+function renderLiveSeats() {
+  const container = document.getElementById('live-seats');
+  if (!container) return;
+  const ps = liveSetupState.podSize;
+  let html = '<div class="form-label" style="margin-bottom:0.75rem">PLAYERS & DECKS</div>';
+
+  for (let i = 0; i < ps; i++) {
+    const player = liveSetupState.players[i];
+    const isHost = i === 0;
+
+    if (isHost) {
+      // Host = current user, pick their deck
+      html += `
+        <div style="padding:0.75rem;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:0.5rem">
+          <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--gold);margin-bottom:0.4rem">SEAT 1 — ${escHtml(currentUser.username)} (You)</div>
+          <select class="form-control" onchange="setHostDeck(this.value)" style="font-size:0.8rem">
+            <option value="">Select your deck...</option>
+            ${allDecks.map(d => `<option value="${d.id}" ${player && player.deckId === d.id ? 'selected' : ''}>${escHtml(d.name)} — ${escHtml(d.commander)}</option>`).join('')}
+          </select>
+        </div>`;
+    } else {
+      const seatNum = i + 1;
+      html += `
+        <div style="padding:0.75rem;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:0.5rem">
+          <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--gold);margin-bottom:0.4rem">SEAT ${seatNum}</div>
+          ${player ? `
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem">
+              <span style="font-size:0.85rem;color:var(--text)">${escHtml(player.username)}</span>
+              <button onclick="removeLiveSeat(${i})" style="background:transparent;border:none;color:var(--text-dim);cursor:pointer;font-size:0.8rem">✕</button>
+            </div>
+            <select class="form-control" onchange="setGuestDeck(${i}, this.value)" style="font-size:0.8rem">
+              <option value="">Select their deck...</option>
+              ${(player.decks || []).map(d => `<option value="${d.id}" ${player.deckId === d.id ? 'selected' : ''}>${escHtml(d.name)} — ${escHtml(d.commander)}</option>`).join('')}
+            </select>
+          ` : `
+            ${allFriends.length === 0 ? `
+              <div style="font-size:0.78rem;color:var(--text-dim);font-style:italic;padding:0.4rem 0">
+                No friends yet. Add friends in the Friends tab first.
+              </div>` : `
+              <div style="display:flex;gap:0.5rem">
+                <input type="text" placeholder="Search friend by name..." class="form-control" id="friend-search-${i}" style="flex:1;font-size:0.8rem" oninput="filterFriendSearch(${i}, this.value)">
+              </div>
+              <div id="friend-results-${i}" style="margin-top:0.4rem"></div>
+            `}
+          `}
+        </div>`;
+    }
+  }
+
+  container.innerHTML = html;
+}
+
+function filterFriendSearch(seatIdx, query) {
+  const resultsEl = document.getElementById(`friend-results-${seatIdx}`);
+  if (!resultsEl) return;
+  const q = query.toLowerCase().trim();
+  const matches = allFriends.filter(f =>
+    f.username.toLowerCase().includes(q) &&
+    !liveSetupState.players.some(p => p && p.userId === f.userId)
+  );
+  if (!q || matches.length === 0) {
+    resultsEl.innerHTML = q ? '<div style="font-size:0.75rem;color:var(--text-dim);padding:0.3rem 0">No friends found.</div>' : '';
+    return;
+  }
+  resultsEl.innerHTML = matches.map(f => `
+    <div onclick="selectLiveFriend(${seatIdx}, '${f.userId}', '${escHtml(f.username)}')"
+      style="padding:0.4rem 0.6rem;background:var(--surface3);border-radius:var(--radius);cursor:pointer;font-size:0.82rem;margin-bottom:2px;color:var(--text)">
+      ⚔ ${escHtml(f.username)}
+    </div>
+  `).join('');
+}
+
+async function selectLiveFriend(seatIdx, userId, username) {
+  // Fetch their decks
+  const decks = await sbRequest('decks', 'GET', null, `?user_id=eq.${userId}&select=id,name,commander,art_url&order=created_at.desc`) || [];
+  liveSetupState.players[seatIdx] = { userId, username, deckId: null, commander: null, artUrl: null, decks };
+  renderLiveSeats();
+}
+
+function removeLiveSeat(seatIdx) {
+  liveSetupState.players[seatIdx] = null;
+  renderLiveSeats();
+}
+
+function setHostDeck(deckId) {
+  const deck = allDecks.find(d => d.id === deckId);
+  if (!deck) return;
+  liveSetupState.players[0] = {
+    userId: currentUser.id,
+    username: currentUser.username,
+    deckId: deck.id,
+    commander: deck.commander,
+    artUrl: deck.art_url,
+    decks: allDecks
+  };
+}
+
+function setGuestDeck(seatIdx, deckId) {
+  const player = liveSetupState.players[seatIdx];
+  if (!player) return;
+  const deck = (player.decks || []).find(d => d.id === deckId);
+  if (!deck) return;
+  player.deckId = deck.id;
+  player.commander = deck.commander;
+  player.artUrl = deck.art_url;
+}
+
+function launchLiveGame() {
+  const ps = liveSetupState.podSize;
+  // Validate all seats filled
+  for (let i = 0; i < ps; i++) {
+    const p = liveSetupState.players[i];
+    if (!p || !p.deckId) {
+      showToast(`Please fill Seat ${i+1} before launching.`);
+      return;
+    }
+  }
+
+  // Build live game state
+  liveGameState = {
+    podSize: ps,
+    turn: 1,
+    startedAt: Date.now(),
+    ended: false,
+    players: liveSetupState.players.slice(0, ps).map((p, i) => ({
+      userId: p.userId,
+      username: p.username,
+      deckId: p.deckId,
+      commander: p.commander,
+      artUrl: p.artUrl,
+      life: 40,
+      eliminated: false,
+      seatPosition: i + 1,
+      commanderDamage: {} // keyed by opponent userId
+    }))
+  };
+
+  // Init commander damage tracking
+  liveGameState.players.forEach(p => {
+    liveGameState.players.forEach(opp => {
+      if (opp.userId !== p.userId) p.commanderDamage[opp.userId] = 0;
+    });
+  });
+
+  saveLiveState();
+  hideLiveSetup();
+  launchTracker();
+}
+
+// ============================================
+// PHASE 4: LIVE GAME TRACKER
+// ============================================
+let liveGameState = null;
+let liveHoldInterval = null;
+
+function resumeLiveGame() {
+  const saved = localStorage.getItem('cc_live_game');
+  if (!saved) return;
+  try {
+    liveGameState = JSON.parse(saved);
+    document.getElementById('live-resume-banner').style.display = 'none';
+    launchTracker();
+  } catch(e) { localStorage.removeItem('cc_live_game'); }
+}
+
+function discardLiveGame() {
+  localStorage.removeItem('cc_live_game');
+  document.getElementById('live-resume-banner').style.display = 'none';
+  showToast('Live game discarded.');
+}
+
+function saveLiveState() {
+  localStorage.setItem('cc_live_game', JSON.stringify(liveGameState));
+}
+
+function launchTracker() {
+  const tracker = document.getElementById('live-tracker');
+  tracker.style.display = 'flex';
+  document.getElementById('tracker-turn').textContent = liveGameState.turn;
+  buildTrackerGrid();
+}
+
+function closeTracker() {
+  document.getElementById('live-tracker').style.display = 'none';
+}
+
+function buildTrackerGrid() {
+  const grid = document.getElementById('tracker-grid');
+  const ps = liveGameState.podSize;
+
+  // Grid layout by pod size
+  const layouts = {
+    2: 'grid-template-rows: 1fr 1fr; grid-template-columns: 1fr;',
+    3: 'grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr;',
+    4: 'grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr;',
+    5: 'grid-template-rows: 1fr 1fr 1fr; grid-template-columns: 1fr 1fr;'
+  };
+  grid.style.cssText = `flex:1;display:grid;gap:2px;overflow:hidden;${layouts[ps] || layouts[4]}`;
+
+  grid.innerHTML = liveGameState.players.map((p, i) => {
+    let spanStyle = '';
+    if (ps === 3 && i === 2) spanStyle = 'grid-column: span 2;'; // 3p: bottom spans
+    if (ps === 5 && i === 4) spanStyle = 'grid-column: span 2;'; // 5p: last spans
+    return buildPlayerPanel(p, i, spanStyle);
+  }).join('');
+}
+
+function buildPlayerPanel(p, idx, spanStyle = '') {
+  const isDead = p.eliminated;
+  const isLow = p.life <= 10 && !isDead;
+  const opponents = liveGameState.players.filter(opp => opp.userId !== p.userId);
+
+  const cmdChips = opponents.map(opp => {
+    const dmg = p.commanderDamage[opp.userId] || 0;
+    const isDanger = dmg >= 15;
+    return `<div class="cmd-dmg-chip ${isDanger ? 'danger' : ''}"
+      onclick="addCmdDamage('${p.userId}', '${opp.userId}')"
+      title="Cmdr dmg from ${escHtml(opp.username)}">
+      ${escHtml(opp.username.substring(0,4))}<br>${dmg}
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="player-panel ${isDead ? 'eliminated' : ''}" id="panel-${p.userId}" style="${spanStyle}">
+      ${p.artUrl ? `<div class="panel-art" style="background-image:url('${escHtml(p.artUrl)}')"></div>` : '<div class="panel-art" style="background:linear-gradient(135deg,#1a1510,#2f2820)"></div>'}
+      ${!isDead ? `
+        <div class="panel-tap-left" ontouchstart="handleTapStart(event,'${p.userId}',-1)" ontouchend="handleTapEnd(event,'${p.userId}',-1)" onmousedown="startHold('${p.userId}',-1)" onmouseup="endHold()"></div>
+        <div class="panel-tap-right" ontouchstart="handleTapStart(event,'${p.userId}',1)" ontouchend="handleTapEnd(event,'${p.userId}',1)" onmousedown="startHold('${p.userId}',1)" onmouseup="endHold()"></div>
+      ` : ''}
+      <div class="panel-content">
+        <div class="panel-player-name">${escHtml(p.username)}</div>
+        <div class="panel-commander-name">${escHtml(p.commander)}</div>
+        ${isDead
+          ? `<div class="panel-skull">💀</div>`
+          : `<div class="panel-life ${isLow ? 'low' : ''}" id="life-${p.userId}">${p.life}</div>`
+        }
+        ${!isDead ? `<div class="cmd-damage-row">${cmdChips}</div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function changeLife(userId, delta) {
+  const player = liveGameState.players.find(p => p.userId === userId);
+  if (!player || player.eliminated) return;
+  player.life += delta;
+  saveLiveState();
+
+  // Update life display
+  const lifeEl = document.getElementById(`life-${userId}`);
+  if (lifeEl) {
+    lifeEl.textContent = player.life;
+    lifeEl.className = `panel-life ${player.life <= 10 ? 'low' : ''}`;
+    lifeEl.classList.add('bump');
+    setTimeout(() => lifeEl.classList.remove('bump'), 150);
+  }
+
+  // Check elimination
+  if (player.life <= 0) eliminatePlayer(userId, 'life');
+}
+
+function handleTapStart(e, userId, delta) {
+  e.preventDefault(); // prevent mouse events firing after touch
+  startHold(userId, delta);
+}
+function handleTapEnd(e, userId, delta) {
+  e.preventDefault();
+  endHold();
+}
+function startHold(userId, delta) {
+  endHold();
+  // Single tap fires immediately, then repeat after 400ms delay
+  changeLife(userId, delta);
+  liveHoldInterval = setTimeout(() => {
+    liveHoldInterval = setInterval(() => changeLife(userId, delta), 100);
+  }, 400);
+}
+function endHold() {
+  if (liveHoldInterval) { clearInterval(liveHoldInterval); clearTimeout(liveHoldInterval); liveHoldInterval = null; }
+}
+
+function addCmdDamage(victimId, sourceId) {
+  const victim = liveGameState.players.find(p => p.userId === victimId);
+  if (!victim || victim.eliminated) return;
+  victim.commanderDamage[sourceId] = (victim.commanderDamage[sourceId] || 0) + 1;
+  victim.life -= 1;
+  saveLiveState();
+
+  // Check elimination before rebuild
+  const cmdKill = victim.commanderDamage[sourceId] >= 21;
+  const lifeKill = victim.life <= 0;
+  if (cmdKill || lifeKill) {
+    eliminatePlayer(victimId, cmdKill ? 'commander' : 'life');
+  } else {
+    refreshPanel(victimId);
+  }
+}
+
+function refreshPanel(userId) {
+  const player = liveGameState.players.find(p => p.userId === userId);
+  if (!player) return;
+  const idx = liveGameState.players.indexOf(player);
+  const panel = document.getElementById(`panel-${userId}`);
+  if (!panel) return;
+  const ps = liveGameState.podSize;
+  const spanStyle = (ps === 3 && idx === 2) ? 'grid-column: span 2;' : '';
+  // Replace outerHTML safely
+  const temp = document.createElement('div');
+  temp.innerHTML = buildPlayerPanel(player, idx, spanStyle);
+  const newPanel = temp.firstElementChild;
+  panel.parentNode.replaceChild(newPanel, panel);
+}
+
+function eliminatePlayer(userId, reason) {
+  const player = liveGameState.players.find(p => p.userId === userId);
+  if (!player || player.eliminated) return;
+  player.eliminated = true;
+  player.eliminatedTurn = liveGameState.turn;
+  player.eliminationReason = reason;
+  saveLiveState();
+
+  // Rebuild panel
+  const panel = document.getElementById(`panel-${userId}`);
+  if (panel) {
+    const newPanel = document.createElement('div');
+    newPanel.innerHTML = buildPlayerPanel(player, liveGameState.players.indexOf(player));
+    const inner = newPanel.firstElementChild;
+    panel.innerHTML = inner.innerHTML;
+    panel.className = inner.className;
+  }
+
+  // Check if game over
+  const alive = liveGameState.players.filter(p => !p.eliminated);
+  if (alive.length === 1) {
+    setTimeout(() => showWinnerScreen(alive[0]), 600);
+  }
+}
+
+function confirmEndGame() {
+  if (confirm('End the game early? You can still log results.')) {
+    const alive = liveGameState.players.filter(p => !p.eliminated);
+    if (alive.length === 1) {
+      showWinnerScreen(alive[0]);
+    } else if (alive.length > 1) {
+      // Ask who won
+      const names = alive.map((p, i) => `${i+1}. ${p.username}`).join('\n');
+      const choice = prompt(`Who won?\n${names}\n\nEnter number:`);
+      const idx = parseInt(choice) - 1;
+      if (idx >= 0 && idx < alive.length) {
+        alive.forEach((p, i) => { if (i !== idx) p.eliminated = true; });
+        showWinnerScreen(alive[idx]);
+      }
+    }
+  }
+}
+
+async function showWinnerScreen(winner) {
+  liveGameState.winner = winner.userId;
+  liveGameState.ended = true;
+  saveLiveState();
+
+  closeTracker();
+
+  // Fetch winner deck's flavor message for their winning commander
+  let flavorTitle = null;
+  let flavorBody = null;
+  try {
+    const deckData = await sbRequest('decks', 'GET', null,
+      `?id=eq.${winner.deckId}&select=win_message_title,win_message_body`);
+    if (deckData && deckData[0]) {
+      flavorTitle = deckData[0].win_message_title;
+      flavorBody = deckData[0].win_message_body;
+    }
+  } catch(e) { /* silently skip if fetch fails */ }
+
+  const screen = document.getElementById('live-winner-screen');
+  screen.innerHTML = `
+    <div style="font-family:'Cinzel',serif;font-size:2.5rem;color:#d4aa7d;margin-bottom:0.5rem">⚔</div>
+    <div style="font-family:'Cinzel',serif;font-size:2rem;color:#d4aa7d;margin-bottom:0.3rem">${escHtml(winner.username)}</div>
+    <div style="font-style:italic;color:#9a8878;margin-bottom:0.2rem;font-size:1.1rem">${escHtml(winner.commander)}</div>
+    <div style="color:#9a8878;font-size:0.85rem;margin-bottom:${flavorTitle ? '1.5rem' : '2rem'}">Victory on Turn ${liveGameState.turn}</div>
+    ${flavorTitle ? `
+      <div style="max-width:360px;text-align:center;padding:1rem 1.5rem;border:1px solid rgba(212,170,125,0.25);border-radius:6px;background:rgba(212,170,125,0.06);margin-bottom:2rem">
+        <div style="font-family:'Cinzel',serif;font-size:1rem;color:#d4aa7d;margin-bottom:0.4rem">${escHtml(flavorTitle)}</div>
+        <div style="font-style:italic;color:#9a8878;font-size:0.88rem;line-height:1.5">${escHtml(flavorBody)}</div>
+      </div>` : ''}
+    <button onclick="finalizeLiveGame()" style="background:#d4aa7d;color:#0a0806;border:none;font-family:'Cinzel',serif;font-size:0.85rem;letter-spacing:0.15em;padding:0.9rem 2rem;border-radius:4px;cursor:pointer;text-transform:uppercase">Log Games & Return</button>
+  `;
+  screen.style.display = 'flex';
+  screen.style.flexDirection = 'column';
+  screen.style.alignItems = 'center';
+  screen.style.justifyContent = 'center';
+}
+
+// Increment turn — called via topbar (tap turn counter)
+document.addEventListener('DOMContentLoaded', () => {
+  const turnEl = document.getElementById('tracker-turn');
+  if (turnEl) {
+    turnEl.style.cursor = 'pointer';
+    turnEl.title = 'Tap to advance turn';
+    turnEl.addEventListener('click', () => {
+      if (liveGameState) {
+        liveGameState.turn++;
+        document.getElementById('tracker-turn').textContent = liveGameState.turn;
+        saveLiveState();
+      }
+    });
+  }
+});
+
+// ============================================
+// PHASE 5: AUTO-LOG ON GAME END
+// ============================================
+async function finalizeLiveGame() {
+  const state = liveGameState;
+  if (!state) return;
+
+  // Track which players already logged to prevent duplicates on retry
+  if (!state.loggedPlayers) state.loggedPlayers = [];
+
+  const screen = document.getElementById('live-winner-screen');
+  screen.innerHTML = '<div style="color:#d4aa7d;font-family:Cinzel,serif;font-size:1rem;padding:2rem;text-align:center">Logging games...</div>';
+  screen.style.display = 'flex';
+  screen.style.alignItems = 'center';
+  screen.style.justifyContent = 'center';
+
+  try {
+    for (const player of state.players) {
+      // Skip already-logged players (retry safety)
+      if (state.loggedPlayers.includes(player.userId)) continue;
+
+      const isWinner = player.userId === state.winner;
+      const gameRecord = {
+        user_id: player.userId,
+        deck_id: player.deckId,
+        result: isWinner ? 'win' : 'loss',
+        pod_size: state.podSize,
+        seat_position: player.seatPosition,
+        turn_ended: state.turn,
+        source: 'live',
+        played_at: new Date(state.startedAt).toISOString(),
+        commander_hit_battlefield: null,
+        commander_removed: null,
+        win_condition: null,
+        loss_reason: null,
+        notes: null
+      };
+
+      const saved = await sbRequest('games', 'POST', gameRecord);
+      if (saved && saved[0]) {
+        // Write opponents
+        const opponents = state.players.filter(opp => opp.userId !== player.userId);
+        for (const opp of opponents) {
+          await sbRequest('game_opponents', 'POST', {
+            game_id: saved[0].id,
+            commander_name: opp.commander,
+            result: opp.userId === state.winner ? 'win' : 'loss'
+          });
+        }
+        // If current user, update local allGames
+        if (player.userId === currentUser.id) {
+          allGames.unshift(saved[0]);
+        }
+        // Mark as logged
+        state.loggedPlayers.push(player.userId);
+        saveLiveState(); // persist progress
+      }
+    }
+
+    // All done — clear live state
+    localStorage.removeItem('cc_live_game');
+    liveGameState = null;
+
+    screen.style.display = 'none';
+    renderDashboard();
+    renderGames();
+    showTab('dashboard');
+    showToast('Games logged for all players! ⚔');
+
+  } catch(e) {
+    // Save progress so retry skips already-written records
+    saveLiveState();
+    screen.innerHTML = `
+      <div style="color:#c0392b;font-family:'Cinzel',serif;padding:2rem;text-align:center;max-width:320px">
+        <div style="margin-bottom:0.5rem">Failed to log all games.</div>
+        <div style="font-size:0.75rem;color:#9a8878;margin-bottom:1.5rem">${escHtml(e.message)}</div>
+        <button onclick="finalizeLiveGame()" style="background:#d4aa7d;color:#0a0806;border:none;padding:0.6rem 1.2rem;border-radius:4px;cursor:pointer;font-family:'Cinzel',serif;margin-right:0.5rem">Retry</button>
+        <button onclick="document.getElementById('live-winner-screen').style.display='none';showTab('dashboard')" style="background:transparent;border:1px solid #9a8878;color:#9a8878;padding:0.6rem 1.2rem;border-radius:4px;cursor:pointer;font-family:'Cinzel',serif">Skip</button>
+      </div>`;
+    screen.style.flexDirection = 'column';
+    console.error(e);
+  }
+}
+
 </script>
 <!-- FAB CHOICE MENU -->
 <div id="fab-menu" style="display:none;position:fixed;bottom:5.5rem;right:1.5rem;z-index:199;display:none;flex-direction:column;gap:0.5rem;align-items:flex-end;">
   <button onclick="closeFabMenu();showLogGameModal()" style="background:var(--surface);border:1px solid var(--border-bright);color:var(--gold);font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.6rem 1rem;border-radius:20px;cursor:pointer;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.3);">📜 Log a Game</button>
-  <button onclick="closeFabMenu();showToast('Live Game coming soon! 🎮')" style="background:var(--surface);border:1px solid var(--border-bright);color:var(--gold);font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.6rem 1rem;border-radius:20px;cursor:pointer;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.3);">⚔ Live Game</button>
+  <button onclick="closeFabMenu();showLiveGameSetup()" style="background:var(--surface);border:1px solid var(--border-bright);color:var(--gold);font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.6rem 1rem;border-radius:20px;cursor:pointer;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.3);">⚔ Live Game</button>
 </div>
 <div id="fab-overlay" onclick="closeFabMenu()" style="display:none;position:fixed;inset:0;z-index:198;"></div>
 
@@ -3404,6 +4089,45 @@ initSession();
     <h3 class="modal-title">Log a Game</h3>
     <div id="log-game-modal-form"></div>
   </div>
+</div>
+
+
+<!-- ============================================
+     LIVE GAME SETUP MODAL
+     ============================================ -->
+<div id="live-setup-modal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:560px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="hideLiveSetup()">✕</button>
+    <h3 class="modal-title">⚔ Start Live Game</h3>
+    <div id="live-setup-content"></div>
+  </div>
+</div>
+
+<!-- ============================================
+     LIVE GAME TRACKER SCREEN
+     ============================================ -->
+<div id="live-tracker" style="display:none;position:fixed;inset:0;background:#0a0806;z-index:500;overflow:hidden;flex-direction:column;">
+  <!-- Tracker top bar -->
+  <div id="tracker-topbar" style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 1rem;background:rgba(0,0,0,0.6);border-bottom:1px solid rgba(212,170,125,0.2);flex-shrink:0;z-index:10;">
+    <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:#d4aa7d;letter-spacing:0.15em">COMMANDER CHRONICLE</div>
+    <div style="display:flex;align-items:center;gap:0.75rem">
+      <div style="font-family:'Cinzel',serif;font-size:0.9rem;color:#d4aa7d">TURN <span id="tracker-turn">1</span></div>
+      <button onclick="confirmEndGame()" style="background:transparent;border:1px solid rgba(192,57,43,0.5);color:#c0392b;font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.1em;padding:0.3rem 0.6rem;border-radius:3px;cursor:pointer">END GAME</button>
+    </div>
+  </div>
+  <!-- Player panels grid -->
+  <div id="tracker-grid" style="flex:1;display:grid;gap:2px;overflow:hidden;"></div>
+</div>
+
+<!-- ============================================
+     LIVE GAME WINNER SCREEN
+     ============================================ -->
+<div id="live-winner-screen" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:600;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;">
+  <div style="font-family:'Cinzel',serif;font-size:2.5rem;color:#d4aa7d;margin-bottom:0.5rem">⚔</div>
+  <div id="winner-name" style="font-family:'Cinzel',serif;font-size:2rem;color:#d4aa7d;margin-bottom:0.3rem"></div>
+  <div id="winner-commander" style="font-style:italic;color:#9a8878;margin-bottom:0.3rem;font-size:1.1rem"></div>
+  <div id="winner-turn" style="color:#9a8878;font-size:0.85rem;margin-bottom:2rem"></div>
+  <button onclick="finalizeLiveGame()" style="background:#d4aa7d;color:#0a0806;border:none;font-family:'Cinzel',serif;font-size:0.85rem;letter-spacing:0.15em;padding:0.9rem 2rem;border-radius:4px;cursor:pointer;text-transform:uppercase">Log Games & Return</button>
 </div>
 
 </body>
