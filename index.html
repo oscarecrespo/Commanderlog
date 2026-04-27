@@ -1190,7 +1190,7 @@ h1, h2, h3, h4 {
   .main-content { padding: 1rem 0.75rem 5rem; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .decks-grid { grid-template-columns: 1fr; }
-  #mobile-fab { display: flex !important; align-items: center; justify-content: center; }
+  #mobile-fab:not(.fab-hidden) { display: flex !important; align-items: center; justify-content: center; }
 }
 </style>
 </head>
@@ -1868,7 +1868,7 @@ function renderGameRow(game) {
       <div class="game-result-badge ${game.result}">${game.result.toUpperCase()}</div>
       <div class="game-info">
         <div class="game-deck-name">${escHtml(deckName)}${game.source === 'live' ? ' <span style="font-size:0.6rem;background:rgba(212,170,125,0.15);border:1px solid rgba(212,170,125,0.3);color:var(--gold);padding:0.1rem 0.4rem;border-radius:2px;vertical-align:middle;font-family:Cinzel,serif;letter-spacing:0.05em">LIVE</span>' : ''}</div>
-        <div class="game-meta">Turn ${game.turn_ended || '?'} · ${game.pod_size}-player pod · Seat ${game.seat_position}</div>
+        <div class="game-meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Turn ${game.turn_ended || '?'} · ${game.pod_size}-player pod · Seat ${game.seat_position}</div>
       </div>
       <div class="game-condition">${escHtml(condition || '')}</div>
       <div class="game-date">${date}</div>
