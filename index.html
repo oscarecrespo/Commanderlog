@@ -1867,7 +1867,7 @@ function renderGameRow(game) {
     <div class="game-entry ${game.result}" onclick="showGameDetail('${game.id}')">
       <div class="game-result-badge ${game.result}">${game.result.toUpperCase()}</div>
       <div class="game-info">
-        <div class="game-deck-name">${escHtml(deckName)}</div>
+        <div class="game-deck-name">${escHtml(deckName)}${game.source === 'live' ? ' <span style="font-size:0.6rem;background:rgba(212,170,125,0.15);border:1px solid rgba(212,170,125,0.3);color:var(--gold);padding:0.1rem 0.4rem;border-radius:2px;vertical-align:middle;font-family:Cinzel,serif;letter-spacing:0.05em">LIVE</span>' : ''}</div>
         <div class="game-meta">Turn ${game.turn_ended || '?'} · ${game.pod_size}-player pod · Seat ${game.seat_position}</div>
       </div>
       <div class="game-condition">${escHtml(condition || '')}</div>
@@ -1877,8 +1877,18 @@ function renderGameRow(game) {
 }
 
 async function showGameDetail(gameId) {
-  const game = allGames.find(g => g.id === gameId);
+  // Always fetch fresh from DB to ensure notes + edits are current
+  let game = allGames.find(g => g.id === gameId);
   if (!game) return;
+  try {
+    const fresh = await sbRequest('games', 'GET', null, `?id=eq.${gameId}&select=*`);
+    if (fresh && fresh[0]) {
+      game = fresh[0];
+      // Update in-memory copy too
+      const idx = allGames.findIndex(g => g.id === gameId);
+      if (idx !== -1) allGames[idx] = game;
+    }
+  } catch(e) {}
   const deck = allDecks.find(d => d.id === game.deck_id);
 
   let opponents = [];
@@ -1931,6 +1941,7 @@ async function showGameDetail(gameId) {
       </div>` : ''}
     ${game.notes ? `<div><span class="text-dim text-xs">NOTES</span><br><p style="margin-top:0.3rem;font-style:italic">${escHtml(game.notes)}</p></div>` : ''}
     <div class="flex gap-1" style="margin-top:1.5rem;justify-content:flex-end">
+      <button class="btn btn-small" style="width:auto" onclick="document.getElementById('game-detail-modal').classList.add('hidden');showEditGame('${game.id}')">✏ Edit</button>
       <button class="btn btn-small btn-danger" onclick="deleteGame('${game.id}')">Delete Game</button>
     </div>
   `;
@@ -3984,6 +3995,177 @@ async function finalizeLiveGame() {
   }
 }
 
+
+// ============================================
+// EDIT GAME
+// ============================================
+function showEditGame(gameId) {
+  const game = allGames.find(g => g.id === gameId);
+  if (!game) return;
+  const modal = document.getElementById('edit-game-modal');
+  const content = document.getElementById('edit-game-content');
+
+  const winConditions = ['Combat damage','Commander damage','Drain','Noncombat Damage','Combo','Specific Card'];
+  const lossReasons = ['No Commander Impact','Board wiped','Mana screwed','Outpaced by opponent','Mana Flood','Targeted Hate'];
+
+  content.innerHTML = `
+    <!-- Result -->
+    <div class="form-group">
+      <label>Result</label>
+      <div class="radio-group">
+        <button class="radio-btn ${game.result==='win'?'selected-win':''}" onclick="editGameSetResult('win',this)">🏆 Win</button>
+        <button class="radio-btn ${game.result==='loss'?'selected-loss':''}" onclick="editGameSetResult('loss',this)">💀 Loss</button>
+      </div>
+    </div>
+
+    <!-- Win Condition -->
+    <div class="form-group" id="edit-win-group" style="display:${game.result==='win'?'block':'none'}">
+      <label>Win Condition</label>
+      <div class="radio-group">
+        ${winConditions.map(c => `<button class="radio-btn ${game.win_condition===c?'selected':''}" onclick="editGameSetField('win_condition','${c}',this)">${c}</button>`).join('')}
+      </div>
+    </div>
+
+    <!-- Loss Reason -->
+    <div class="form-group" id="edit-loss-group" style="display:${game.result==='loss'?'block':'none'}">
+      <label>Loss Reason</label>
+      <div class="radio-group">
+        ${lossReasons.map(c => `<button class="radio-btn ${game.loss_reason===c?'selected':''}" onclick="editGameSetField('loss_reason','${c}',this)">${c}</button>`).join('')}
+      </div>
+    </div>
+
+    <!-- Commander landed -->
+    <div class="form-group">
+      <label>Did your commander hit the battlefield?</label>
+      <div class="radio-group">
+        <button class="radio-btn ${game.commander_hit_battlefield===true?'selected':''}" onclick="editGameSetField('commander_hit_battlefield',true,this)">Yes</button>
+        <button class="radio-btn ${game.commander_hit_battlefield===false?'selected':''}" onclick="editGameSetField('commander_hit_battlefield',false,this)">No</button>
+      </div>
+    </div>
+
+    <!-- Commander removed -->
+    <div class="form-group">
+      <label>Was your commander removed?</label>
+      <div class="radio-group">
+        <button class="radio-btn ${game.commander_removed===true?'selected':''}" onclick="editGameSetField('commander_removed',true,this)">Yes</button>
+        <button class="radio-btn ${game.commander_removed===false?'selected':''}" onclick="editGameSetField('commander_removed',false,this)">No</button>
+      </div>
+    </div>
+
+    <!-- Turn ended -->
+    <div class="form-group">
+      <label>Turn the game ended</label>
+      <input type="number" id="edit-turn" class="form-control" min="1" max="50" value="${game.turn_ended||''}" placeholder="e.g. 8">
+    </div>
+
+    <!-- Stranded cards -->
+    <div class="form-group">
+      <label>Stranded Cards (press Enter to add)</label>
+      <div class="tag-input-container" onclick="document.getElementById('edit-stranded-input').focus()">
+        <div id="edit-stranded-tags"></div>
+        <input type="text" id="edit-stranded-input" class="tag-text-input" placeholder="Card name..."
+          onkeydown="editAddStranded(event)">
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="edit-notes" class="form-control" placeholder="Anything worth remembering...">${escHtml(game.notes||'')}</textarea>
+    </div>
+
+    <div id="edit-game-error" class="error-msg hidden"></div>
+    <button class="btn btn-primary" style="margin-top:0.5rem" onclick="saveEditGame('${game.id}')">Save Changes</button>
+  `;
+
+  // Store edits state
+  window._editGameState = {
+    id: gameId,
+    result: game.result,
+    win_condition: game.win_condition,
+    loss_reason: game.loss_reason,
+    commander_hit_battlefield: game.commander_hit_battlefield,
+    commander_removed: game.commander_removed,
+    strandedCards: game.stranded_cards ? [...game.stranded_cards] : []
+  };
+
+  renderEditStrandedTags();
+  modal.classList.remove('hidden');
+}
+
+function editGameSetResult(result, btn) {
+  window._editGameState.result = result;
+  window._editGameState.win_condition = null;
+  window._editGameState.loss_reason = null;
+  btn.closest('.radio-group').querySelectorAll('.radio-btn').forEach(b => b.classList.remove('selected','selected-win','selected-loss'));
+  btn.classList.add(result==='win'?'selected-win':'selected-loss');
+  document.getElementById('edit-win-group').style.display = result==='win' ? 'block' : 'none';
+  document.getElementById('edit-loss-group').style.display = result==='loss' ? 'block' : 'none';
+}
+
+function editGameSetField(field, value, btn) {
+  window._editGameState[field] = value;
+  btn.closest('.radio-group').querySelectorAll('.radio-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function editAddStranded(e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const input = document.getElementById('edit-stranded-input');
+  const val = input.value.trim();
+  if (!val) return;
+  window._editGameState.strandedCards.push(val);
+  renderEditStrandedTags();
+  input.value = '';
+}
+
+function renderEditStrandedTags() {
+  const container = document.getElementById('edit-stranded-tags');
+  if (!container) return;
+  container.innerHTML = (window._editGameState.strandedCards||[]).map((card, i) => `
+    <span class="tag">${escHtml(card)} <span class="tag-remove" onclick="editRemoveStranded(${i})">×</span></span>
+  `).join('');
+}
+
+function editRemoveStranded(i) {
+  window._editGameState.strandedCards.splice(i, 1);
+  renderEditStrandedTags();
+}
+
+async function saveEditGame(gameId) {
+  const s = window._editGameState;
+  const errEl = document.getElementById('edit-game-error');
+  errEl.classList.add('hidden');
+
+  const updates = {
+    result: s.result,
+    win_condition: s.result==='win' ? s.win_condition : null,
+    loss_reason: s.result==='loss' ? s.loss_reason : null,
+    commander_hit_battlefield: s.commander_hit_battlefield,
+    commander_removed: s.commander_removed,
+    turn_ended: parseInt(document.getElementById('edit-turn').value) || null,
+    stranded_cards: s.strandedCards.length > 0 ? s.strandedCards : null,
+    notes: document.getElementById('edit-notes').value.trim() || null
+  };
+
+  try {
+    await sbRequest(`games?id=eq.${gameId}`, 'PATCH', updates);
+
+    // Update in-memory
+    const idx = allGames.findIndex(g => g.id === gameId);
+    if (idx !== -1) allGames[idx] = { ...allGames[idx], ...updates };
+
+    document.getElementById('edit-game-modal').classList.add('hidden');
+    renderDashboard();
+    renderGames();
+    showToast('Game updated! ⚔');
+  } catch(e) {
+    errEl.textContent = 'Failed to save: ' + e.message;
+    errEl.classList.remove('hidden');
+  }
+}
+
 </script>
 <!-- FAB CHOICE MENU -->
 <div id="fab-menu" style="display:none;position:fixed;bottom:5.5rem;right:1.5rem;z-index:199;display:none;flex-direction:column;gap:0.5rem;align-items:flex-end;">
@@ -4022,6 +4204,15 @@ async function finalizeLiveGame() {
   </div>
 </div>
 
+
+<!-- EDIT GAME MODAL -->
+<div id="edit-game-modal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:560px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="document.getElementById('edit-game-modal').classList.add('hidden')">✕</button>
+    <h3 class="modal-title">✏ Edit Game</h3>
+    <div id="edit-game-content"></div>
+  </div>
+</div>
 
 <!-- LIVE GAME SETUP MODAL -->
 <div id="live-setup-modal" class="modal-overlay hidden">
