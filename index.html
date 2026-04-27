@@ -118,7 +118,7 @@
   opacity: 1;
 }
 
-/* LIGHT THEME — Deep Mocha + Chocolate Plum + Powder Petal */
+/* LIGHT THEME */
 body.light-theme {
   --bg: #e1d0c9;
   --surface: #ede0d8;
@@ -1095,177 +1095,6 @@ h1, h2, h3, h4 {
 }
 
 /* Responsive */
-/* ============================================
-   LIVE GAME TRACKER STYLES
-   ============================================ */
-.player-panel {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: default;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.player-panel.eliminated {
-  filter: grayscale(0.8);
-  opacity: 0.5;
-}
-.panel-art {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center top;
-  opacity: 0.35;
-}
-.panel-tap-left {
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 50%;
-  cursor: pointer;
-  z-index: 2;
-}
-.panel-tap-right {
-  position: absolute;
-  right: 0; top: 0; bottom: 0;
-  width: 50%;
-  cursor: pointer;
-  z-index: 2;
-}
-.panel-tap-left:active { background: rgba(192,57,43,0.2); }
-.panel-tap-right:active { background: rgba(39,174,96,0.2); }
-/* Player name — top left */
-.panel-player-name {
-  position: absolute;
-  top: 0.5rem;
-  left: 0.6rem;
-  font-family: 'Cinzel', serif;
-  font-size: 1rem;
-  font-weight: bold;
-  color: rgba(255,255,255,0.95);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
-  z-index: 5;
-  pointer-events: none;
-}
-.panel-commander-name {
-  position: absolute;
-  top: 1.8rem;
-  left: 0.6rem;
-  font-style: italic;
-  font-size: 0.7rem;
-  color: rgba(212,170,125,0.85);
-  text-shadow: 0 1px 4px rgba(0,0,0,0.9);
-  z-index: 5;
-  pointer-events: none;
-}
-/* Life total — centered, huge */
-.panel-content {
-  position: relative;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-.panel-life {
-  font-family: 'Cinzel', serif;
-  font-size: 7rem;
-  font-weight: bold;
-  color: #fff;
-  line-height: 1;
-  text-shadow: 0 3px 16px rgba(0,0,0,0.9);
-  transition: transform 0.1s;
-}
-.panel-life.bump { transform: scale(1.12); }
-.panel-life.low { color: #e74c3c; }
-/* Turn indicator below life */
-.panel-turn-indicator {
-  font-family: 'Cinzel', serif;
-  font-size: 0.7rem;
-  color: rgba(212,170,125,0.9);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-top: 0.3rem;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
-}
-.panel-skull {
-  font-size: 3rem;
-}
-/* Active player glow */
-.player-panel.active-turn {
-  box-shadow: inset 0 0 0 3px rgba(212,170,125,0.8);
-}
-/* Commander damage row — pinned to bottom */
-.cmd-damage-row {
-  position: absolute;
-  bottom: 0.5rem;
-  left: 0;
-  right: 0;
-  display: flex;
-  gap: 0.3rem;
-  pointer-events: all;
-  z-index: 5;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 0 0.4rem;
-}
-.cmd-dmg-chip {
-  background: rgba(0,0,0,0.7);
-  border: 1px solid rgba(212,170,125,0.35);
-  border-radius: 4px;
-  font-size: 0.58rem;
-  font-family: 'Cinzel', serif;
-  color: #d4aa7d;
-  cursor: pointer;
-  text-align: center;
-  min-width: 42px;
-  overflow: hidden;
-  transition: all 0.15s;
-}
-.cmd-dmg-chip .chip-name {
-  padding: 0.15rem 0.3rem 0;
-  font-size: 0.55rem;
-  color: rgba(212,170,125,0.7);
-}
-.cmd-dmg-chip .chip-controls {
-  display: none;
-}
-.cmd-dmg-chip.expanded .chip-controls {
-  display: flex;
-}
-.cmd-dmg-chip.expanded {
-  min-width: 80px;
-}
-.chip-btn {
-  flex: 1;
-  padding: 0.2rem 0;
-  background: transparent;
-  border: none;
-  color: #d4aa7d;
-  font-size: 0.75rem;
-  cursor: pointer;
-  line-height: 1;
-}
-.chip-btn:active { background: rgba(212,170,125,0.2); }
-.chip-dmg-val {
-  padding: 0.2rem 0.3rem;
-  font-size: 0.8rem;
-  font-weight: bold;
-  color: #fff;
-}
-.cmd-dmg-chip.danger { border-color: #e74c3c; }
-.cmd-dmg-chip.danger .chip-dmg-val { color: #e74c3c; }
-
-@media (max-width: 768px) {
-  .nav-tabs { display: none; }
-
 @media (max-width: 768px) {
   .nav-tabs { display: none; }
   .main-content { padding: 1rem 0.75rem 5rem; }
@@ -1361,7 +1190,7 @@ h1, h2, h3, h4 {
   .main-content { padding: 1rem 0.75rem 5rem; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .decks-grid { grid-template-columns: 1fr; }
-  #mobile-fab:not(.fab-hidden) { display: flex !important; align-items: center; justify-content: center; }
+  #mobile-fab { display: flex !important; align-items: center; justify-content: center; }
 }
 </style>
 </head>
@@ -2052,17 +1881,18 @@ async function showGameDetail(gameId) {
   if (!game) return;
   const deck = allDecks.find(d => d.id === game.deck_id);
 
-  // Fetch opponents from game_opponents table
   let opponents = [];
   try {
     opponents = await sbRequest('game_opponents', 'GET', null, `?game_id=eq.${gameId}&select=*`) || [];
-  } catch(e) { /* silently skip */ }
+  } catch(e) {}
 
   const content = document.getElementById('game-detail-content');
+  // Get flavor message if deck has one
   const winTitle = deck?.win_message_title || null;
   const winBody = deck?.win_message_body || null;
   const lossTitle = deck?.loss_message_title || null;
   const lossBody = deck?.loss_message_body || null;
+
   const flavorTitle = game.result === 'win' ? winTitle : lossTitle;
   const flavorBody = game.result === 'win' ? winBody : lossBody;
 
@@ -2090,11 +1920,11 @@ async function showGameDetail(gameId) {
       <div class="mb-2" style="margin-bottom:1rem">
         <span class="text-dim text-xs">COMMANDERS AT THE TABLE</span>
         <div class="flex" style="flex-wrap:wrap;gap:0.4rem;margin-top:0.4rem">
-          ${opponents.map(o => `<span class="tag" style="border-color:${o.result === 'win' ? 'var(--win)' : 'rgba(212,170,125,0.3)'}">${escHtml(o.commander_name)}</span>`).join('')}
+          ${opponents.map(o => `<span class="tag">${escHtml(o.commander_name)}</span>`).join('')}
         </div>
       </div>` : ''}
     ${game.stranded_cards && game.stranded_cards.length > 0 ? `
-      <div class="mb-2" style="margin-bottom:1rem"><span class="text-dim text-xs">STRANDED CARDS</span><br>
+      <div class="mb-2"><span class="text-dim text-xs">STRANDED CARDS</span><br>
         <div class="flex" style="flex-wrap:wrap;gap:0.4rem;margin-top:0.4rem">
           ${game.stranded_cards.map(c => `<span class="tag">${escHtml(c)}</span>`).join('')}
         </div>
@@ -2132,6 +1962,8 @@ function showDeckDetail(deckId) {
 
 function renderDeckDetail() {
   const deck = currentDeckDetail;
+  // Store deckId for VS tab
+  document.getElementById('deck-detail-content').dataset.deckId = deck.id;
   const deckGames = allGames.filter(g => g.deck_id === deck.id);
   const wins = deckGames.filter(g => g.result === 'win').length;
   const total = deckGames.length;
@@ -2203,7 +2035,7 @@ function renderDeckDetail() {
 
 function switchDeckTab(tab, btn) {
   if (tab === 'vs') {
-    const deckId = document.getElementById('deck-detail-view').dataset.deckId;
+    const deckId = document.getElementById('deck-detail-content').dataset.deckId || (currentDeckDetail && currentDeckDetail.id);
     if (deckId) renderVsTab(deckId);
   }
   document.querySelectorAll('[id^="deck-tab-"]').forEach(el => el.classList.add('hidden'));
@@ -2569,12 +2401,13 @@ function parseMoxfieldText(text) {
   const deckNameInput = document.getElementById('import-deck-name').value.trim();
   const colorIdentity = detectColors(cards.map(c => c.name).join(' '));
 
-  // Auto-detect commander: user input > Moxfield section detection > last singleton
+  // Auto-detect commander: user input > last card in list (Moxfield puts commander last) > first card
   const autoCommander = commanderInput || guessCommander(cards, text);
-  // Auto-fill the commander field if it was empty
   if (!commanderInput && autoCommander) {
-    const cmdInput = document.getElementById('import-commander');
-    if (cmdInput && !cmdInput.value) cmdInput.value = autoCommander;
+    try {
+      const cmdInput = document.getElementById('import-commander');
+      if (cmdInput && !cmdInput.value) cmdInput.value = autoCommander;
+    } catch(e) {}
   }
 
   return {
@@ -2587,22 +2420,18 @@ function parseMoxfieldText(text) {
 }
 
 function guessCommander(cards, rawText) {
-  // Moxfield plain text export puts the commander AFTER a blank line at the end
-  // e.g: "...last mainboard card
-
-1 Krenko, Mob Boss"
+  // Moxfield exports put commander after a blank line at the end
   if (rawText) {
     const sections = rawText.trim().split(/\n\s*\n/);
     if (sections.length >= 2) {
       const lastSection = sections[sections.length - 1].trim();
       const lines = lastSection.split('\n').map(l => l.trim()).filter(Boolean);
-      if (lines.length <= 2) { // commander section is 1-2 lines
+      if (lines.length <= 2) {
         const match = lines[lines.length - 1].match(/^\d+\s+(.+)$/);
         if (match) return match[1].trim();
       }
     }
   }
-  // Fallback: last singleton
   const singletons = cards.filter(c => c.qty === 1);
   if (singletons.length > 0) return singletons[singletons.length - 1].name;
   return cards[cards.length - 1].name;
@@ -3058,30 +2887,6 @@ function removeStrandedCard(i) {
   renderStrandedTags();
 }
 
-function handleOpponentCmdInput(e) {
-  if (e.key !== 'Enter') return;
-  e.preventDefault();
-  const input = document.getElementById('opponent-cmd-input');
-  const val = input.value.trim();
-  if (!val || logGameState.opponentCommanders.includes(val)) { input.value = ''; return; }
-  logGameState.opponentCommanders.push(val);
-  renderOpponentCmdTags();
-  input.value = '';
-}
-
-function renderOpponentCmdTags() {
-  const container = document.getElementById('opponent-cmd-tags');
-  if (!container) return;
-  container.innerHTML = logGameState.opponentCommanders.map((cmd, i) => `
-    <span class="tag">${escHtml(cmd)} <span class="tag-remove" onclick="removeOpponentCmd(${i})">×</span></span>
-  `).join('');
-}
-
-function removeOpponentCmd(i) {
-  logGameState.opponentCommanders.splice(i, 1);
-  renderOpponentCmdTags();
-}
-
 async function submitGame() {
   const s = logGameState;
   const errEl = document.getElementById('log-error');
@@ -3121,22 +2926,21 @@ async function submitGame() {
 
     const savedId = result[0].id;
 
-    // Write opponent commanders to game_opponents
     if (s.opponentCommanders && s.opponentCommanders.length > 0) {
       for (const cmdName of s.opponentCommanders) {
         await sbRequest('game_opponents', 'POST', {
           game_id: savedId,
           commander_name: cmdName,
-          result: s.result === 'win' ? 'loss' : 'win' // opponents get opposite result
+          result: s.result === 'win' ? 'loss' : 'win'
         });
       }
     }
 
-    // Re-fetch full game record
     const fresh = await sbRequest('games', 'GET', null, `?id=eq.${savedId}&select=*`);
     allGames.unshift(fresh && fresh[0] ? fresh[0] : result[0]);
     renderDashboard();
     renderGames();
+    // Close modal
     const modal = document.getElementById('log-game-modal');
     if (modal) modal.classList.add('hidden');
     showTab('dashboard');
@@ -3376,41 +3180,23 @@ let pendingRequests = [];
 async function loadFriendsData() {
   if (!currentUser) return;
   try {
-    // Fetch all friendships involving current user (simple, no joins)
-    const allRows = await sbRequest('friendships', 'GET', null,
-      `?or=(requester_id.eq.${currentUser.id},addressee_id.eq.${currentUser.id})&select=*`) || [];
+    // Fetch accepted friendships (both directions)
+    const sent = await sbRequest('friendships', 'GET', null,
+      `?requester_id=eq.${currentUser.id}&status=eq.accepted&select=*,users!friendships_addressee_id_fkey(id,username)`) || [];
+    const received = await sbRequest('friendships', 'GET', null,
+      `?addressee_id=eq.${currentUser.id}&status=eq.accepted&select=*,users!friendships_requester_id_fkey(id,username)`) || [];
 
-    // Collect all other user IDs we need to look up
-    const otherIds = [...new Set(allRows.map(f =>
-      f.requester_id === currentUser.id ? f.addressee_id : f.requester_id
-    ))];
+    allFriends = [
+      ...sent.map(f => ({ friendshipId: f.id, userId: f.users?.id, username: f.users?.username })),
+      ...received.map(f => ({ friendshipId: f.id, userId: f.users?.id, username: f.users?.username }))
+    ].filter(f => f.username);
 
-    // Fetch usernames in one query
-    let userMap = {};
-    if (otherIds.length > 0) {
-      const users = await sbRequest('users', 'GET', null,
-        `?id=in.(${otherIds.join(',')})&select=id,username`) || [];
-      users.forEach(u => { userMap[u.id] = u.username; });
-    }
+    // Fetch pending requests addressed TO current user
+    const pending = await sbRequest('friendships', 'GET', null,
+      `?addressee_id=eq.${currentUser.id}&status=eq.pending&select=*,users!friendships_requester_id_fkey(id,username)`) || [];
+    pendingRequests = pending.map(f => ({ friendshipId: f.id, userId: f.users?.id, username: f.users?.username }));
 
-    // Split into accepted friends and pending requests
-    allFriends = allRows
-      .filter(f => f.status === 'accepted')
-      .map(f => {
-        const otherId = f.requester_id === currentUser.id ? f.addressee_id : f.requester_id;
-        return { friendshipId: f.id, userId: otherId, username: userMap[otherId] };
-      })
-      .filter(f => f.username);
-
-    pendingRequests = allRows
-      .filter(f => f.status === 'pending' && f.addressee_id === currentUser.id)
-      .map(f => ({
-        friendshipId: f.id,
-        userId: f.requester_id,
-        username: userMap[f.requester_id]
-      }))
-      .filter(f => f.username);
-
+    // Update badge
     updateFriendsBadge();
   } catch(e) {
     console.error('Failed to load friends:', e);
@@ -3630,6 +3416,17 @@ function initTheme() {
   }
 }
 
+function checkLiveGameRecovery() {
+  const saved = localStorage.getItem('cc_live_game');
+  if (!saved) return;
+  try {
+    const state = JSON.parse(saved);
+    if (!state || state.ended) { localStorage.removeItem('cc_live_game'); return; }
+    const banner = document.getElementById('live-resume-banner');
+    if (banner) banner.style.display = 'flex';
+  } catch(e) { localStorage.removeItem('cc_live_game'); }
+}
+
 function initSession() {
   try {
     const raw = localStorage.getItem('cc_session');
@@ -3647,18 +3444,6 @@ function initSession() {
   }
 }
 
-function checkLiveGameRecovery() {
-  const saved = localStorage.getItem('cc_live_game');
-  if (!saved) return;
-  try {
-    const state = JSON.parse(saved);
-    if (!state || state.ended) { localStorage.removeItem('cc_live_game'); return; }
-    // Show resume banner on dashboard
-    const banner = document.getElementById('live-resume-banner');
-    if (banner) banner.style.display = 'flex';
-  } catch(e) { localStorage.removeItem('cc_live_game'); }
-}
-
 // Run on load
 initTheme();
 initSession();
@@ -3669,15 +3454,166 @@ initSession();
 // Check for returning session (none — intentional, PIN required each visit)
 
 // ============================================
+// OPPONENT COMMANDERS — LOG FORM
+// ============================================
+function handleOpponentCmdInput(e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const input = document.getElementById('opponent-cmd-input');
+  const val = input.value.trim();
+  if (!val || logGameState.opponentCommanders.includes(val)) { input.value = ''; return; }
+  logGameState.opponentCommanders.push(val);
+  renderOpponentCmdTags();
+  input.value = '';
+}
+function renderOpponentCmdTags() {
+  const container = document.getElementById('opponent-cmd-tags');
+  if (!container) return;
+  container.innerHTML = logGameState.opponentCommanders.map((cmd, i) => `
+    <span class="tag">${escHtml(cmd)} <span class="tag-remove" onclick="removeOpponentCmd(${i})">×</span></span>
+  `).join('');
+}
+function removeOpponentCmd(i) {
+  logGameState.opponentCommanders.splice(i, 1);
+  renderOpponentCmdTags();
+}
+
+// ============================================
+// VS TAB
+// ============================================
+async function renderVsTab(deckId) {
+  const container = document.getElementById('deck-vs-content');
+  if (!container) return;
+  container.innerHTML = '<div class="ai-generating"><div class="spinner"></div><p>Loading matchup data...</p></div>';
+  try {
+    const deckGames = allGames.filter(g => g.deck_id === deckId);
+    if (deckGames.length === 0) {
+      container.innerHTML = '<p class="text-dim italic" style="padding:1rem 0">No games logged for this deck yet.</p>';
+      return;
+    }
+    const gameIds = deckGames.map(g => g.id);
+    const opponents = await sbRequest('game_opponents', 'GET', null,
+      `?game_id=in.(${gameIds.join(',')})&select=*`) || [];
+    if (opponents.length === 0) {
+      container.innerHTML = '<p class="text-dim italic" style="padding:1rem 0">No opponent data yet. Add commanders when logging games.</p>';
+      return;
+    }
+    const cmdRecord = {};
+    opponents.forEach(opp => {
+      const game = deckGames.find(g => g.id === opp.game_id);
+      if (!game) return;
+      const name = opp.commander_name;
+      if (!cmdRecord[name]) cmdRecord[name] = { wins: 0, losses: 0 };
+      if (game.result === 'win') cmdRecord[name].wins++;
+      else cmdRecord[name].losses++;
+    });
+    const cmdEntries = Object.entries(cmdRecord)
+      .map(([name, r]) => ({ name, ...r, total: r.wins + r.losses }))
+      .sort((a, b) => b.total - a.total);
+
+    let friendDeckMap = {};
+    const friendRecord = {};
+    if (allFriends.length > 0) {
+      const friendIds = allFriends.map(f => f.userId);
+      allFriends.forEach(f => { friendRecord[f.userId] = { username: f.username, wins: 0, losses: 0, commanders: new Set() }; });
+      const friendDecks = await sbRequest('decks', 'GET', null,
+        `?user_id=in.(${friendIds.join(',')})&select=user_id,commander`) || [];
+      friendDecks.forEach(d => { if (d.commander) friendDeckMap[d.commander.toLowerCase()] = d.user_id; });
+      opponents.forEach(opp => {
+        const game = deckGames.find(g => g.id === opp.game_id);
+        if (!game) return;
+        const friendId = friendDeckMap[opp.commander_name.toLowerCase()];
+        if (!friendId || !friendRecord[friendId]) return;
+        if (game.result === 'win') friendRecord[friendId].wins++;
+        else friendRecord[friendId].losses++;
+        friendRecord[friendId].commanders.add(opp.commander_name);
+      });
+    }
+    const friendEntries = Object.values(friendRecord)
+      .filter(f => f.wins + f.losses > 0)
+      .sort((a, b) => (b.wins + b.losses) - (a.wins + a.losses));
+    const winPct = (w, t) => t > 0 ? `${((w/t)*100).toFixed(0)}%` : '—';
+
+    container.innerHTML = `
+      ${friendEntries.length > 0 ? `
+        <div style="margin-bottom:1.5rem">
+          <h3 style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.75rem">VS FRIENDS</h3>
+          ${friendEntries.map(f => {
+            const total = f.wins + f.losses;
+            const pct = (f.wins / total) * 100;
+            return `<div style="padding:0.75rem;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:0.5rem">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem">
+                <span style="font-family:'Cinzel',serif;font-size:0.85rem;color:var(--gold)">${escHtml(f.username)}</span>
+                <span style="font-size:0.8rem;color:${pct >= 50 ? 'var(--win)' : 'var(--loss)'}">
+                  ${f.wins}W ${f.losses}L · ${winPct(f.wins, total)}
+                </span>
+              </div>
+              <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic">${[...f.commanders].map(c => escHtml(c)).join(', ')}</div>
+              <div style="height:4px;background:var(--border);border-radius:2px;margin-top:0.5rem">
+                <div style="height:100%;width:${pct}%;background:${pct >= 50 ? 'var(--win)' : 'var(--loss)'};border-radius:2px"></div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>` : ''}
+      <div>
+        <h3 style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.75rem">VS COMMANDERS</h3>
+        ${cmdEntries.map(c => {
+          const pct = (c.wins / c.total) * 100;
+          return `<div style="padding:0.6rem 0.75rem;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:0.4rem;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:0.82rem;color:var(--text);flex:1">${escHtml(c.name)}</span>
+            <span style="font-size:0.78rem;color:${pct >= 50 ? 'var(--win)' : 'var(--loss)'};white-space:nowrap;margin-left:0.5rem">${c.wins}W ${c.losses}L</span>
+          </div>`;
+        }).join('')}
+      </div>`;
+  } catch(e) {
+    container.innerHTML = '<p class="text-dim" style="padding:1rem 0">Failed to load vs data.</p>';
+    console.error(e);
+  }
+}
+
+// ============================================
+// LIVE GAME TRACKER CSS (injected via JS)
+// ============================================
+(function injectTrackerCSS() {
+  const style = document.createElement('style');
+  style.textContent = `
+    .panel-player-name { position:absolute;top:0.5rem;left:0.6rem;font-family:'Cinzel',serif;font-size:1rem;font-weight:bold;color:rgba(255,255,255,0.95);letter-spacing:0.05em;text-transform:uppercase;text-shadow:0 1px 6px rgba(0,0,0,0.9);z-index:5;pointer-events:none; }
+    .panel-commander-name { position:absolute;top:1.8rem;left:0.6rem;font-style:italic;font-size:0.7rem;color:rgba(212,170,125,0.85);text-shadow:0 1px 4px rgba(0,0,0,0.9);z-index:5;pointer-events:none; }
+    .panel-content { position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;pointer-events:none; }
+    .panel-life { font-family:'Cinzel',serif;font-size:7rem;font-weight:bold;color:#fff;line-height:1;text-shadow:0 3px 16px rgba(0,0,0,0.9);transition:transform 0.1s; }
+    .panel-life.bump { transform:scale(1.12); }
+    .panel-life.low { color:#e74c3c; }
+    .panel-turn-indicator { font-family:'Cinzel',serif;font-size:0.7rem;color:rgba(212,170,125,0.9);letter-spacing:0.15em;text-transform:uppercase;margin-top:0.3rem;text-shadow:0 1px 4px rgba(0,0,0,0.8); }
+    .panel-skull { font-size:3rem; }
+    .player-panel { position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none; }
+    .player-panel.eliminated { filter:grayscale(0.8);opacity:0.5; }
+    .player-panel.active-turn { box-shadow:inset 0 0 0 3px rgba(212,170,125,0.8); }
+    .panel-art { position:absolute;inset:0;background-size:cover;background-position:center top;opacity:0.35; }
+    .panel-tap-left { position:absolute;left:0;top:0;bottom:0;width:50%;cursor:pointer;z-index:2; }
+    .panel-tap-right { position:absolute;right:0;top:0;bottom:0;width:50%;cursor:pointer;z-index:2; }
+    .panel-tap-left:active { background:rgba(192,57,43,0.2); }
+    .panel-tap-right:active { background:rgba(39,174,96,0.2); }
+    .cmd-damage-row { position:absolute;bottom:0.5rem;left:0;right:0;display:flex;gap:0.3rem;pointer-events:all;z-index:5;flex-wrap:wrap;justify-content:center;padding:0 0.4rem; }
+    .cmd-dmg-chip { background:rgba(0,0,0,0.7);border:1px solid rgba(212,170,125,0.35);border-radius:4px;font-size:0.58rem;font-family:'Cinzel',serif;color:#d4aa7d;cursor:pointer;text-align:center;min-width:42px;overflow:hidden;transition:all 0.15s; }
+    .cmd-dmg-chip .chip-name { padding:0.15rem 0.3rem 0;font-size:0.55rem;color:rgba(212,170,125,0.7); }
+    .cmd-dmg-chip .chip-controls { display:none; }
+    .cmd-dmg-chip.expanded .chip-controls { display:flex; }
+    .cmd-dmg-chip.expanded { min-width:80px; }
+    .chip-btn { flex:1;padding:0.2rem 0;background:transparent;border:none;color:#d4aa7d;font-size:0.75rem;cursor:pointer;line-height:1; }
+    .chip-btn:active { background:rgba(212,170,125,0.2); }
+    .chip-dmg-val { padding:0.2rem 0.3rem;font-size:0.8rem;font-weight:bold;color:#fff; }
+    .cmd-dmg-chip.danger { border-color:#e74c3c; }
+    .cmd-dmg-chip.danger .chip-dmg-val { color:#e74c3c; }
+  `;
+  document.head.appendChild(style);
+})();
+
+// ============================================
 // PHASE 3: LIVE GAME SETUP
 // ============================================
-let liveSetupState = {
-  podSize: 4,
-  players: [] // { userId, username, deckId, commander, artUrl }
-};
+let liveSetupState = { podSize: 4, players: [] };
 
 function showLiveGameSetup() {
-  // Check for existing live game in localStorage
   const saved = localStorage.getItem('cc_live_game');
   if (saved) {
     try {
@@ -3687,49 +3623,36 @@ function showLiveGameSetup() {
           liveGameState = existing;
           launchTracker();
           return;
-        } else {
-          localStorage.removeItem('cc_live_game');
-        }
+        } else { localStorage.removeItem('cc_live_game'); }
       }
     } catch(e) { localStorage.removeItem('cc_live_game'); }
   }
-
   liveSetupState = { podSize: 4, players: [] };
   document.getElementById('live-setup-modal').classList.remove('hidden');
   renderLiveSetup();
 }
 
-function hideLiveSetup() {
-  document.getElementById('live-setup-modal').classList.add('hidden');
-}
+function hideLiveSetup() { document.getElementById('live-setup-modal').classList.add('hidden'); }
 
 function renderLiveSetup() {
   const content = document.getElementById('live-setup-content');
   const ps = liveSetupState.podSize;
-
   content.innerHTML = `
     <div style="margin-bottom:1.5rem">
       <div class="form-label">POD SIZE</div>
       <div class="radio-group">
-        ${[2,3,4,5].map(n => `
-          <button class="radio-btn ${ps === n ? 'selected' : ''}" onclick="setLivePodSize(${n})">${n} Players</button>
-        `).join('')}
+        ${[2,3,4,5].map(n => `<button class="radio-btn ${ps===n?'selected':''}" onclick="setLivePodSize(${n})">${n} Players</button>`).join('')}
       </div>
     </div>
-
     <div id="live-seats"></div>
-
     <div style="margin-top:1.5rem">
       <button class="btn btn-primary" style="width:100%" onclick="launchLiveGame()">⚔ Launch Game</button>
-    </div>
-  `;
-
+    </div>`;
   renderLiveSeats();
 }
 
 function setLivePodSize(n) {
   liveSetupState.podSize = n;
-  // Trim players if needed
   liveSetupState.players = liveSetupState.players.slice(0, n);
   renderLiveSetup();
 }
@@ -3739,50 +3662,34 @@ function renderLiveSeats() {
   if (!container) return;
   const ps = liveSetupState.podSize;
   let html = '<div class="form-label" style="margin-bottom:0.75rem">PLAYERS & DECKS</div>';
-
   for (let i = 0; i < ps; i++) {
     const player = liveSetupState.players[i];
     const isHost = i === 0;
-
     if (isHost) {
-      // Host = current user, pick their deck
-      html += `
-        <div style="padding:0.75rem;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:0.5rem">
-          <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--gold);margin-bottom:0.4rem">SEAT 1 — ${escHtml(currentUser.username)} (You)</div>
-          <select class="form-control" onchange="setHostDeck(this.value)" style="font-size:0.8rem">
-            <option value="">Select your deck...</option>
-            ${allDecks.map(d => `<option value="${d.id}" ${player && player.deckId === d.id ? 'selected' : ''}>${escHtml(d.name)} — ${escHtml(d.commander)}</option>`).join('')}
-          </select>
-        </div>`;
+      html += `<div style="padding:0.75rem;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:0.5rem">
+        <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--gold);margin-bottom:0.4rem">SEAT 1 — ${escHtml(currentUser.username)} (You)</div>
+        <select class="form-control" onchange="setHostDeck(this.value)" style="font-size:0.8rem">
+          <option value="">Select your deck...</option>
+          ${allDecks.map(d => `<option value="${d.id}" ${player&&player.deckId===d.id?'selected':''}>${escHtml(d.name)} — ${escHtml(d.commander)}</option>`).join('')}
+        </select></div>`;
     } else {
-      const seatNum = i + 1;
-      html += `
-        <div style="padding:0.75rem;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:0.5rem">
-          <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--gold);margin-bottom:0.4rem">SEAT ${seatNum}</div>
-          ${player ? `
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem">
-              <span style="font-size:0.85rem;color:var(--text)">${escHtml(player.username)}</span>
-              <button onclick="removeLiveSeat(${i})" style="background:transparent;border:none;color:var(--text-dim);cursor:pointer;font-size:0.8rem">✕</button>
-            </div>
-            <select class="form-control" onchange="setGuestDeck(${i}, this.value)" style="font-size:0.8rem">
-              <option value="">Select their deck...</option>
-              ${(player.decks || []).map(d => `<option value="${d.id}" ${player.deckId === d.id ? 'selected' : ''}>${escHtml(d.name)} — ${escHtml(d.commander)}</option>`).join('')}
-            </select>
-          ` : `
-            ${allFriends.length === 0 ? `
-              <div style="font-size:0.78rem;color:var(--text-dim);font-style:italic;padding:0.4rem 0">
-                No friends yet. Add friends in the Friends tab first.
-              </div>` : `
-              <div style="display:flex;gap:0.5rem">
-                <input type="text" placeholder="Search friend by name..." class="form-control" id="friend-search-${i}" style="flex:1;font-size:0.8rem" oninput="filterFriendSearch(${i}, this.value)">
-              </div>
-              <div id="friend-results-${i}" style="margin-top:0.4rem"></div>
-            `}
-          `}
-        </div>`;
+      html += `<div style="padding:0.75rem;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:0.5rem">
+        <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--gold);margin-bottom:0.4rem">SEAT ${i+1}</div>
+        ${player ? `
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem">
+            <span style="font-size:0.85rem;color:var(--text)">${escHtml(player.username)}</span>
+            <button onclick="removeLiveSeat(${i})" style="background:transparent;border:none;color:var(--text-dim);cursor:pointer;font-size:0.8rem">✕</button>
+          </div>
+          <select class="form-control" onchange="setGuestDeck(${i},this.value)" style="font-size:0.8rem">
+            <option value="">Select their deck...</option>
+            ${(player.decks||[]).map(d=>`<option value="${d.id}" ${player.deckId===d.id?'selected':''}>${escHtml(d.name)} — ${escHtml(d.commander)}</option>`).join('')}
+          </select>` :
+          allFriends.length===0 ? `<div style="font-size:0.78rem;color:var(--text-dim);font-style:italic;padding:0.4rem 0">No friends yet. Add friends in the Friends tab first.</div>` :
+          `<input type="text" placeholder="Search friend..." class="form-control" id="friend-search-${i}" style="font-size:0.8rem" oninput="filterFriendSearch(${i},this.value)">
+           <div id="friend-results-${i}" style="margin-top:0.4rem"></div>`}
+      </div>`;
     }
   }
-
   container.innerHTML = html;
 }
 
@@ -3790,103 +3697,54 @@ function filterFriendSearch(seatIdx, query) {
   const resultsEl = document.getElementById(`friend-results-${seatIdx}`);
   if (!resultsEl) return;
   const q = query.toLowerCase().trim();
-  const matches = allFriends.filter(f =>
-    f.username.toLowerCase().includes(q) &&
-    !liveSetupState.players.some(p => p && p.userId === f.userId)
-  );
-  if (!q || matches.length === 0) {
-    resultsEl.innerHTML = q ? '<div style="font-size:0.75rem;color:var(--text-dim);padding:0.3rem 0">No friends found.</div>' : '';
-    return;
-  }
-  resultsEl.innerHTML = matches.map(f => `
-    <div onclick="selectLiveFriend(${seatIdx}, '${f.userId}', '${escHtml(f.username)}')"
-      style="padding:0.4rem 0.6rem;background:var(--surface3);border-radius:var(--radius);cursor:pointer;font-size:0.82rem;margin-bottom:2px;color:var(--text)">
-      ⚔ ${escHtml(f.username)}
-    </div>
-  `).join('');
+  const matches = allFriends.filter(f => f.username.toLowerCase().includes(q) && !liveSetupState.players.some(p => p && p.userId === f.userId));
+  if (!q || !matches.length) { resultsEl.innerHTML = q ? '<div style="font-size:0.75rem;color:var(--text-dim);padding:0.3rem 0">No friends found.</div>' : ''; return; }
+  resultsEl.innerHTML = matches.map(f => `<div onclick="selectLiveFriend(${seatIdx},'${f.userId}','${escHtml(f.username)}')" style="padding:0.4rem 0.6rem;background:var(--surface3);border-radius:var(--radius);cursor:pointer;font-size:0.82rem;margin-bottom:2px;color:var(--text)">⚔ ${escHtml(f.username)}</div>`).join('');
 }
 
 async function selectLiveFriend(seatIdx, userId, username) {
-  // Fetch their decks
   const decks = await sbRequest('decks', 'GET', null, `?user_id=eq.${userId}&select=id,name,commander,art_url&order=created_at.desc`) || [];
   liveSetupState.players[seatIdx] = { userId, username, deckId: null, commander: null, artUrl: null, decks };
   renderLiveSeats();
 }
 
-function removeLiveSeat(seatIdx) {
-  liveSetupState.players[seatIdx] = null;
-  renderLiveSeats();
-}
-
+function removeLiveSeat(seatIdx) { liveSetupState.players[seatIdx] = null; renderLiveSeats(); }
 function setHostDeck(deckId) {
   const deck = allDecks.find(d => d.id === deckId);
   if (!deck) return;
-  liveSetupState.players[0] = {
-    userId: currentUser.id,
-    username: currentUser.username,
-    deckId: deck.id,
-    commander: deck.commander,
-    artUrl: deck.art_url,
-    decks: allDecks
-  };
+  liveSetupState.players[0] = { userId: currentUser.id, username: currentUser.username, deckId: deck.id, commander: deck.commander, artUrl: deck.art_url, decks: allDecks };
 }
-
 function setGuestDeck(seatIdx, deckId) {
   const player = liveSetupState.players[seatIdx];
   if (!player) return;
-  const deck = (player.decks || []).find(d => d.id === deckId);
+  const deck = (player.decks||[]).find(d => d.id === deckId);
   if (!deck) return;
-  player.deckId = deck.id;
-  player.commander = deck.commander;
-  player.artUrl = deck.art_url;
+  player.deckId = deck.id; player.commander = deck.commander; player.artUrl = deck.art_url;
 }
 
 function launchLiveGame() {
   const ps = liveSetupState.podSize;
-  // Validate all seats filled
   for (let i = 0; i < ps; i++) {
-    const p = liveSetupState.players[i];
-    if (!p || !p.deckId) {
-      showToast(`Please fill Seat ${i+1} before launching.`);
-      return;
-    }
+    if (!liveSetupState.players[i]?.deckId) { showToast(`Please fill Seat ${i+1} before launching.`); return; }
   }
-
-  // Build live game state
   liveGameState = {
-    podSize: ps,
-    turn: 1,
-    startedAt: Date.now(),
-    ended: false,
+    podSize: ps, turn: 1, startedAt: Date.now(), ended: false, activeSeat: 0,
     players: liveSetupState.players.slice(0, ps).map((p, i) => ({
-      userId: p.userId,
-      username: p.username,
-      deckId: p.deckId,
-      commander: p.commander,
-      artUrl: p.artUrl,
-      life: 40,
-      eliminated: false,
-      seatPosition: i + 1,
-      commanderDamage: {} // keyed by opponent userId
+      userId: p.userId, username: p.username, deckId: p.deckId, commander: p.commander,
+      artUrl: p.artUrl, life: 40, eliminated: false, seatPosition: i+1,
+      expandedChip: null, commanderDamage: {}
     }))
   };
-
-  // Init commander damage tracking + active seat
-  liveGameState.activeSeat = 0; // seat index of current active player
   liveGameState.players.forEach(p => {
-    p.expandedChip = null; // track which cmd chip is expanded
-    liveGameState.players.forEach(opp => {
-      if (opp.userId !== p.userId) p.commanderDamage[opp.userId] = 0;
-    });
+    liveGameState.players.forEach(opp => { if (opp.userId !== p.userId) p.commanderDamage[opp.userId] = 0; });
   });
-
   saveLiveState();
   hideLiveSetup();
   launchTracker();
 }
 
 // ============================================
-// PHASE 4: LIVE GAME TRACKER
+// PHASE 4: TRACKER
 // ============================================
 let liveGameState = null;
 let liveHoldInterval = null;
@@ -3896,11 +3754,8 @@ function resumeLiveGame() {
   if (!saved) return;
   try {
     liveGameState = JSON.parse(saved);
-    // Ensure new fields exist for backwards compat
     if (liveGameState.activeSeat === undefined) liveGameState.activeSeat = 0;
-    liveGameState.players.forEach(p => {
-      if (p.expandedChip === undefined) p.expandedChip = null;
-    });
+    liveGameState.players.forEach(p => { if (p.expandedChip === undefined) p.expandedChip = null; });
     document.getElementById('live-resume-banner').style.display = 'none';
     launchTracker();
   } catch(e) { localStorage.removeItem('cc_live_game'); }
@@ -3912,9 +3767,7 @@ function discardLiveGame() {
   showToast('Live game discarded.');
 }
 
-function saveLiveState() {
-  localStorage.setItem('cc_live_game', JSON.stringify(liveGameState));
-}
+function saveLiveState() { localStorage.setItem('cc_live_game', JSON.stringify(liveGameState)); }
 
 function launchTracker() {
   const tracker = document.getElementById('live-tracker');
@@ -3923,74 +3776,50 @@ function launchTracker() {
   buildTrackerGrid();
 }
 
-function closeTracker() {
-  document.getElementById('live-tracker').style.display = 'none';
-}
+function closeTracker() { document.getElementById('live-tracker').style.display = 'none'; }
 
 function buildTrackerGrid() {
   const grid = document.getElementById('tracker-grid');
   const ps = liveGameState.podSize;
-
-  // Grid layout by pod size
-  const layouts = {
-    2: 'grid-template-rows: 1fr 1fr; grid-template-columns: 1fr;',
-    3: 'grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr;',
-    4: 'grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr;',
-    5: 'grid-template-rows: 1fr 1fr 1fr; grid-template-columns: 1fr 1fr;'
-  };
-  grid.style.cssText = `flex:1;display:grid;gap:2px;overflow:hidden;${layouts[ps] || layouts[4]}`;
-
+  const layouts = { 2:'grid-template-rows:1fr 1fr;grid-template-columns:1fr;', 3:'grid-template-rows:1fr 1fr;grid-template-columns:1fr 1fr;', 4:'grid-template-rows:1fr 1fr;grid-template-columns:1fr 1fr;', 5:'grid-template-rows:1fr 1fr 1fr;grid-template-columns:1fr 1fr;' };
+  grid.style.cssText = `flex:1;display:grid;gap:2px;overflow:hidden;${layouts[ps]||layouts[4]}`;
   grid.innerHTML = liveGameState.players.map((p, i) => {
     let spanStyle = '';
-    if (ps === 3 && i === 2) spanStyle = 'grid-column: span 2;'; // 3p: bottom spans
-    if (ps === 5 && i === 4) spanStyle = 'grid-column: span 2;'; // 5p: last spans
+    if (ps===3 && i===2) spanStyle = 'grid-column:span 2;';
+    if (ps===5 && i===4) spanStyle = 'grid-column:span 2;';
     return buildPlayerPanel(p, i, spanStyle);
   }).join('');
 }
 
-function buildPlayerPanel(p, idx, spanStyle = '') {
+function buildPlayerPanel(p, idx, spanStyle='') {
   const isDead = p.eliminated;
   const isLow = p.life <= 10 && !isDead;
   const isActive = liveGameState.activeSeat === idx;
   const opponents = liveGameState.players.filter(opp => opp.userId !== p.userId);
-
   const cmdChips = opponents.map(opp => {
     const dmg = p.commanderDamage[opp.userId] || 0;
-    const isDanger = dmg >= 15;
     const isExpanded = p.expandedChip === opp.userId;
-    return `<div class="cmd-dmg-chip ${isDanger ? 'danger' : ''} ${isExpanded ? 'expanded' : ''}"
-      id="chip-${p.userId}-${opp.userId}">
+    return `<div class="cmd-dmg-chip ${dmg>=15?'danger':''} ${isExpanded?'expanded':''}" id="chip-${p.userId}-${opp.userId}">
       <div class="chip-name">${escHtml(opp.username.substring(0,5))}</div>
-      ${isExpanded ? `
-        <div class="chip-controls">
-          <button class="chip-btn" ontouchstart="event.stopPropagation();changeCmdDmg('${p.userId}','${opp.userId}',-1)" onmousedown="event.stopPropagation();changeCmdDmg('${p.userId}','${opp.userId}',-1)">−</button>
-          <span class="chip-dmg-val">${dmg}</span>
-          <button class="chip-btn" ontouchstart="event.stopPropagation();changeCmdDmg('${p.userId}','${opp.userId}',1)" onmousedown="event.stopPropagation();changeCmdDmg('${p.userId}','${opp.userId}',1)">+</button>
-        </div>
-      ` : `<div class="chip-dmg-val" style="padding:0.15rem 0 0.2rem" ontouchstart="event.stopPropagation();toggleChip('${p.userId}','${opp.userId}')" onmousedown="event.stopPropagation();toggleChip('${p.userId}','${opp.userId}')">${dmg}</div>`}
+      ${isExpanded ? `<div class="chip-controls">
+        <button class="chip-btn" ontouchstart="event.stopPropagation();changeCmdDmg('${p.userId}','${opp.userId}',-1)" onmousedown="event.stopPropagation();changeCmdDmg('${p.userId}','${opp.userId}',-1)">−</button>
+        <span class="chip-dmg-val">${dmg}</span>
+        <button class="chip-btn" ontouchstart="event.stopPropagation();changeCmdDmg('${p.userId}','${opp.userId}',1)" onmousedown="event.stopPropagation();changeCmdDmg('${p.userId}','${opp.userId}',1)">+</button>
+      </div>` : `<div class="chip-dmg-val" style="padding:0.15rem 0 0.2rem" ontouchstart="event.stopPropagation();toggleChip('${p.userId}','${opp.userId}')" onmousedown="event.stopPropagation();toggleChip('${p.userId}','${opp.userId}')">${dmg}</div>`}
     </div>`;
   }).join('');
-
-  return `
-    <div class="player-panel ${isDead ? 'eliminated' : ''} ${isActive ? 'active-turn' : ''}"
-         id="panel-${p.userId}" style="${spanStyle}position:relative;">
-      ${p.artUrl ? `<div class="panel-art" style="background-image:url('${escHtml(p.artUrl)}')"></div>` : '<div class="panel-art" style="background:linear-gradient(135deg,#1a1510,#2f2820)"></div>'}
-      ${!isDead ? `
-        <div class="panel-tap-left" ontouchstart="handleTapStart(event,'${p.userId}',-1)" ontouchend="handleTapEnd(event,'${p.userId}',-1)" onmousedown="startHold('${p.userId}',-1)" onmouseup="endHold()"></div>
-        <div class="panel-tap-right" ontouchstart="handleTapStart(event,'${p.userId}',1)" ontouchend="handleTapEnd(event,'${p.userId}',1)" onmousedown="startHold('${p.userId}',1)" onmouseup="endHold()"></div>
-      ` : ''}
-      <div class="panel-player-name">${escHtml(p.username)}</div>
-      <div class="panel-commander-name">${escHtml(p.commander)}</div>
-      <div class="panel-content">
-        ${isDead
-          ? `<div class="panel-skull">💀</div>`
-          : `<div class="panel-life ${isLow ? 'low' : ''}" id="life-${p.userId}">${p.life}</div>`
-        }
-        ${isActive && !isDead ? `<div class="panel-turn-indicator">▶ YOUR TURN</div>` : ''}
-      </div>
-      ${!isDead ? `<div class="cmd-damage-row">${cmdChips}</div>` : ''}
+  return `<div class="player-panel ${isDead?'eliminated':''} ${isActive?'active-turn':''}" id="panel-${p.userId}" style="${spanStyle}position:relative;">
+    ${p.artUrl ? `<div class="panel-art" style="background-image:url('${escHtml(p.artUrl)}')"></div>` : '<div class="panel-art" style="background:linear-gradient(135deg,#1a1510,#2f2820)"></div>'}
+    ${!isDead ? `<div class="panel-tap-left" ontouchstart="handleTapStart(event,'${p.userId}',-1)" ontouchend="handleTapEnd(event,'${p.userId}',-1)" onmousedown="startHold('${p.userId}',-1)" onmouseup="endHold()"></div>
+    <div class="panel-tap-right" ontouchstart="handleTapStart(event,'${p.userId}',1)" ontouchend="handleTapEnd(event,'${p.userId}',1)" onmousedown="startHold('${p.userId}',1)" onmouseup="endHold()"></div>` : ''}
+    <div class="panel-player-name">${escHtml(p.username)}</div>
+    <div class="panel-commander-name">${escHtml(p.commander)}</div>
+    <div class="panel-content">
+      ${isDead ? '<div class="panel-skull">💀</div>' : `<div class="panel-life ${isLow?'low':''}" id="life-${p.userId}">${p.life}</div>`}
+      ${isActive&&!isDead ? '<div class="panel-turn-indicator">▶ YOUR TURN</div>' : ''}
     </div>
-  `;
+    ${!isDead ? `<div class="cmd-damage-row">${cmdChips}</div>` : ''}
+  </div>`;
 }
 
 function changeLife(userId, delta) {
@@ -3998,73 +3827,41 @@ function changeLife(userId, delta) {
   if (!player || player.eliminated) return;
   player.life += delta;
   saveLiveState();
-
-  // Update life display
   const lifeEl = document.getElementById(`life-${userId}`);
   if (lifeEl) {
     lifeEl.textContent = player.life;
-    lifeEl.className = `panel-life ${player.life <= 10 ? 'low' : ''}`;
+    lifeEl.className = `panel-life ${player.life<=10?'low':''}`;
     lifeEl.classList.add('bump');
     setTimeout(() => lifeEl.classList.remove('bump'), 150);
   }
-
-  // Check elimination
   if (player.life <= 0) eliminatePlayer(userId, 'life');
 }
 
-function handleTapStart(e, userId, delta) {
-  e.preventDefault(); // prevent mouse events firing after touch
-  startHold(userId, delta);
-}
-function handleTapEnd(e, userId, delta) {
-  e.preventDefault();
-  endHold();
-}
+function handleTapStart(e, userId, delta) { e.preventDefault(); startHold(userId, delta); }
+function handleTapEnd(e, userId, delta) { e.preventDefault(); endHold(); }
 function startHold(userId, delta) {
   endHold();
-  // Single tap fires immediately, then repeat after 400ms delay
   changeLife(userId, delta);
-  liveHoldInterval = setTimeout(() => {
-    liveHoldInterval = setInterval(() => changeLife(userId, delta), 100);
-  }, 400);
+  liveHoldInterval = setTimeout(() => { liveHoldInterval = setInterval(() => changeLife(userId, delta), 100); }, 400);
 }
-function endHold() {
-  if (liveHoldInterval) { clearInterval(liveHoldInterval); clearTimeout(liveHoldInterval); liveHoldInterval = null; }
-}
+function endHold() { if (liveHoldInterval) { clearInterval(liveHoldInterval); clearTimeout(liveHoldInterval); liveHoldInterval = null; } }
 
 function toggleChip(victimId, sourceId) {
   const victim = liveGameState.players.find(p => p.userId === victimId);
   if (!victim || victim.eliminated) return;
-  // Toggle expanded state
   victim.expandedChip = victim.expandedChip === sourceId ? null : sourceId;
-  saveLiveState();
-  refreshPanel(victimId);
+  saveLiveState(); refreshPanel(victimId);
 }
 
 function changeCmdDmg(victimId, sourceId, delta) {
   const victim = liveGameState.players.find(p => p.userId === victimId);
   if (!victim || victim.eliminated) return;
-  const current = victim.commanderDamage[sourceId] || 0;
-  const newVal = Math.max(0, current + delta);
+  const newVal = Math.max(0, (victim.commanderDamage[sourceId]||0) + delta);
   victim.commanderDamage[sourceId] = newVal;
-
-  // Adding damage removes life; subtracting does NOT restore life
   if (delta > 0) victim.life -= delta;
-
   saveLiveState();
-
-  const cmdKill = newVal >= 21;
-  const lifeKill = victim.life <= 0;
-  if (cmdKill || lifeKill) {
-    eliminatePlayer(victimId, cmdKill ? 'commander' : 'life');
-  } else {
-    refreshPanel(victimId);
-  }
-}
-
-// Keep addCmdDamage as alias (used nowhere else but safety)
-function addCmdDamage(victimId, sourceId) {
-  changeCmdDmg(victimId, sourceId, 1);
+  if (newVal >= 21 || victim.life <= 0) eliminatePlayer(victimId, newVal>=21?'commander':'life');
+  else refreshPanel(victimId);
 }
 
 function refreshPanel(userId) {
@@ -4074,323 +3871,115 @@ function refreshPanel(userId) {
   const panel = document.getElementById(`panel-${userId}`);
   if (!panel) return;
   const ps = liveGameState.podSize;
-  const spanStyle = (ps === 3 && idx === 2) ? 'grid-column: span 2;' : '';
-  // Replace outerHTML safely
+  const spanStyle = (ps===3&&idx===2)||(ps===5&&idx===4) ? 'grid-column:span 2;' : '';
   const temp = document.createElement('div');
   temp.innerHTML = buildPlayerPanel(player, idx, spanStyle);
-  const newPanel = temp.firstElementChild;
-  panel.parentNode.replaceChild(newPanel, panel);
+  panel.parentNode.replaceChild(temp.firstElementChild, panel);
 }
 
 function eliminatePlayer(userId, reason) {
   const player = liveGameState.players.find(p => p.userId === userId);
   if (!player || player.eliminated) return;
-  player.eliminated = true;
-  player.eliminatedTurn = liveGameState.turn;
-  player.eliminationReason = reason;
+  player.eliminated = true; player.eliminatedTurn = liveGameState.turn; player.eliminationReason = reason;
   saveLiveState();
-
-  // Rebuild panel
-  const panel = document.getElementById(`panel-${userId}`);
-  if (panel) {
-    const newPanel = document.createElement('div');
-    newPanel.innerHTML = buildPlayerPanel(player, liveGameState.players.indexOf(player));
-    const inner = newPanel.firstElementChild;
-    panel.innerHTML = inner.innerHTML;
-    panel.className = inner.className;
-  }
-
-  // Check if game over
+  refreshPanel(userId);
   const alive = liveGameState.players.filter(p => !p.eliminated);
-  if (alive.length === 1) {
-    setTimeout(() => showWinnerScreen(alive[0]), 600);
-  }
+  if (alive.length === 1) setTimeout(() => showWinnerScreen(alive[0]), 600);
 }
 
-function confirmEndGame() {
-  if (confirm('End the game early? You can still log results.')) {
-    const alive = liveGameState.players.filter(p => !p.eliminated);
-    if (alive.length === 1) {
-      showWinnerScreen(alive[0]);
-    } else if (alive.length > 1) {
-      // Ask who won
-      const names = alive.map((p, i) => `${i+1}. ${p.username}`).join('\n');
-      const choice = prompt(`Who won?\n${names}\n\nEnter number:`);
-      const idx = parseInt(choice) - 1;
-      if (idx >= 0 && idx < alive.length) {
-        alive.forEach((p, i) => { if (i !== idx) p.eliminated = true; });
-        showWinnerScreen(alive[idx]);
-      }
-    }
-  }
-}
-
-async function showWinnerScreen(winner) {
-  liveGameState.winner = winner.userId;
-  liveGameState.ended = true;
-  saveLiveState();
-
-  closeTracker();
-
-  // Fetch winner deck's flavor message for their winning commander
-  let flavorTitle = null;
-  let flavorBody = null;
-  try {
-    const deckData = await sbRequest('decks', 'GET', null,
-      `?id=eq.${winner.deckId}&select=win_message_title,win_message_body`);
-    if (deckData && deckData[0]) {
-      flavorTitle = deckData[0].win_message_title;
-      flavorBody = deckData[0].win_message_body;
-    }
-  } catch(e) { /* silently skip if fetch fails */ }
-
-  const screen = document.getElementById('live-winner-screen');
-  screen.innerHTML = `
-    <div style="font-family:'Cinzel',serif;font-size:2.5rem;color:#d4aa7d;margin-bottom:0.5rem">⚔</div>
-    <div style="font-family:'Cinzel',serif;font-size:2rem;color:#d4aa7d;margin-bottom:0.3rem">${escHtml(winner.username)}</div>
-    <div style="font-style:italic;color:#9a8878;margin-bottom:0.2rem;font-size:1.1rem">${escHtml(winner.commander)}</div>
-    <div style="color:#9a8878;font-size:0.85rem;margin-bottom:${flavorTitle ? '1.5rem' : '2rem'}">Victory on Turn ${liveGameState.turn}</div>
-    ${flavorTitle ? `
-      <div style="max-width:360px;text-align:center;padding:1rem 1.5rem;border:1px solid rgba(212,170,125,0.25);border-radius:6px;background:rgba(212,170,125,0.06);margin-bottom:2rem">
-        <div style="font-family:'Cinzel',serif;font-size:1rem;color:#d4aa7d;margin-bottom:0.4rem">${escHtml(flavorTitle)}</div>
-        <div style="font-style:italic;color:#9a8878;font-size:0.88rem;line-height:1.5">${escHtml(flavorBody)}</div>
-      </div>` : ''}
-    <button onclick="finalizeLiveGame()" style="background:#d4aa7d;color:#0a0806;border:none;font-family:'Cinzel',serif;font-size:0.85rem;letter-spacing:0.15em;padding:0.9rem 2rem;border-radius:4px;cursor:pointer;text-transform:uppercase">Log Games & Return</button>
-  `;
-  screen.style.display = 'flex';
-  screen.style.flexDirection = 'column';
-  screen.style.alignItems = 'center';
-  screen.style.justifyContent = 'center';
-}
-
-// Advance active seat — cycles through alive players, increments turn after full cycle
 function advanceTurn() {
   if (!liveGameState) return;
   const players = liveGameState.players;
-  const total = players.length;
-  let next = (liveGameState.activeSeat + 1) % total;
+  let next = (liveGameState.activeSeat + 1) % players.length;
   let loops = 0;
-  // Skip eliminated players
-  while (players[next].eliminated && loops < total) {
-    next = (next + 1) % total;
-    loops++;
-  }
-  // If we wrapped past seat 0, increment turn
+  while (players[next].eliminated && loops < players.length) { next = (next+1) % players.length; loops++; }
   if (next <= liveGameState.activeSeat) {
     liveGameState.turn++;
     document.getElementById('tracker-turn').textContent = liveGameState.turn;
   }
   liveGameState.activeSeat = next;
-  saveLiveState();
-  buildTrackerGrid(); // full refresh to update active glow + indicator
+  saveLiveState(); buildTrackerGrid();
+}
+
+function confirmEndGame() {
+  if (confirm('End the game early?')) {
+    const alive = liveGameState.players.filter(p => !p.eliminated);
+    if (alive.length === 1) { showWinnerScreen(alive[0]); return; }
+    const names = alive.map((p,i) => `${i+1}. ${p.username}`).join('\n');
+    const choice = prompt(`Who won?\n${names}\n\nEnter number:`);
+    const idx = parseInt(choice) - 1;
+    if (idx >= 0 && idx < alive.length) {
+      alive.forEach((p,i) => { if (i!==idx) p.eliminated = true; });
+      showWinnerScreen(alive[idx]);
+    }
+  }
+}
+
+async function showWinnerScreen(winner) {
+  liveGameState.winner = winner.userId; liveGameState.ended = true; saveLiveState();
+  closeTracker();
+  let flavorTitle = null, flavorBody = null;
+  try {
+    const d = await sbRequest('decks','GET',null,`?id=eq.${winner.deckId}&select=win_message_title,win_message_body`);
+    if (d&&d[0]) { flavorTitle = d[0].win_message_title; flavorBody = d[0].win_message_body; }
+  } catch(e) {}
+  const screen = document.getElementById('live-winner-screen');
+  screen.innerHTML = `
+    <div style="font-family:'Cinzel',serif;font-size:2.5rem;color:#d4aa7d;margin-bottom:0.5rem">⚔</div>
+    <div style="font-family:'Cinzel',serif;font-size:2rem;color:#d4aa7d;margin-bottom:0.3rem">${escHtml(winner.username)}</div>
+    <div style="font-style:italic;color:#9a8878;margin-bottom:0.2rem;font-size:1.1rem">${escHtml(winner.commander)}</div>
+    <div style="color:#9a8878;font-size:0.85rem;margin-bottom:${flavorTitle?'1.5rem':'2rem'}">Victory on Turn ${liveGameState.turn}</div>
+    ${flavorTitle ? `<div style="max-width:360px;text-align:center;padding:1rem 1.5rem;border:1px solid rgba(212,170,125,0.25);border-radius:6px;background:rgba(212,170,125,0.06);margin-bottom:2rem">
+      <div style="font-family:'Cinzel',serif;font-size:1rem;color:#d4aa7d;margin-bottom:0.4rem">${escHtml(flavorTitle)}</div>
+      <div style="font-style:italic;color:#9a8878;font-size:0.88rem;line-height:1.5">${escHtml(flavorBody)}</div>
+    </div>` : ''}
+    <button onclick="finalizeLiveGame()" style="background:#d4aa7d;color:#0a0806;border:none;font-family:'Cinzel',serif;font-size:0.85rem;letter-spacing:0.15em;padding:0.9rem 2rem;border-radius:4px;cursor:pointer;text-transform:uppercase">Log Games & Return</button>`;
+  screen.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:600;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;';
 }
 
 // ============================================
-// PHASE 5: AUTO-LOG ON GAME END
+// PHASE 5: AUTO-LOG
 // ============================================
 async function finalizeLiveGame() {
   const state = liveGameState;
   if (!state) return;
-
-  // Track which players already logged to prevent duplicates on retry
   if (!state.loggedPlayers) state.loggedPlayers = [];
-
   const screen = document.getElementById('live-winner-screen');
   screen.innerHTML = '<div style="color:#d4aa7d;font-family:Cinzel,serif;font-size:1rem;padding:2rem;text-align:center">Logging games...</div>';
-  screen.style.display = 'flex';
-  screen.style.alignItems = 'center';
-  screen.style.justifyContent = 'center';
-
   try {
     for (const player of state.players) {
-      // Skip already-logged players (retry safety)
       if (state.loggedPlayers.includes(player.userId)) continue;
-
-      const isWinner = player.userId === state.winner;
-      const gameRecord = {
-        user_id: player.userId,
-        deck_id: player.deckId,
-        result: isWinner ? 'win' : 'loss',
-        pod_size: state.podSize,
-        seat_position: player.seatPosition,
-        turn_ended: state.turn,
-        source: 'live',
+      const saved = await sbRequest('games','POST',{
+        user_id: player.userId, deck_id: player.deckId,
+        result: player.userId===state.winner?'win':'loss',
+        pod_size: state.podSize, seat_position: player.seatPosition,
+        turn_ended: state.turn, source: 'live',
         played_at: new Date(state.startedAt).toISOString(),
-        commander_hit_battlefield: null,
-        commander_removed: null,
-        win_condition: null,
-        loss_reason: null,
-        notes: null
-      };
-
-      const saved = await sbRequest('games', 'POST', gameRecord);
-      if (saved && saved[0]) {
-        // Write opponents
-        const opponents = state.players.filter(opp => opp.userId !== player.userId);
-        for (const opp of opponents) {
-          await sbRequest('game_opponents', 'POST', {
-            game_id: saved[0].id,
-            commander_name: opp.commander,
-            result: opp.userId === state.winner ? 'win' : 'loss'
-          });
+        commander_hit_battlefield: null, commander_removed: null,
+        win_condition: null, loss_reason: null, notes: null
+      });
+      if (saved&&saved[0]) {
+        for (const opp of state.players.filter(o => o.userId!==player.userId)) {
+          await sbRequest('game_opponents','POST',{ game_id:saved[0].id, commander_name:opp.commander, result:opp.userId===state.winner?'win':'loss' });
         }
-        // If current user, update local allGames
-        if (player.userId === currentUser.id) {
-          allGames.unshift(saved[0]);
-        }
-        // Mark as logged
+        if (player.userId === currentUser.id) allGames.unshift(saved[0]);
         state.loggedPlayers.push(player.userId);
-        saveLiveState(); // persist progress
+        saveLiveState();
       }
     }
-
-    // All done — clear live state
-    localStorage.removeItem('cc_live_game');
-    liveGameState = null;
-
+    localStorage.removeItem('cc_live_game'); liveGameState = null;
     screen.style.display = 'none';
-    renderDashboard();
-    renderGames();
-    showTab('dashboard');
+    renderDashboard(); renderGames(); showTab('dashboard');
     showToast('Games logged for all players! ⚔');
-
   } catch(e) {
-    // Save progress so retry skips already-written records
     saveLiveState();
-    screen.innerHTML = `
-      <div style="color:#c0392b;font-family:'Cinzel',serif;padding:2rem;text-align:center;max-width:320px">
-        <div style="margin-bottom:0.5rem">Failed to log all games.</div>
-        <div style="font-size:0.75rem;color:#9a8878;margin-bottom:1.5rem">${escHtml(e.message)}</div>
-        <button onclick="finalizeLiveGame()" style="background:#d4aa7d;color:#0a0806;border:none;padding:0.6rem 1.2rem;border-radius:4px;cursor:pointer;font-family:'Cinzel',serif;margin-right:0.5rem">Retry</button>
-        <button onclick="document.getElementById('live-winner-screen').style.display='none';showTab('dashboard')" style="background:transparent;border:1px solid #9a8878;color:#9a8878;padding:0.6rem 1.2rem;border-radius:4px;cursor:pointer;font-family:'Cinzel',serif">Skip</button>
-      </div>`;
+    screen.innerHTML = `<div style="color:#c0392b;font-family:'Cinzel',serif;padding:2rem;text-align:center;max-width:320px">
+      <div style="margin-bottom:0.5rem">Failed to log all games.</div>
+      <div style="font-size:0.75rem;color:#9a8878;margin-bottom:1.5rem">${escHtml(e.message)}</div>
+      <button onclick="finalizeLiveGame()" style="background:#d4aa7d;color:#0a0806;border:none;padding:0.6rem 1.2rem;border-radius:4px;cursor:pointer;font-family:'Cinzel',serif;margin-right:0.5rem">Retry</button>
+      <button onclick="document.getElementById('live-winner-screen').style.display='none';showTab('dashboard')" style="background:transparent;border:1px solid #9a8878;color:#9a8878;padding:0.6rem 1.2rem;border-radius:4px;cursor:pointer;font-family:'Cinzel',serif">Skip</button>
+    </div>`;
     screen.style.flexDirection = 'column';
-    console.error(e);
-  }
-}
-
-
-// ============================================
-// VS TAB — Head to head vs commanders + friends
-// ============================================
-async function renderVsTab(deckId) {
-  const container = document.getElementById('deck-vs-content');
-  if (!container) return;
-  container.innerHTML = '<div class="ai-generating"><div class="spinner"></div><p>Loading matchup data...</p></div>';
-
-  try {
-    // Get all games for this deck
-    const deckGames = allGames.filter(g => g.deck_id === deckId);
-    if (deckGames.length === 0) {
-      container.innerHTML = '<p class="text-dim italic" style="padding:1rem 0">No games logged for this deck yet.</p>';
-      return;
-    }
-
-    // Fetch all opponents for these games in one query
-    const gameIds = deckGames.map(g => g.id);
-    const opponents = await sbRequest('game_opponents', 'GET', null,
-      `?game_id=in.(${gameIds.join(',')})&select=*`) || [];
-
-    if (opponents.length === 0) {
-      container.innerHTML = '<p class="text-dim italic" style="padding:1rem 0">No opponent data yet. Add commanders when logging games.</p>';
-      return;
-    }
-
-    // Build vs record per commander
-    const cmdRecord = {}; // { commanderName: { wins, losses, total } }
-    opponents.forEach(opp => {
-      const game = deckGames.find(g => g.id === opp.game_id);
-      if (!game) return;
-      const name = opp.commander_name;
-      if (!cmdRecord[name]) cmdRecord[name] = { wins: 0, losses: 0 };
-      if (game.result === 'win') cmdRecord[name].wins++;
-      else cmdRecord[name].losses++;
-    });
-
-    // Sort by total games desc
-    const cmdEntries = Object.entries(cmdRecord)
-      .map(([name, r]) => ({ name, ...r, total: r.wins + r.losses }))
-      .sort((a, b) => b.total - a.total);
-
-    // Build vs record per friend (match opponent commanders to friends' decks)
-    const friendRecord = {};
-    allFriends.forEach(friend => {
-      // Find if any opponent commander matches this friend's decks
-      // We need to fetch their decks — use a cache approach
-      friendRecord[friend.userId] = { username: friend.username, wins: 0, losses: 0, commanders: new Set() };
-    });
-
-    // Cross-reference: check if friend has a deck with any of the opponent commanders
-    // We'll do this by fetching all friends' decks commanders
-    let friendDeckMap = {}; // { commanderName (lower) : userId }
-    if (allFriends.length > 0) {
-      const friendIds = allFriends.map(f => f.userId);
-      const friendDecks = await sbRequest('decks', 'GET', null,
-        `?user_id=in.(${friendIds.join(',')})&select=user_id,commander`) || [];
-      friendDecks.forEach(d => {
-        if (d.commander) friendDeckMap[d.commander.toLowerCase()] = d.user_id;
-      });
-    }
-
-    // Now match opponents to friends
-    opponents.forEach(opp => {
-      const game = deckGames.find(g => g.id === opp.game_id);
-      if (!game) return;
-      const friendId = friendDeckMap[opp.commander_name.toLowerCase()];
-      if (!friendId || !friendRecord[friendId]) return;
-      if (game.result === 'win') friendRecord[friendId].wins++;
-      else friendRecord[friendId].losses++;
-      friendRecord[friendId].commanders.add(opp.commander_name);
-    });
-
-    const friendEntries = Object.values(friendRecord)
-      .filter(f => f.wins + f.losses > 0)
-      .sort((a, b) => (b.wins + b.losses) - (a.wins + a.losses));
-
-    // Render
-    const winPct = (w, t) => t > 0 ? `${((w/t)*100).toFixed(0)}%` : '—';
-
-    container.innerHTML = `
-      ${friendEntries.length > 0 ? `
-        <div style="margin-bottom:1.5rem">
-          <h3 style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.75rem">VS FRIENDS</h3>
-          ${friendEntries.map(f => {
-            const total = f.wins + f.losses;
-            const pct = (f.wins / total) * 100;
-            return `
-              <div style="padding:0.75rem;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:0.5rem">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem">
-                  <span style="font-family:'Cinzel',serif;font-size:0.85rem;color:var(--gold)">${escHtml(f.username)}</span>
-                  <span style="font-size:0.8rem;color:${pct >= 50 ? 'var(--win)' : 'var(--loss)'}">
-                    ${f.wins}W ${f.losses}L · ${winPct(f.wins, total)}
-                  </span>
-                </div>
-                <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic">
-                  ${[...f.commanders].map(c => escHtml(c)).join(', ')}
-                </div>
-                <div style="height:4px;background:var(--border);border-radius:2px;margin-top:0.5rem">
-                  <div style="height:100%;width:${pct}%;background:${pct >= 50 ? 'var(--win)' : 'var(--loss)'};border-radius:2px;transition:width 0.3s"></div>
-                </div>
-              </div>`;
-          }).join('')}
-        </div>` : ''}
-
-      <div>
-        <h3 style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.75rem">VS COMMANDERS</h3>
-        ${cmdEntries.map(c => {
-          const pct = (c.wins / c.total) * 100;
-          return `
-            <div style="padding:0.6rem 0.75rem;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:0.4rem;display:flex;justify-content:space-between;align-items:center">
-              <span style="font-size:0.82rem;color:var(--text);flex:1">${escHtml(c.name)}</span>
-              <span style="font-size:0.78rem;color:${pct >= 50 ? 'var(--win)' : 'var(--loss)'};white-space:nowrap;margin-left:0.5rem">
-                ${c.wins}W ${c.losses}L
-              </span>
-            </div>`;
-        }).join('')}
-      </div>
-    `;
-  } catch(e) {
-    container.innerHTML = `<p class="text-dim" style="padding:1rem 0">Failed to load vs data.</p>`;
     console.error(e);
   }
 }
@@ -4434,9 +4023,7 @@ async function renderVsTab(deckId) {
 </div>
 
 
-<!-- ============================================
-     LIVE GAME SETUP MODAL
-     ============================================ -->
+<!-- LIVE GAME SETUP MODAL -->
 <div id="live-setup-modal" class="modal-overlay hidden">
   <div class="modal" style="max-width:560px;max-height:90vh;overflow-y:auto">
     <button class="modal-close" onclick="hideLiveSetup()">✕</button>
@@ -4445,11 +4032,8 @@ async function renderVsTab(deckId) {
   </div>
 </div>
 
-<!-- ============================================
-     LIVE GAME TRACKER SCREEN
-     ============================================ -->
+<!-- LIVE GAME TRACKER -->
 <div id="live-tracker" style="display:none;position:fixed;inset:0;background:#0a0806;z-index:500;overflow:hidden;flex-direction:column;">
-  <!-- Tracker top bar -->
   <div id="tracker-topbar" style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 1rem;background:rgba(0,0,0,0.6);border-bottom:1px solid rgba(212,170,125,0.2);flex-shrink:0;z-index:10;">
     <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:#d4aa7d;letter-spacing:0.15em">COMMANDER CHRONICLE</div>
     <div style="display:flex;align-items:center;gap:0.75rem">
@@ -4457,19 +4041,12 @@ async function renderVsTab(deckId) {
       <button onclick="confirmEndGame()" style="background:transparent;border:1px solid rgba(192,57,43,0.5);color:#c0392b;font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.1em;padding:0.3rem 0.6rem;border-radius:3px;cursor:pointer">END GAME</button>
     </div>
   </div>
-  <!-- Player panels grid -->
   <div id="tracker-grid" style="flex:1;display:grid;gap:2px;overflow:hidden;"></div>
 </div>
 
-<!-- ============================================
-     LIVE GAME WINNER SCREEN
-     ============================================ -->
+<!-- LIVE WINNER SCREEN -->
 <div id="live-winner-screen" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:600;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;">
   <div style="font-family:'Cinzel',serif;font-size:2.5rem;color:#d4aa7d;margin-bottom:0.5rem">⚔</div>
-  <div id="winner-name" style="font-family:'Cinzel',serif;font-size:2rem;color:#d4aa7d;margin-bottom:0.3rem"></div>
-  <div id="winner-commander" style="font-style:italic;color:#9a8878;margin-bottom:0.3rem;font-size:1.1rem"></div>
-  <div id="winner-turn" style="color:#9a8878;font-size:0.85rem;margin-bottom:2rem"></div>
-  <button onclick="finalizeLiveGame()" style="background:#d4aa7d;color:#0a0806;border:none;font-family:'Cinzel',serif;font-size:0.85rem;letter-spacing:0.15em;padding:0.9rem 2rem;border-radius:4px;cursor:pointer;text-transform:uppercase">Log Games & Return</button>
 </div>
 
 </body>
