@@ -1941,7 +1941,7 @@ async function showGameDetail(gameId) {
       </div>` : ''}
     ${game.notes ? `<div><span class="text-dim text-xs">NOTES</span><br><p style="margin-top:0.3rem;font-style:italic">${escHtml(game.notes)}</p></div>` : ''}
     <div class="flex gap-1" style="margin-top:1.5rem;justify-content:flex-end">
-      <button class="btn btn-small" style="width:auto" onclick="document.getElementById('game-detail-modal').classList.add('hidden');showEditGame('${game.id}')">✏ Edit</button>
+      <button class="btn btn-small" style="width:auto" onclick="document.getElementById('game-detail-modal').classList.add('hidden');showEditGame('${game.id}')">Edit</button>
       <button class="btn btn-small btn-danger" onclick="deleteGame('${game.id}')">Delete Game</button>
     </div>
   `;
@@ -3588,13 +3588,13 @@ async function renderVsTab(deckId) {
 (function injectTrackerCSS() {
   const style = document.createElement('style');
   style.textContent = `
-    .panel-player-name { position:absolute;top:0.5rem;left:0.6rem;font-family:'Cinzel',serif;font-size:1rem;font-weight:bold;color:rgba(255,255,255,0.95);letter-spacing:0.05em;text-transform:uppercase;text-shadow:0 1px 6px rgba(0,0,0,0.9);z-index:5;pointer-events:none; }
-    .panel-commander-name { position:absolute;top:1.8rem;left:0.6rem;font-style:italic;font-size:0.7rem;color:rgba(212,170,125,0.85);text-shadow:0 1px 4px rgba(0,0,0,0.9);z-index:5;pointer-events:none; }
+    .panel-player-name { position:absolute;top:0.6rem;left:0.7rem;font-family:'Cinzel',serif;font-size:1.6rem;font-weight:bold;color:rgba(255,255,255,0.95);letter-spacing:0.05em;text-transform:uppercase;text-shadow:0 2px 8px rgba(0,0,0,0.95);z-index:5;pointer-events:none; }
+    .panel-commander-name { position:absolute;top:2.8rem;left:0.7rem;font-style:italic;font-size:1rem;color:rgba(212,170,125,0.9);text-shadow:0 1px 6px rgba(0,0,0,0.95);z-index:5;pointer-events:none; }
     .panel-content { position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;pointer-events:none; }
-    .panel-life { font-family:'Cinzel',serif;font-size:7rem;font-weight:bold;color:#fff;line-height:1;text-shadow:0 3px 16px rgba(0,0,0,0.9);transition:transform 0.1s; }
+    .panel-life { font-family:'Cinzel',serif;font-size:10rem;font-weight:bold;color:#fff;line-height:1;text-shadow:0 3px 20px rgba(0,0,0,0.9);transition:transform 0.1s; }
     .panel-life.bump { transform:scale(1.12); }
     .panel-life.low { color:#e74c3c; }
-    .panel-turn-indicator { font-family:'Cinzel',serif;font-size:0.7rem;color:rgba(212,170,125,0.9);letter-spacing:0.15em;text-transform:uppercase;margin-top:0.3rem;text-shadow:0 1px 4px rgba(0,0,0,0.8); }
+    .panel-turn-indicator { font-family:'Cinzel',serif;font-size:0.85rem;color:#d4aa7d;letter-spacing:0.15em;text-transform:uppercase;margin-top:0.5rem;background:rgba(0,0,0,0.75);padding:0.3rem 0.8rem;border-radius:4px;border:1px solid rgba(212,170,125,0.4); }
     .panel-skull { font-size:3rem; }
     .player-panel { position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none; }
     .player-panel.eliminated { filter:grayscale(0.8);opacity:0.5; }
@@ -3605,14 +3605,14 @@ async function renderVsTab(deckId) {
     .panel-tap-left:active { background:rgba(192,57,43,0.2); }
     .panel-tap-right:active { background:rgba(39,174,96,0.2); }
     .cmd-damage-row { position:absolute;bottom:0.5rem;left:0;right:0;display:flex;gap:0.3rem;pointer-events:all;z-index:5;flex-wrap:wrap;justify-content:center;padding:0 0.4rem; }
-    .cmd-dmg-chip { background:rgba(0,0,0,0.7);border:1px solid rgba(212,170,125,0.35);border-radius:4px;font-size:0.58rem;font-family:'Cinzel',serif;color:#d4aa7d;cursor:pointer;text-align:center;min-width:42px;overflow:hidden;transition:all 0.15s; }
-    .cmd-dmg-chip .chip-name { padding:0.15rem 0.3rem 0;font-size:0.55rem;color:rgba(212,170,125,0.7); }
+    .cmd-dmg-chip { background:rgba(0,0,0,0.8);border:1px solid rgba(212,170,125,0.5);border-radius:6px;font-size:1rem;font-family:'Cinzel',serif;color:#d4aa7d;cursor:pointer;text-align:center;min-width:70px;overflow:hidden;transition:all 0.15s; }
+    .cmd-dmg-chip .chip-name { padding:0.25rem 0.5rem 0;font-size:0.85rem;color:rgba(212,170,125,0.85); }
     .cmd-dmg-chip .chip-controls { display:none; }
     .cmd-dmg-chip.expanded .chip-controls { display:flex; }
-    .cmd-dmg-chip.expanded { min-width:80px; }
-    .chip-btn { flex:1;padding:0.2rem 0;background:transparent;border:none;color:#d4aa7d;font-size:0.75rem;cursor:pointer;line-height:1; }
+    .cmd-dmg-chip.expanded { min-width:130px; }
+    .chip-btn { flex:1;padding:0.3rem 0;background:transparent;border:none;color:#d4aa7d;font-size:1.2rem;cursor:pointer;line-height:1; }
     .chip-btn:active { background:rgba(212,170,125,0.2); }
-    .chip-dmg-val { padding:0.2rem 0.3rem;font-size:0.8rem;font-weight:bold;color:#fff; }
+    .chip-dmg-val { padding:0.3rem 0.5rem;font-size:1.3rem;font-weight:bold;color:#fff; }
     .cmd-dmg-chip.danger { border-color:#e74c3c; }
     .cmd-dmg-chip.danger .chip-dmg-val { color:#e74c3c; }
   `;
@@ -3638,7 +3638,7 @@ function showLiveGameSetup() {
       }
     } catch(e) { localStorage.removeItem('cc_live_game'); }
   }
-  liveSetupState = { podSize: 4, players: [] };
+  liveSetupState = { podSize: 4, players: [], firstSeat: 0 };
   document.getElementById('live-setup-modal').classList.remove('hidden');
   renderLiveSetup();
 }
@@ -3648,6 +3648,7 @@ function hideLiveSetup() { document.getElementById('live-setup-modal').classList
 function renderLiveSetup() {
   const content = document.getElementById('live-setup-content');
   const ps = liveSetupState.podSize;
+  const firstSeat = liveSetupState.firstSeat ?? 0;
   content.innerHTML = `
     <div style="margin-bottom:1.5rem">
       <div class="form-label">POD SIZE</div>
@@ -3656,6 +3657,12 @@ function renderLiveSetup() {
       </div>
     </div>
     <div id="live-seats"></div>
+    <div style="margin-bottom:1.5rem;margin-top:1rem" id="first-player-section" style="display:none">
+      <div class="form-label" style="margin-bottom:0.5rem">WHO GOES FIRST?</div>
+      <div class="radio-group" id="first-player-group">
+        ${liveSetupState.players.filter(Boolean).map((p,i) => p ? `<button class="radio-btn ${firstSeat===i?'selected':''}" onclick="setFirstPlayer(${i})">${escHtml(p.username||'Seat '+(i+1))}</button>` : '').join('')}
+      </div>
+    </div>
     <div style="margin-top:1.5rem">
       <button class="btn btn-primary" style="width:100%" onclick="launchLiveGame()">⚔ Launch Game</button>
     </div>`;
@@ -3665,6 +3672,11 @@ function renderLiveSetup() {
 function setLivePodSize(n) {
   liveSetupState.podSize = n;
   liveSetupState.players = liveSetupState.players.slice(0, n);
+  renderLiveSetup();
+}
+
+function setFirstPlayer(seatIdx) {
+  liveSetupState.firstSeat = seatIdx;
   renderLiveSetup();
 }
 
@@ -3702,6 +3714,22 @@ function renderLiveSeats() {
     }
   }
   container.innerHTML = html;
+
+  // Update "who goes first" section after seats are set
+  const fpSection = document.getElementById('first-player-section');
+  const fpGroup = document.getElementById('first-player-group');
+  if (fpSection && fpGroup) {
+    const filledPlayers = liveSetupState.players.filter(Boolean);
+    if (filledPlayers.length >= 2) {
+      fpSection.style.display = 'block';
+      const firstSeat = liveSetupState.firstSeat ?? 0;
+      fpGroup.innerHTML = liveSetupState.players.map((p, i) =>
+        p ? `<button class="radio-btn ${firstSeat===i?'selected':''}" onclick="setFirstPlayer(${i})">${escHtml(p.username||'Seat '+(i+1))}</button>` : ''
+      ).join('');
+    } else {
+      fpSection.style.display = 'none';
+    }
+  }
 }
 
 function filterFriendSearch(seatIdx, query) {
@@ -3827,7 +3855,7 @@ function buildPlayerPanel(p, idx, spanStyle='') {
     <div class="panel-commander-name">${escHtml(p.commander)}</div>
     <div class="panel-content">
       ${isDead ? '<div class="panel-skull">💀</div>' : `<div class="panel-life ${isLow?'low':''}" id="life-${p.userId}">${p.life}</div>`}
-      ${isActive&&!isDead ? '<div class="panel-turn-indicator">▶ YOUR TURN</div>' : ''}
+      ${isActive&&!isDead ? '<div class="panel-turn-indicator">YOUR TURN</div>' : ''}
     </div>
     ${!isDead ? `<div class="cmd-damage-row">${cmdChips}</div>` : ''}
   </div>`;
@@ -3966,7 +3994,7 @@ async function finalizeLiveGame() {
         pod_size: state.podSize, seat_position: player.seatPosition,
         turn_ended: state.turn, source: 'live',
         played_at: new Date(state.startedAt).toISOString(),
-        commander_hit_battlefield: null, commander_removed: null,
+        commander_hit_battlefield: false, commander_removed: false,
         win_condition: null, loss_reason: null, notes: null
       });
       if (saved&&saved[0]) {
@@ -4209,7 +4237,7 @@ async function saveEditGame(gameId) {
 <div id="edit-game-modal" class="modal-overlay hidden">
   <div class="modal" style="max-width:560px;max-height:90vh;overflow-y:auto">
     <button class="modal-close" onclick="document.getElementById('edit-game-modal').classList.add('hidden')">✕</button>
-    <h3 class="modal-title">✏ Edit Game</h3>
+    <h3 class="modal-title">Edit Game</h3>
     <div id="edit-game-content"></div>
   </div>
 </div>
