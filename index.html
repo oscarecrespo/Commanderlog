@@ -1136,65 +1136,132 @@ h1, h2, h3, h4 {
 }
 .panel-tap-left:active { background: rgba(192,57,43,0.2); }
 .panel-tap-right:active { background: rgba(39,174,96,0.2); }
+/* Player name — top left */
+.panel-player-name {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.6rem;
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  font-weight: bold;
+  color: rgba(255,255,255,0.95);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+  z-index: 5;
+  pointer-events: none;
+}
+.panel-commander-name {
+  position: absolute;
+  top: 1.8rem;
+  left: 0.6rem;
+  font-style: italic;
+  font-size: 0.7rem;
+  color: rgba(212,170,125,0.85);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+  z-index: 5;
+  pointer-events: none;
+}
+/* Life total — centered, huge */
 .panel-content {
   position: relative;
   z-index: 3;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
 }
-.panel-player-name {
+.panel-life {
+  font-family: 'Cinzel', serif;
+  font-size: 7rem;
+  font-weight: bold;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 0 3px 16px rgba(0,0,0,0.9);
+  transition: transform 0.1s;
+}
+.panel-life.bump { transform: scale(1.12); }
+.panel-life.low { color: #e74c3c; }
+/* Turn indicator below life */
+.panel-turn-indicator {
   font-family: 'Cinzel', serif;
   font-size: 0.7rem;
   color: rgba(212,170,125,0.9);
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  margin-bottom: 0.1rem;
+  margin-top: 0.3rem;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
 }
-.panel-commander-name {
-  font-style: italic;
-  font-size: 0.65rem;
-  color: rgba(154,136,120,0.8);
-  margin-bottom: 0.5rem;
-}
-.panel-life {
-  font-family: 'Cinzel', serif;
-  font-size: 4rem;
-  font-weight: bold;
-  color: #fff;
-  line-height: 1;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.8);
-  transition: transform 0.1s;
-}
-.panel-life.bump { transform: scale(1.15); }
-.panel-life.low { color: #e74c3c; }
 .panel-skull {
-  font-size: 2.5rem;
-  margin-bottom: 0.3rem;
+  font-size: 3rem;
 }
+/* Active player glow */
+.player-panel.active-turn {
+  box-shadow: inset 0 0 0 3px rgba(212,170,125,0.8);
+}
+/* Commander damage row — pinned to bottom */
 .cmd-damage-row {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0;
+  right: 0;
   display: flex;
-  gap: 0.4rem;
-  margin-top: 0.6rem;
+  gap: 0.3rem;
   pointer-events: all;
-  z-index: 4;
-  position: relative;
+  z-index: 5;
   flex-wrap: wrap;
   justify-content: center;
+  padding: 0 0.4rem;
 }
 .cmd-dmg-chip {
-  background: rgba(0,0,0,0.6);
-  border: 1px solid rgba(212,170,125,0.3);
-  border-radius: 3px;
-  padding: 0.2rem 0.4rem;
-  font-size: 0.6rem;
+  background: rgba(0,0,0,0.7);
+  border: 1px solid rgba(212,170,125,0.35);
+  border-radius: 4px;
+  font-size: 0.58rem;
   font-family: 'Cinzel', serif;
   color: #d4aa7d;
   cursor: pointer;
   text-align: center;
-  min-width: 38px;
+  min-width: 42px;
+  overflow: hidden;
+  transition: all 0.15s;
 }
-.cmd-dmg-chip:active { background: rgba(192,57,43,0.3); }
-.cmd-dmg-chip.danger { border-color: #e74c3c; color: #e74c3c; }
+.cmd-dmg-chip .chip-name {
+  padding: 0.15rem 0.3rem 0;
+  font-size: 0.55rem;
+  color: rgba(212,170,125,0.7);
+}
+.cmd-dmg-chip .chip-controls {
+  display: none;
+}
+.cmd-dmg-chip.expanded .chip-controls {
+  display: flex;
+}
+.cmd-dmg-chip.expanded {
+  min-width: 80px;
+}
+.chip-btn {
+  flex: 1;
+  padding: 0.2rem 0;
+  background: transparent;
+  border: none;
+  color: #d4aa7d;
+  font-size: 0.75rem;
+  cursor: pointer;
+  line-height: 1;
+}
+.chip-btn:active { background: rgba(212,170,125,0.2); }
+.chip-dmg-val {
+  padding: 0.2rem 0.3rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #fff;
+}
+.cmd-dmg-chip.danger { border-color: #e74c3c; }
+.cmd-dmg-chip.danger .chip-dmg-val { color: #e74c3c; }
 
 @media (max-width: 768px) {
   .nav-tabs { display: none; }
@@ -1980,18 +2047,22 @@ function renderGameRow(game) {
   `;
 }
 
-function showGameDetail(gameId) {
+async function showGameDetail(gameId) {
   const game = allGames.find(g => g.id === gameId);
   if (!game) return;
   const deck = allDecks.find(d => d.id === game.deck_id);
 
+  // Fetch opponents from game_opponents table
+  let opponents = [];
+  try {
+    opponents = await sbRequest('game_opponents', 'GET', null, `?game_id=eq.${gameId}&select=*`) || [];
+  } catch(e) { /* silently skip */ }
+
   const content = document.getElementById('game-detail-content');
-  // Get flavor message if deck has one
   const winTitle = deck?.win_message_title || null;
   const winBody = deck?.win_message_body || null;
   const lossTitle = deck?.loss_message_title || null;
   const lossBody = deck?.loss_message_body || null;
-
   const flavorTitle = game.result === 'win' ? winTitle : lossTitle;
   const flavorBody = game.result === 'win' ? winBody : lossBody;
 
@@ -2015,8 +2086,15 @@ function showGameDetail(gameId) {
         ${escHtml(game.result === 'win' ? (game.win_condition || '—') : (game.loss_reason || '—'))}
       </div>
     </div>
+    ${opponents.length > 0 ? `
+      <div class="mb-2" style="margin-bottom:1rem">
+        <span class="text-dim text-xs">COMMANDERS AT THE TABLE</span>
+        <div class="flex" style="flex-wrap:wrap;gap:0.4rem;margin-top:0.4rem">
+          ${opponents.map(o => `<span class="tag" style="border-color:${o.result === 'win' ? 'var(--win)' : 'rgba(212,170,125,0.3)'}">${escHtml(o.commander_name)}</span>`).join('')}
+        </div>
+      </div>` : ''}
     ${game.stranded_cards && game.stranded_cards.length > 0 ? `
-      <div class="mb-2"><span class="text-dim text-xs">STRANDED CARDS</span><br>
+      <div class="mb-2" style="margin-bottom:1rem"><span class="text-dim text-xs">STRANDED CARDS</span><br>
         <div class="flex" style="flex-wrap:wrap;gap:0.4rem;margin-top:0.4rem">
           ${game.stranded_cards.map(c => `<span class="tag">${escHtml(c)}</span>`).join('')}
         </div>
@@ -2088,6 +2166,7 @@ function renderDeckDetail() {
 
       <div class="deck-detail-tabs">
         <button class="deck-detail-tab active" onclick="switchDeckTab('games', this)">Games</button>
+        <button class="deck-detail-tab" onclick="switchDeckTab('vs', this)">⚔ vs</button>
         <button class="deck-detail-tab" onclick="switchDeckTab('roast', this)">Deck Roast 🔥</button>
         <button class="deck-detail-tab" onclick="switchDeckTab('dropped', this)">Cards Dropped</button>
         <button class="deck-detail-tab" onclick="switchDeckTab('decklist', this)">Decklist</button>
@@ -2107,6 +2186,12 @@ function renderDeckDetail() {
         ${renderDroppedTab(deck)}
       </div>
 
+      <div id="deck-tab-vs" class="hidden">
+        <div id="deck-vs-content">
+          <div class="ai-generating"><div class="spinner"></div><p>Loading matchup data...</p></div>
+        </div>
+      </div>
+
       <div id="deck-tab-decklist" class="hidden">
         <div style="column-count:2;column-gap:2rem;font-size:0.82rem;font-family:'Courier New',monospace;color:var(--text-dim)">
           ${renderDecklistHTML(deck.decklist)}
@@ -2117,6 +2202,10 @@ function renderDeckDetail() {
 }
 
 function switchDeckTab(tab, btn) {
+  if (tab === 'vs') {
+    const deckId = document.getElementById('deck-detail-view').dataset.deckId;
+    if (deckId) renderVsTab(deckId);
+  }
   document.querySelectorAll('[id^="deck-tab-"]').forEach(el => el.classList.add('hidden'));
   document.querySelectorAll('.deck-detail-tab').forEach(el => el.classList.remove('active'));
   document.getElementById(`deck-tab-${tab}`).classList.remove('hidden');
@@ -2480,8 +2569,13 @@ function parseMoxfieldText(text) {
   const deckNameInput = document.getElementById('import-deck-name').value.trim();
   const colorIdentity = detectColors(cards.map(c => c.name).join(' '));
 
-  // Auto-detect commander: user input > last card in list (Moxfield puts commander last) > first card
-  const autoCommander = commanderInput || guessCommander(cards);
+  // Auto-detect commander: user input > Moxfield section detection > last singleton
+  const autoCommander = commanderInput || guessCommander(cards, text);
+  // Auto-fill the commander field if it was empty
+  if (!commanderInput && autoCommander) {
+    const cmdInput = document.getElementById('import-commander');
+    if (cmdInput && !cmdInput.value) cmdInput.value = autoCommander;
+  }
 
   return {
     commander: autoCommander,
@@ -2492,9 +2586,23 @@ function parseMoxfieldText(text) {
   };
 }
 
-function guessCommander(cards) {
-  // Moxfield plain text puts the commander as the last card
-  // Try to find the last 1-of entry
+function guessCommander(cards, rawText) {
+  // Moxfield plain text export puts the commander AFTER a blank line at the end
+  // e.g: "...last mainboard card
+
+1 Krenko, Mob Boss"
+  if (rawText) {
+    const sections = rawText.trim().split(/\n\s*\n/);
+    if (sections.length >= 2) {
+      const lastSection = sections[sections.length - 1].trim();
+      const lines = lastSection.split('\n').map(l => l.trim()).filter(Boolean);
+      if (lines.length <= 2) { // commander section is 1-2 lines
+        const match = lines[lines.length - 1].match(/^\d+\s+(.+)$/);
+        if (match) return match[1].trim();
+      }
+    }
+  }
+  // Fallback: last singleton
   const singletons = cards.filter(c => c.qty === 1);
   if (singletons.length > 0) return singletons[singletons.length - 1].name;
   return cards[cards.length - 1].name;
@@ -2770,7 +2878,7 @@ function buildLogGameForm(modalMode = false) {
     return;
   }
 
-  logGameState = { deckId: null, podSize: null, seatPosition: null, commanderLanded: null, commanderRemoved: null, result: null, winCondition: null, lossReason: null, turnEnded: null, strandedCards: [], notes: '' };
+  logGameState = { deckId: null, podSize: null, seatPosition: null, commanderLanded: null, commanderRemoved: null, result: null, winCondition: null, lossReason: null, turnEnded: null, strandedCards: [], opponentCommanders: [], notes: '' };
 
   form.innerHTML = `
     <!-- Step 1: Deck -->
@@ -2864,6 +2972,17 @@ function buildLogGameForm(modalMode = false) {
       </div>
     </div>
 
+    <!-- Commanders Played Against -->
+    <div class="form-group">
+      <label>Commanders Played Against (optional — press Enter to add)</label>
+      <div class="tag-input-container" onclick="document.getElementById('opponent-cmd-input').focus()">
+        <div id="opponent-cmd-tags"></div>
+        <input type="text" id="opponent-cmd-input" class="tag-text-input"
+          placeholder="e.g. Krenko, Mob Boss"
+          onkeydown="handleOpponentCmdInput(event)">
+      </div>
+    </div>
+
     <!-- Notes -->
     <div class="form-group">
       <label>Notes (optional)</label>
@@ -2939,6 +3058,30 @@ function removeStrandedCard(i) {
   renderStrandedTags();
 }
 
+function handleOpponentCmdInput(e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const input = document.getElementById('opponent-cmd-input');
+  const val = input.value.trim();
+  if (!val || logGameState.opponentCommanders.includes(val)) { input.value = ''; return; }
+  logGameState.opponentCommanders.push(val);
+  renderOpponentCmdTags();
+  input.value = '';
+}
+
+function renderOpponentCmdTags() {
+  const container = document.getElementById('opponent-cmd-tags');
+  if (!container) return;
+  container.innerHTML = logGameState.opponentCommanders.map((cmd, i) => `
+    <span class="tag">${escHtml(cmd)} <span class="tag-remove" onclick="removeOpponentCmd(${i})">×</span></span>
+  `).join('');
+}
+
+function removeOpponentCmd(i) {
+  logGameState.opponentCommanders.splice(i, 1);
+  renderOpponentCmdTags();
+}
+
 async function submitGame() {
   const s = logGameState;
   const errEl = document.getElementById('log-error');
@@ -2976,13 +3119,24 @@ async function submitGame() {
     const result = await sbRequest('games', 'POST', game);
     if (!result || !result[0]) throw new Error('Failed to save game.');
 
-    // Re-fetch full game record to ensure all fields (incl. notes) are present
     const savedId = result[0].id;
+
+    // Write opponent commanders to game_opponents
+    if (s.opponentCommanders && s.opponentCommanders.length > 0) {
+      for (const cmdName of s.opponentCommanders) {
+        await sbRequest('game_opponents', 'POST', {
+          game_id: savedId,
+          commander_name: cmdName,
+          result: s.result === 'win' ? 'loss' : 'win' // opponents get opposite result
+        });
+      }
+    }
+
+    // Re-fetch full game record
     const fresh = await sbRequest('games', 'GET', null, `?id=eq.${savedId}&select=*`);
     allGames.unshift(fresh && fresh[0] ? fresh[0] : result[0]);
     renderDashboard();
     renderGames();
-    // Close modal
     const modal = document.getElementById('log-game-modal');
     if (modal) modal.classList.add('hidden');
     showTab('dashboard');
@@ -3717,8 +3871,10 @@ function launchLiveGame() {
     }))
   };
 
-  // Init commander damage tracking
+  // Init commander damage tracking + active seat
+  liveGameState.activeSeat = 0; // seat index of current active player
   liveGameState.players.forEach(p => {
+    p.expandedChip = null; // track which cmd chip is expanded
     liveGameState.players.forEach(opp => {
       if (opp.userId !== p.userId) p.commanderDamage[opp.userId] = 0;
     });
@@ -3740,6 +3896,11 @@ function resumeLiveGame() {
   if (!saved) return;
   try {
     liveGameState = JSON.parse(saved);
+    // Ensure new fields exist for backwards compat
+    if (liveGameState.activeSeat === undefined) liveGameState.activeSeat = 0;
+    liveGameState.players.forEach(p => {
+      if (p.expandedChip === undefined) p.expandedChip = null;
+    });
     document.getElementById('live-resume-banner').style.display = 'none';
     launchTracker();
   } catch(e) { localStorage.removeItem('cc_live_game'); }
@@ -3790,34 +3951,44 @@ function buildTrackerGrid() {
 function buildPlayerPanel(p, idx, spanStyle = '') {
   const isDead = p.eliminated;
   const isLow = p.life <= 10 && !isDead;
+  const isActive = liveGameState.activeSeat === idx;
   const opponents = liveGameState.players.filter(opp => opp.userId !== p.userId);
 
   const cmdChips = opponents.map(opp => {
     const dmg = p.commanderDamage[opp.userId] || 0;
     const isDanger = dmg >= 15;
-    return `<div class="cmd-dmg-chip ${isDanger ? 'danger' : ''}"
-      onclick="addCmdDamage('${p.userId}', '${opp.userId}')"
-      title="Cmdr dmg from ${escHtml(opp.username)}">
-      ${escHtml(opp.username.substring(0,4))}<br>${dmg}
+    const isExpanded = p.expandedChip === opp.userId;
+    return `<div class="cmd-dmg-chip ${isDanger ? 'danger' : ''} ${isExpanded ? 'expanded' : ''}"
+      id="chip-${p.userId}-${opp.userId}">
+      <div class="chip-name">${escHtml(opp.username.substring(0,5))}</div>
+      ${isExpanded ? `
+        <div class="chip-controls">
+          <button class="chip-btn" ontouchstart="event.stopPropagation();changeCmdDmg('${p.userId}','${opp.userId}',-1)" onmousedown="event.stopPropagation();changeCmdDmg('${p.userId}','${opp.userId}',-1)">−</button>
+          <span class="chip-dmg-val">${dmg}</span>
+          <button class="chip-btn" ontouchstart="event.stopPropagation();changeCmdDmg('${p.userId}','${opp.userId}',1)" onmousedown="event.stopPropagation();changeCmdDmg('${p.userId}','${opp.userId}',1)">+</button>
+        </div>
+      ` : `<div class="chip-dmg-val" style="padding:0.15rem 0 0.2rem" ontouchstart="event.stopPropagation();toggleChip('${p.userId}','${opp.userId}')" onmousedown="event.stopPropagation();toggleChip('${p.userId}','${opp.userId}')">${dmg}</div>`}
     </div>`;
   }).join('');
 
   return `
-    <div class="player-panel ${isDead ? 'eliminated' : ''}" id="panel-${p.userId}" style="${spanStyle}">
+    <div class="player-panel ${isDead ? 'eliminated' : ''} ${isActive ? 'active-turn' : ''}"
+         id="panel-${p.userId}" style="${spanStyle}position:relative;">
       ${p.artUrl ? `<div class="panel-art" style="background-image:url('${escHtml(p.artUrl)}')"></div>` : '<div class="panel-art" style="background:linear-gradient(135deg,#1a1510,#2f2820)"></div>'}
       ${!isDead ? `
         <div class="panel-tap-left" ontouchstart="handleTapStart(event,'${p.userId}',-1)" ontouchend="handleTapEnd(event,'${p.userId}',-1)" onmousedown="startHold('${p.userId}',-1)" onmouseup="endHold()"></div>
         <div class="panel-tap-right" ontouchstart="handleTapStart(event,'${p.userId}',1)" ontouchend="handleTapEnd(event,'${p.userId}',1)" onmousedown="startHold('${p.userId}',1)" onmouseup="endHold()"></div>
       ` : ''}
+      <div class="panel-player-name">${escHtml(p.username)}</div>
+      <div class="panel-commander-name">${escHtml(p.commander)}</div>
       <div class="panel-content">
-        <div class="panel-player-name">${escHtml(p.username)}</div>
-        <div class="panel-commander-name">${escHtml(p.commander)}</div>
         ${isDead
           ? `<div class="panel-skull">💀</div>`
           : `<div class="panel-life ${isLow ? 'low' : ''}" id="life-${p.userId}">${p.life}</div>`
         }
-        ${!isDead ? `<div class="cmd-damage-row">${cmdChips}</div>` : ''}
+        ${isActive && !isDead ? `<div class="panel-turn-indicator">▶ YOUR TURN</div>` : ''}
       </div>
+      ${!isDead ? `<div class="cmd-damage-row">${cmdChips}</div>` : ''}
     </div>
   `;
 }
@@ -3861,21 +4032,39 @@ function endHold() {
   if (liveHoldInterval) { clearInterval(liveHoldInterval); clearTimeout(liveHoldInterval); liveHoldInterval = null; }
 }
 
-function addCmdDamage(victimId, sourceId) {
+function toggleChip(victimId, sourceId) {
   const victim = liveGameState.players.find(p => p.userId === victimId);
   if (!victim || victim.eliminated) return;
-  victim.commanderDamage[sourceId] = (victim.commanderDamage[sourceId] || 0) + 1;
-  victim.life -= 1;
+  // Toggle expanded state
+  victim.expandedChip = victim.expandedChip === sourceId ? null : sourceId;
+  saveLiveState();
+  refreshPanel(victimId);
+}
+
+function changeCmdDmg(victimId, sourceId, delta) {
+  const victim = liveGameState.players.find(p => p.userId === victimId);
+  if (!victim || victim.eliminated) return;
+  const current = victim.commanderDamage[sourceId] || 0;
+  const newVal = Math.max(0, current + delta);
+  victim.commanderDamage[sourceId] = newVal;
+
+  // Adding damage removes life; subtracting does NOT restore life
+  if (delta > 0) victim.life -= delta;
+
   saveLiveState();
 
-  // Check elimination before rebuild
-  const cmdKill = victim.commanderDamage[sourceId] >= 21;
+  const cmdKill = newVal >= 21;
   const lifeKill = victim.life <= 0;
   if (cmdKill || lifeKill) {
     eliminatePlayer(victimId, cmdKill ? 'commander' : 'life');
   } else {
     refreshPanel(victimId);
   }
+}
+
+// Keep addCmdDamage as alias (used nowhere else but safety)
+function addCmdDamage(victimId, sourceId) {
+  changeCmdDmg(victimId, sourceId, 1);
 }
 
 function refreshPanel(userId) {
@@ -3974,21 +4163,27 @@ async function showWinnerScreen(winner) {
   screen.style.justifyContent = 'center';
 }
 
-// Increment turn — called via topbar (tap turn counter)
-document.addEventListener('DOMContentLoaded', () => {
-  const turnEl = document.getElementById('tracker-turn');
-  if (turnEl) {
-    turnEl.style.cursor = 'pointer';
-    turnEl.title = 'Tap to advance turn';
-    turnEl.addEventListener('click', () => {
-      if (liveGameState) {
-        liveGameState.turn++;
-        document.getElementById('tracker-turn').textContent = liveGameState.turn;
-        saveLiveState();
-      }
-    });
+// Advance active seat — cycles through alive players, increments turn after full cycle
+function advanceTurn() {
+  if (!liveGameState) return;
+  const players = liveGameState.players;
+  const total = players.length;
+  let next = (liveGameState.activeSeat + 1) % total;
+  let loops = 0;
+  // Skip eliminated players
+  while (players[next].eliminated && loops < total) {
+    next = (next + 1) % total;
+    loops++;
   }
-});
+  // If we wrapped past seat 0, increment turn
+  if (next <= liveGameState.activeSeat) {
+    liveGameState.turn++;
+    document.getElementById('tracker-turn').textContent = liveGameState.turn;
+  }
+  liveGameState.activeSeat = next;
+  saveLiveState();
+  buildTrackerGrid(); // full refresh to update active glow + indicator
+}
 
 // ============================================
 // PHASE 5: AUTO-LOG ON GAME END
@@ -4074,6 +4269,132 @@ async function finalizeLiveGame() {
   }
 }
 
+
+// ============================================
+// VS TAB — Head to head vs commanders + friends
+// ============================================
+async function renderVsTab(deckId) {
+  const container = document.getElementById('deck-vs-content');
+  if (!container) return;
+  container.innerHTML = '<div class="ai-generating"><div class="spinner"></div><p>Loading matchup data...</p></div>';
+
+  try {
+    // Get all games for this deck
+    const deckGames = allGames.filter(g => g.deck_id === deckId);
+    if (deckGames.length === 0) {
+      container.innerHTML = '<p class="text-dim italic" style="padding:1rem 0">No games logged for this deck yet.</p>';
+      return;
+    }
+
+    // Fetch all opponents for these games in one query
+    const gameIds = deckGames.map(g => g.id);
+    const opponents = await sbRequest('game_opponents', 'GET', null,
+      `?game_id=in.(${gameIds.join(',')})&select=*`) || [];
+
+    if (opponents.length === 0) {
+      container.innerHTML = '<p class="text-dim italic" style="padding:1rem 0">No opponent data yet. Add commanders when logging games.</p>';
+      return;
+    }
+
+    // Build vs record per commander
+    const cmdRecord = {}; // { commanderName: { wins, losses, total } }
+    opponents.forEach(opp => {
+      const game = deckGames.find(g => g.id === opp.game_id);
+      if (!game) return;
+      const name = opp.commander_name;
+      if (!cmdRecord[name]) cmdRecord[name] = { wins: 0, losses: 0 };
+      if (game.result === 'win') cmdRecord[name].wins++;
+      else cmdRecord[name].losses++;
+    });
+
+    // Sort by total games desc
+    const cmdEntries = Object.entries(cmdRecord)
+      .map(([name, r]) => ({ name, ...r, total: r.wins + r.losses }))
+      .sort((a, b) => b.total - a.total);
+
+    // Build vs record per friend (match opponent commanders to friends' decks)
+    const friendRecord = {};
+    allFriends.forEach(friend => {
+      // Find if any opponent commander matches this friend's decks
+      // We need to fetch their decks — use a cache approach
+      friendRecord[friend.userId] = { username: friend.username, wins: 0, losses: 0, commanders: new Set() };
+    });
+
+    // Cross-reference: check if friend has a deck with any of the opponent commanders
+    // We'll do this by fetching all friends' decks commanders
+    let friendDeckMap = {}; // { commanderName (lower) : userId }
+    if (allFriends.length > 0) {
+      const friendIds = allFriends.map(f => f.userId);
+      const friendDecks = await sbRequest('decks', 'GET', null,
+        `?user_id=in.(${friendIds.join(',')})&select=user_id,commander`) || [];
+      friendDecks.forEach(d => {
+        if (d.commander) friendDeckMap[d.commander.toLowerCase()] = d.user_id;
+      });
+    }
+
+    // Now match opponents to friends
+    opponents.forEach(opp => {
+      const game = deckGames.find(g => g.id === opp.game_id);
+      if (!game) return;
+      const friendId = friendDeckMap[opp.commander_name.toLowerCase()];
+      if (!friendId || !friendRecord[friendId]) return;
+      if (game.result === 'win') friendRecord[friendId].wins++;
+      else friendRecord[friendId].losses++;
+      friendRecord[friendId].commanders.add(opp.commander_name);
+    });
+
+    const friendEntries = Object.values(friendRecord)
+      .filter(f => f.wins + f.losses > 0)
+      .sort((a, b) => (b.wins + b.losses) - (a.wins + a.losses));
+
+    // Render
+    const winPct = (w, t) => t > 0 ? `${((w/t)*100).toFixed(0)}%` : '—';
+
+    container.innerHTML = `
+      ${friendEntries.length > 0 ? `
+        <div style="margin-bottom:1.5rem">
+          <h3 style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.75rem">VS FRIENDS</h3>
+          ${friendEntries.map(f => {
+            const total = f.wins + f.losses;
+            const pct = (f.wins / total) * 100;
+            return `
+              <div style="padding:0.75rem;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:0.5rem">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem">
+                  <span style="font-family:'Cinzel',serif;font-size:0.85rem;color:var(--gold)">${escHtml(f.username)}</span>
+                  <span style="font-size:0.8rem;color:${pct >= 50 ? 'var(--win)' : 'var(--loss)'}">
+                    ${f.wins}W ${f.losses}L · ${winPct(f.wins, total)}
+                  </span>
+                </div>
+                <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic">
+                  ${[...f.commanders].map(c => escHtml(c)).join(', ')}
+                </div>
+                <div style="height:4px;background:var(--border);border-radius:2px;margin-top:0.5rem">
+                  <div style="height:100%;width:${pct}%;background:${pct >= 50 ? 'var(--win)' : 'var(--loss)'};border-radius:2px;transition:width 0.3s"></div>
+                </div>
+              </div>`;
+          }).join('')}
+        </div>` : ''}
+
+      <div>
+        <h3 style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.75rem">VS COMMANDERS</h3>
+        ${cmdEntries.map(c => {
+          const pct = (c.wins / c.total) * 100;
+          return `
+            <div style="padding:0.6rem 0.75rem;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:0.4rem;display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:0.82rem;color:var(--text);flex:1">${escHtml(c.name)}</span>
+              <span style="font-size:0.78rem;color:${pct >= 50 ? 'var(--win)' : 'var(--loss)'};white-space:nowrap;margin-left:0.5rem">
+                ${c.wins}W ${c.losses}L
+              </span>
+            </div>`;
+        }).join('')}
+      </div>
+    `;
+  } catch(e) {
+    container.innerHTML = `<p class="text-dim" style="padding:1rem 0">Failed to load vs data.</p>`;
+    console.error(e);
+  }
+}
+
 </script>
 <!-- FAB CHOICE MENU -->
 <div id="fab-menu" style="display:none;position:fixed;bottom:5.5rem;right:1.5rem;z-index:199;display:none;flex-direction:column;gap:0.5rem;align-items:flex-end;">
@@ -4132,7 +4453,7 @@ async function finalizeLiveGame() {
   <div id="tracker-topbar" style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 1rem;background:rgba(0,0,0,0.6);border-bottom:1px solid rgba(212,170,125,0.2);flex-shrink:0;z-index:10;">
     <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:#d4aa7d;letter-spacing:0.15em">COMMANDER CHRONICLE</div>
     <div style="display:flex;align-items:center;gap:0.75rem">
-      <div style="font-family:'Cinzel',serif;font-size:0.9rem;color:#d4aa7d">TURN <span id="tracker-turn">1</span></div>
+      <div onclick="advanceTurn()" style="font-family:'Cinzel',serif;font-size:0.9rem;color:#d4aa7d;cursor:pointer;padding:0.3rem 0.6rem;border:1px solid rgba(212,170,125,0.3);border-radius:3px" title="Tap to advance turn">TURN <span id="tracker-turn">1</span> ▶</div>
       <button onclick="confirmEndGame()" style="background:transparent;border:1px solid rgba(192,57,43,0.5);color:#c0392b;font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.1em;padding:0.3rem 0.6rem;border-radius:3px;cursor:pointer">END GAME</button>
     </div>
   </div>
