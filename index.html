@@ -1897,14 +1897,17 @@ async function showGameDetail(gameId) {
   } catch(e) {}
 
   const content = document.getElementById('game-detail-content');
-  // Get flavor message if deck has one
-  const winTitle = deck?.win_message_title || null;
-  const winBody = deck?.win_message_body || null;
-  const lossTitle = deck?.loss_message_title || null;
-  const lossBody = deck?.loss_message_body || null;
-
-  const flavorTitle = game.result === 'win' ? winTitle : lossTitle;
-  const flavorBody = game.result === 'win' ? winBody : lossBody;
+  // Fetch flavor fresh from DB using the game's actual deck_id to avoid wrong deck flavor
+  let flavorTitle = null, flavorBody = null;
+  try {
+    const deckFlavor = await sbRequest('decks', 'GET', null,
+      `?id=eq.${game.deck_id}&select=win_message_title,win_message_body,loss_message_title,loss_message_body`);
+    if (deckFlavor && deckFlavor[0]) {
+      const df = deckFlavor[0];
+      flavorTitle = game.result === 'win' ? df.win_message_title : df.loss_message_title;
+      flavorBody = game.result === 'win' ? df.win_message_body : df.loss_message_body;
+    }
+  } catch(e) {}
 
   content.innerHTML = `
     ${flavorTitle ? `
@@ -3588,13 +3591,13 @@ async function renderVsTab(deckId) {
 (function injectTrackerCSS() {
   const style = document.createElement('style');
   style.textContent = `
-    .panel-player-name { position:absolute;top:0.6rem;left:0.7rem;font-family:'Cinzel',serif;font-size:1.6rem;font-weight:bold;color:rgba(255,255,255,0.95);letter-spacing:0.05em;text-transform:uppercase;text-shadow:0 2px 8px rgba(0,0,0,0.95);z-index:5;pointer-events:none; }
-    .panel-commander-name { position:absolute;top:2.8rem;left:0.7rem;font-style:italic;font-size:1rem;color:rgba(212,170,125,0.9);text-shadow:0 1px 6px rgba(0,0,0,0.95);z-index:5;pointer-events:none; }
+    .panel-player-name { position:absolute;top:0.4rem;left:0.5rem;font-family:'Cinzel',serif;font-size:min(1.6rem,4vw,4vh);font-weight:bold;color:rgba(255,255,255,0.95);letter-spacing:0.05em;text-transform:uppercase;text-shadow:0 2px 8px rgba(0,0,0,0.95);z-index:5;pointer-events:none; }
+    .panel-commander-name { position:absolute;top:min(2.8rem,7vw);left:0.5rem;font-style:italic;font-size:min(1rem,2.5vw,3vh);color:rgba(212,170,125,0.9);text-shadow:0 1px 6px rgba(0,0,0,0.95);z-index:5;pointer-events:none; }
     .panel-content { position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;pointer-events:none; }
-    .panel-life { font-family:'Cinzel',serif;font-size:10rem;font-weight:bold;color:#fff;line-height:1;text-shadow:0 3px 20px rgba(0,0,0,0.9);transition:transform 0.1s; }
+    .panel-life { font-family:'Cinzel',serif;font-size:min(10rem,18vw,22vh);font-weight:bold;color:#fff;line-height:1;text-shadow:0 3px 20px rgba(0,0,0,0.9);transition:transform 0.1s; }
     .panel-life.bump { transform:scale(1.12); }
     .panel-life.low { color:#e74c3c; }
-    .panel-turn-indicator { font-family:'Cinzel',serif;font-size:0.85rem;color:#d4aa7d;letter-spacing:0.15em;text-transform:uppercase;margin-top:0.5rem;background:rgba(0,0,0,0.75);padding:0.3rem 0.8rem;border-radius:4px;border:1px solid rgba(212,170,125,0.4); }
+    .panel-turn-indicator { font-family:'Cinzel',serif;font-size:min(0.85rem,2.5vw);color:#d4aa7d;letter-spacing:0.1em;text-transform:uppercase;margin-top:0.4rem;background:rgba(0,0,0,0.75);padding:0.25rem 0.6rem;border-radius:4px;border:1px solid rgba(212,170,125,0.4);cursor:pointer; }
     .panel-skull { font-size:3rem; }
     .player-panel { position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none; }
     .player-panel.eliminated { filter:grayscale(0.8);opacity:0.5; }
@@ -3605,14 +3608,14 @@ async function renderVsTab(deckId) {
     .panel-tap-left:active { background:rgba(192,57,43,0.2); }
     .panel-tap-right:active { background:rgba(39,174,96,0.2); }
     .cmd-damage-row { position:absolute;bottom:0.5rem;left:0;right:0;display:flex;gap:0.3rem;pointer-events:all;z-index:5;flex-wrap:wrap;justify-content:center;padding:0 0.4rem; }
-    .cmd-dmg-chip { background:rgba(0,0,0,0.8);border:1px solid rgba(212,170,125,0.5);border-radius:6px;font-size:1rem;font-family:'Cinzel',serif;color:#d4aa7d;cursor:pointer;text-align:center;min-width:70px;overflow:hidden;transition:all 0.15s; }
+    .cmd-dmg-chip { background:rgba(0,0,0,0.8);border:1px solid rgba(212,170,125,0.5);border-radius:6px;font-size:min(1rem,2.5vw);font-family:'Cinzel',serif;color:#d4aa7d;cursor:pointer;text-align:center;min-width:min(70px,16vw);overflow:hidden;transition:all 0.15s; }
     .cmd-dmg-chip .chip-name { padding:0.25rem 0.5rem 0;font-size:0.85rem;color:rgba(212,170,125,0.85); }
     .cmd-dmg-chip .chip-controls { display:none; }
     .cmd-dmg-chip.expanded .chip-controls { display:flex; }
     .cmd-dmg-chip.expanded { min-width:130px; }
     .chip-btn { flex:1;padding:0.3rem 0;background:transparent;border:none;color:#d4aa7d;font-size:1.2rem;cursor:pointer;line-height:1; }
     .chip-btn:active { background:rgba(212,170,125,0.2); }
-    .chip-dmg-val { padding:0.3rem 0.5rem;font-size:1.3rem;font-weight:bold;color:#fff; }
+    .chip-dmg-val { padding:0.2rem 0.4rem;font-size:min(1.3rem,3vw);font-weight:bold;color:#fff; }
     .cmd-dmg-chip.danger { border-color:#e74c3c; }
     .cmd-dmg-chip.danger .chip-dmg-val { color:#e74c3c; }
   `;
@@ -3767,7 +3770,7 @@ function launchLiveGame() {
     if (!liveSetupState.players[i]?.deckId) { showToast(`Please fill Seat ${i+1} before launching.`); return; }
   }
   liveGameState = {
-    podSize: ps, turn: 1, startedAt: Date.now(), ended: false, activeSeat: 0,
+    podSize: ps, turn: 1, startedAt: Date.now(), ended: false, activeSeat: liveSetupState.firstSeat ?? 0,
     players: liveSetupState.players.slice(0, ps).map((p, i) => ({
       userId: p.userId, username: p.username, deckId: p.deckId, commander: p.commander,
       artUrl: p.artUrl, life: 40, eliminated: false, seatPosition: i+1,
@@ -3855,7 +3858,7 @@ function buildPlayerPanel(p, idx, spanStyle='') {
     <div class="panel-commander-name">${escHtml(p.commander)}</div>
     <div class="panel-content">
       ${isDead ? '<div class="panel-skull">💀</div>' : `<div class="panel-life ${isLow?'low':''}" id="life-${p.userId}">${p.life}</div>`}
-      ${isActive&&!isDead ? '<div class="panel-turn-indicator">YOUR TURN</div>' : ''}
+      ${isActive&&!isDead ? `<div class="panel-turn-indicator" ontouchstart="event.stopPropagation();advanceTurn()" onmousedown="event.stopPropagation();advanceTurn()">TURN ${liveGameState.turn} — TAP TO PASS</div>` : ''}
     </div>
     ${!isDead ? `<div class="cmd-damage-row">${cmdChips}</div>` : ''}
   </div>`;
@@ -3938,6 +3941,17 @@ function advanceTurn() {
   }
   liveGameState.activeSeat = next;
   saveLiveState(); buildTrackerGrid();
+}
+
+function abandonLiveGame() {
+  if (confirm('Leave this game? No results will be logged and the game will be discarded.')) {
+    localStorage.removeItem('cc_live_game');
+    liveGameState = null;
+    closeTracker();
+    document.getElementById('live-winner-screen').style.display = 'none';
+    showTab('dashboard');
+    showToast('Game abandoned.');
+  }
 }
 
 function confirmEndGame() {
@@ -4253,11 +4267,12 @@ async function saveEditGame(gameId) {
 
 <!-- LIVE GAME TRACKER -->
 <div id="live-tracker" style="display:none;position:fixed;inset:0;background:#0a0806;z-index:500;overflow:hidden;flex-direction:column;">
-  <div id="tracker-topbar" style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 1rem;background:rgba(0,0,0,0.6);border-bottom:1px solid rgba(212,170,125,0.2);flex-shrink:0;z-index:10;">
-    <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:#d4aa7d;letter-spacing:0.15em">COMMANDER CHRONICLE</div>
-    <div style="display:flex;align-items:center;gap:0.75rem">
-      <div onclick="advanceTurn()" style="font-family:'Cinzel',serif;font-size:0.9rem;color:#d4aa7d;cursor:pointer;padding:0.3rem 0.6rem;border:1px solid rgba(212,170,125,0.3);border-radius:3px" title="Tap to advance turn">TURN <span id="tracker-turn">1</span> ▶</div>
-      <button onclick="confirmEndGame()" style="background:transparent;border:1px solid rgba(192,57,43,0.5);color:#c0392b;font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.1em;padding:0.3rem 0.6rem;border-radius:3px;cursor:pointer">END GAME</button>
+  <div id="tracker-topbar" style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0.75rem;background:rgba(0,0,0,0.6);border-bottom:1px solid rgba(212,170,125,0.2);flex-shrink:0;z-index:10;min-height:44px;">
+    <div style="font-family:'Cinzel',serif;font-size:0.65rem;color:#d4aa7d;letter-spacing:0.1em">COMMANDER CHRONICLE</div>
+    <div style="display:flex;align-items:center;gap:0.5rem">
+      <div style="font-family:'Cinzel',serif;font-size:0.8rem;color:#d4aa7d;">TURN <span id="tracker-turn">1</span></div>
+      <button onclick="abandonLiveGame()" style="background:transparent;border:1px solid rgba(154,136,120,0.4);color:#9a8878;font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.08em;padding:0.25rem 0.5rem;border-radius:3px;cursor:pointer">LEAVE</button>
+      <button onclick="confirmEndGame()" style="background:transparent;border:1px solid rgba(192,57,43,0.5);color:#c0392b;font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.08em;padding:0.25rem 0.5rem;border-radius:3px;cursor:pointer">END GAME</button>
     </div>
   </div>
   <div id="tracker-grid" style="flex:1;display:grid;gap:2px;overflow:hidden;"></div>
