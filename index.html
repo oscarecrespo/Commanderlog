@@ -3602,12 +3602,13 @@ async function renderVsTab(deckId) {
     .panel-player-name { position:absolute;top:0.4rem;left:0.5rem;font-family:'Cinzel',serif;font-size:var(--tracker-name-size,2.5vmin);font-weight:bold;color:rgba(255,255,255,0.95);letter-spacing:0.05em;text-transform:uppercase;text-shadow:0 2px 8px rgba(0,0,0,0.95);z-index:5;pointer-events:none; }
     .panel-commander-name { position:absolute;top:var(--tracker-cmdname-top,4vmin);left:0.5rem;font-style:italic;font-size:var(--tracker-cmdname-size,1.8vmin);color:rgba(212,170,125,0.9);text-shadow:0 1px 6px rgba(0,0,0,0.95);z-index:5;pointer-events:none; }
     .panel-content { position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;pointer-events:none; }
-    .panel-life { font-family:'Cinzel',serif;font-size:var(--tracker-life-size,18vmin);font-weight:bold;color:rgba(255,255,255,0.65);line-height:1;text-shadow:0 3px 20px rgba(0,0,0,0.7);transition:transform 0.1s; }
+    .panel-life { font-family:'Cinzel',serif;font-size:var(--tracker-life-size,18vmin);font-weight:bold;color:rgba(255,255,255,0.45);line-height:1;text-shadow:0 3px 20px rgba(0,0,0,0.7);transition:transform 0.1s; }
     .panel-life.bump { transform:scale(1.12); }
     .panel-life.low { color:#e74c3c; }
     .panel-turn-indicator { font-family:'Cinzel',serif;font-size:var(--tracker-turn-size,1.5vmin);color:#d4aa7d;letter-spacing:0.1em;text-transform:uppercase;margin-top:0.4rem;background:rgba(0,0,0,0.75);padding:0.25rem 0.6rem;border-radius:4px;border:1px solid rgba(212,170,125,0.4);cursor:pointer; }
     .panel-skull { font-size:3rem; }
     .player-panel { position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none;width:100%;height:100%;box-sizing:border-box;min-width:0;min-height:0; }
+    .panel-rotated { transform:rotate(180deg); }
     .player-panel.eliminated { filter:grayscale(0.8);opacity:0.5; }
     .player-panel.active-turn { box-shadow:inset 0 0 0 3px rgba(212,170,125,0.8); }
     .panel-art { position:absolute;inset:0;background-size:cover;background-position:center top;opacity:0.35; }
@@ -3940,7 +3941,7 @@ function buildPlayerPanel(p, idx, spanStyle='') {
   else if (ps2 === 4) rotation = idx < 2 ? 180 : 0;
   else if (ps2 === 5) rotation = idx < 2 ? 180 : 0;
 
-  return `<div class="player-panel ${isDead?'eliminated':''} ${isActive?'active-turn':''}" id="panel-${p.userId}" style="${spanStyle}position:relative;transform:rotate(${rotation}deg);">
+  return `<div class="player-panel ${isDead?'eliminated':''} ${isActive?'active-turn':''} ${rotation===180?'panel-rotated':''}" id="panel-${p.userId}" style="${spanStyle}position:relative;">
     ${p.artUrl ? `<div class="panel-art" style="background-image:url('${escHtml(p.artUrl)}')"></div>` : '<div class="panel-art" style="background:linear-gradient(135deg,#1a1510,#2f2820)"></div>'}
     ${!isDead ? `<div class="panel-tap-left" ontouchstart="handleTapStart(event,'${p.userId}',-1)" ontouchend="handleTapEnd(event,'${p.userId}',-1)" onmousedown="startHold('${p.userId}',-1)" onmouseup="endHold()"></div>
     <div class="panel-tap-right" ontouchstart="handleTapStart(event,'${p.userId}',1)" ontouchend="handleTapEnd(event,'${p.userId}',1)" onmousedown="startHold('${p.userId}',1)" onmouseup="endHold()"></div>` : ''}
@@ -4023,8 +4024,12 @@ function eliminatePlayer(userId, reason) {
   if (alive.length === 1) setTimeout(() => showWinnerScreen(alive[0]), 600);
 }
 
+let _advanceLock = false;
 function advanceTurn() {
-  if (!liveGameState) return;
+  if (!liveGameState || _advanceLock) return;
+  _advanceLock = true;
+  setTimeout(() => { _advanceLock = false; }, 300);
+  endHold(); // cancel any pending life change
   const players = liveGameState.players;
   let next = (liveGameState.activeSeat + 1) % players.length;
   let loops = 0;
