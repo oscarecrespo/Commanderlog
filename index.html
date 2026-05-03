@@ -1271,6 +1271,7 @@ h1, h2, h3, h4 {
       <button class="nav-tab" onclick="showTab('decks')" data-tab="decks">My Decks</button>
       <button class="nav-tab" onclick="showTab('games')" data-tab="games">Game Log</button>
       <button class="nav-tab" onclick="showTab('friends')" data-tab="friends">Friends<span id="friends-badge" style="display:none;background:var(--crimson-bright);color:#fff;border-radius:50%;font-size:0.6rem;padding:1px 5px;margin-left:5px;vertical-align:middle"></span></button>
+      <button class="nav-tab" onclick="showTab('groups')" data-tab="groups">My Groups</button>
       <button class="nav-tab" id="admin-tab" onclick="showTab('admin')" data-tab="admin" style="display:none">⚑ Admin</button>
     </div>
     <div class="nav-user">
@@ -1296,7 +1297,7 @@ h1, h2, h3, h4 {
       </div>
 
       <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
-        <button class="btn" onclick="showLogGameModal()">+ Log Game</button>
+        
       </div>
 
       <div class="stats-grid" id="dashboard-stats">
@@ -1330,8 +1331,9 @@ h1, h2, h3, h4 {
         <div class="panel-header">
           <span class="panel-title">My Decks</span>
           <div class="flex gap-1">
-            <button class="btn btn-small" onclick="showLogGameModal()">+ Log Game</button>
+            
             <button class="btn btn-small" onclick="showImportModal()">+ Import Deck</button>
+            <button class="btn btn-small" onclick="showImportHelp()" style="width:auto;padding:0.3rem 0.7rem;font-size:0.8rem" title="How to import">?</button>
           </div>
         </div>
         <div class="decks-grid" id="decks-grid">
@@ -1349,7 +1351,7 @@ h1, h2, h3, h4 {
         <div class="panel-header">
           <span class="panel-title">Game Log</span>
           <div class="flex gap-1">
-            <button class="btn btn-small" onclick="showLogGameModal()">+ Log Game</button>
+            
             <select id="games-filter-deck" class="form-group" style="margin:0;padding:0.4rem 0.7rem;font-size:0.85rem;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:var(--radius)" onchange="renderGames()">
               <option value="">All Decks</option>
             </select>
@@ -1417,6 +1419,38 @@ h1, h2, h3, h4 {
             <button class="btn" style="width:auto" onclick="exportGamesCSV()">⬇ Games CSV</button>
             <button class="btn" style="width:auto" onclick="exportDecksCSV()">⬇ Decks CSV</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GROUPS TAB -->
+    <div id="tab-groups" class="tab-content hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">⚔ My Groups</span>
+          <button class="btn btn-small" onclick="showCreateGroupModal()">+ Create Group</button>
+        </div>
+
+        <!-- Pending group invitations -->
+        <div id="groups-pending-section" style="display:none;margin-bottom:1.5rem">
+          <h3 style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--crimson-bright);margin-bottom:0.75rem">Pending Invitations</h3>
+          <div id="groups-pending-list"></div>
+        </div>
+
+        <!-- Join a group -->
+        <div style="margin-bottom:1.5rem">
+          <h3 style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.75rem">Join a Group</h3>
+          <div class="flex gap-1">
+            <input id="join-group-input" type="text" placeholder="Enter group name..." class="form-control" style="flex:1" onkeydown="if(event.key==='Enter')requestJoinGroup()">
+            <button class="btn btn-primary" style="width:auto" onclick="requestJoinGroup()">Request to Join</button>
+          </div>
+          <div id="join-group-msg" style="font-size:0.8rem;margin-top:0.5rem"></div>
+        </div>
+
+        <!-- My groups list -->
+        <div>
+          <h3 style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.75rem">My Groups</h3>
+          <div id="groups-list"><p class="text-dim text-small italic">No groups yet.</p></div>
         </div>
       </div>
     </div>
@@ -1707,6 +1741,7 @@ async function loadUserData() {
     renderGames();
     buildLogGameForm();
     loadFriendsData();
+    loadGroupsData();
     checkLiveGameRecovery();
   } catch (e) {
     console.error('Failed to load data:', e);
@@ -1717,6 +1752,11 @@ async function loadUserData() {
 // NAVIGATION
 // ============================================
 function showTab(tab) {
+  // Ensure FAB is visible whenever app is active
+  if (currentUser) {
+    const fab = document.getElementById('mobile-fab');
+    if (fab) fab.classList.remove('fab-hidden');
+  }
   // Update drawer active state
   document.querySelectorAll('.drawer-nav-btn[data-tab]').forEach(b => {
     b.classList.toggle('active', b.dataset.tab === tab);
@@ -1733,6 +1773,7 @@ function showTab(tab) {
   if (tab === 'log-game') buildLogGameForm();
   if (tab === 'admin' && currentUser.is_admin) renderAdmin();
   if (tab === 'friends') renderFriends();
+  if (tab === 'groups') renderGroups();
 }
 
 // ============================================
@@ -1755,6 +1796,33 @@ function renderDashboard() {
   document.getElementById('stat-winrate').textContent = total > 0 ? `${winRate}%` : '—';
   document.getElementById('stat-decks').textContent = allDecks.length || '—';
   document.getElementById('stat-avg-turn').textContent = avgTurn;
+
+  // Deck performance bars
+  const perfEl = document.getElementById('dashboard-deck-perf');
+  if (perfEl) {
+    const decksWithGames = allDecks.map(d => {
+      const dg = allGames.filter(g => g.deck_id === d.id);
+      const w = dg.filter(g => g.result === 'win').length;
+      return { name: d.name, commander: d.commander, wins: w, total: dg.length,
+        wr: dg.length > 0 ? (w / dg.length) : 0 };
+    }).filter(d => d.total > 0).sort((a, b) => b.wr - a.wr);
+
+    if (decksWithGames.length === 0) {
+      perfEl.innerHTML = '<p class="text-dim text-small italic">No games logged yet.</p>';
+    } else {
+      perfEl.innerHTML = decksWithGames.map(d => `
+        <div style="margin-bottom:0.6rem">
+          <div class="flex justify-between" style="font-size:0.78rem;margin-bottom:0.2rem">
+            <span style="color:var(--text);max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(d.name)}</span>
+            <span style="color:${d.wr >= 0.5 ? 'var(--win)' : 'var(--loss)'};white-space:nowrap">${d.wins}W ${d.total - d.wins}L · ${(d.wr*100).toFixed(0)}%</span>
+          </div>
+          <div style="height:8px;background:var(--surface3);border-radius:4px;overflow:hidden">
+            <div style="height:100%;width:${(d.wr*100).toFixed(0)}%;background:${d.wr >= 0.5 ? 'var(--win)' : 'var(--loss)'};border-radius:4px;transition:width 0.6s ease"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
 
   // Recent games
   const recentEl = document.getElementById('dashboard-recent-games');
@@ -2313,6 +2381,10 @@ async function submitDeckUpdate(deckId, removedCards, parsedData) {
 // ============================================
 // DECK IMPORT
 // ============================================
+function showImportHelp() {
+  document.getElementById('import-help-modal').classList.remove('hidden');
+}
+
 function showImportModal() {
   document.getElementById('import-modal').classList.remove('hidden');
   document.getElementById('import-text').value = '';
@@ -3267,9 +3339,11 @@ function renderFriends() {
     friendsList.innerHTML = '<p class="text-dim text-small italic">No friends yet. Add someone by username!</p>';
   } else {
     friendsList.innerHTML = allFriends.map(f => `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:var(--surface2);border-radius:var(--radius);margin-bottom:0.5rem;border:1px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:var(--surface2);border-radius:var(--radius);margin-bottom:0.5rem;border:1px solid var(--border);cursor:pointer" onclick="showFriendDetail('${f.userId}','${escHtml(f.username)}')">
         <span style="font-family:'Cinzel',serif;font-size:0.85rem;color:var(--gold)">⚔ ${escHtml(f.username)}</span>
-        <button class="btn btn-small btn-danger" style="width:auto;font-size:0.65rem" onclick="removeFriend('${f.friendshipId}','${escHtml(f.username)}')">Remove</button>
+        <div class="flex gap-1" onclick="event.stopPropagation()">
+          <button class="btn btn-small btn-danger" style="width:auto;font-size:0.65rem" onclick="removeFriend('${f.friendshipId}','${escHtml(f.username)}')">Remove</button>
+        </div>
       </div>
     `).join('');
   }
@@ -3346,6 +3420,67 @@ async function declineFriend(friendshipId) {
     await loadFriendsData();
     renderFriends();
   } catch(e) {
+    console.error(e);
+  }
+}
+
+async function showFriendDetail(userId, username) {
+  const modal = document.getElementById('friend-detail-modal');
+  const content = document.getElementById('friend-detail-content');
+  modal.classList.remove('hidden');
+  content.innerHTML = '<div class="ai-generating"><div class="spinner"></div><p>Loading...</p></div>';
+
+  try {
+    // Find all games where this friend was an opponent
+    // Cross-reference: get friend's deck commanders
+    const friendDecks = await sbRequest('decks', 'GET', null,
+      `?user_id=eq.${userId}&select=id,name,commander`) || [];
+    const friendCommanders = friendDecks.map(d => d.commander).filter(Boolean);
+
+    // Get all our game_opponents entries matching friend's commanders
+    let h2hGames = [];
+    if (friendCommanders.length > 0) {
+      const opps = await sbRequest('game_opponents', 'GET', null,
+        `?commander_name=in.(${friendCommanders.map(c => `"${c}"`).join(',')})&select=*`) || [];
+      const gameIds = [...new Set(opps.map(o => o.game_id))];
+      if (gameIds.length > 0) {
+        h2hGames = allGames.filter(g => gameIds.includes(g.id));
+      }
+    }
+
+    const wins = h2hGames.filter(g => g.result === 'win').length;
+    const losses = h2hGames.filter(g => g.result === 'loss').length;
+    const total = h2hGames.length;
+    const wr = total > 0 ? ((wins/total)*100).toFixed(0) : null;
+
+    content.innerHTML = `
+      <h3 class="modal-title" style="margin-bottom:1.2rem">⚔ ${escHtml(username)}</h3>
+
+      <div class="stats-grid" style="margin-bottom:1.5rem;grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><div class="stat-value" style="color:var(--win)">${wins}</div><div class="stat-label">Wins</div></div>
+        <div class="stat-card"><div class="stat-value" style="color:var(--loss)">${losses}</div><div class="stat-label">Losses</div></div>
+        <div class="stat-card"><div class="stat-value" style="color:var(--gold)">${wr ? wr+'%' : '—'}</div><div class="stat-label">Win Rate</div></div>
+      </div>
+
+      ${total > 0 ? `
+        <div style="margin-bottom:1.5rem">
+          <div style="height:10px;background:var(--surface3);border-radius:5px;overflow:hidden">
+            <div style="height:100%;width:${wr}%;background:${wins >= losses ? 'var(--win)' : 'var(--loss)'};border-radius:5px;transition:width 0.6s ease"></div>
+          </div>
+        </div>` : ''}
+
+      ${friendCommanders.length > 0 ? `
+        <div>
+          <div style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.5rem">${escHtml(username)}'s Commanders</div>
+          <div class="flex" style="flex-wrap:wrap;gap:0.4rem">
+            ${friendCommanders.map(c => `<span class="tag">${escHtml(c)}</span>`).join('')}
+          </div>
+        </div>` : `<p class="text-dim text-small italic">No decks imported yet.</p>`}
+
+      ${total === 0 ? `<p class="text-dim text-small italic" style="margin-top:1rem">No games logged against ${escHtml(username)} yet.</p>` : ''}
+    `;
+  } catch(e) {
+    content.innerHTML = '<p class="text-dim">Failed to load friend data.</p>';
     console.error(e);
   }
 }
@@ -3709,7 +3844,10 @@ function renderLiveSeats() {
         </select></div>`;
     } else {
       html += `<div style="padding:0.75rem;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:0.5rem">
-        <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--gold);margin-bottom:0.4rem">SEAT ${i+1}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem">
+          <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--gold)">SEAT ${i+1}</div>
+          ${i > 0 ? `<button onclick="swapLiveSeat(${i},${i-1})" style="background:transparent;border:none;color:var(--text-dim);cursor:pointer;font-size:0.85rem;padding:0 0.3rem" title="Move up">↑</button>` : '<span style="width:1.5rem"></span>'}
+        </div>
         ${player ? `
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem">
             <span style="font-size:0.85rem;color:var(--text)">${escHtml(player.username)}</span>
@@ -3760,6 +3898,16 @@ async function selectLiveFriend(seatIdx, userId, username) {
 }
 
 function removeLiveSeat(seatIdx) { liveSetupState.players[seatIdx] = null; renderLiveSeats(); }
+
+function swapLiveSeat(i, j) {
+  const tmp = liveSetupState.players[i];
+  liveSetupState.players[i] = liveSetupState.players[j];
+  liveSetupState.players[j] = tmp;
+  // Update firstSeat if it was one of the swapped seats
+  if (liveSetupState.firstSeat === i) liveSetupState.firstSeat = j;
+  else if (liveSetupState.firstSeat === j) liveSetupState.firstSeat = i;
+  renderLiveSeats();
+}
 function setHostDeck(deckId) {
   const deck = allDecks.find(d => d.id === deckId);
   if (!deck) return;
@@ -3820,8 +3968,15 @@ function discardLiveGame() {
 
 function saveLiveState() { localStorage.setItem('cc_live_game', JSON.stringify(liveGameState)); }
 
-function launchTracker() {
-  // Scroll to top first — fixes position:fixed anchoring on scrolled pages
+let _wakeLock = null;
+async function launchTracker() {
+  // Request wake lock to keep screen on
+  try {
+    if ('wakeLock' in navigator) {
+      _wakeLock = await navigator.wakeLock.request('screen');
+    }
+  } catch(e) { console.log('Wake lock failed:', e); }
+
   window.scrollTo(0, 0);
   document.documentElement.scrollTop = 0;
   document.body.scrollTop = 0;
@@ -3829,7 +3984,6 @@ function launchTracker() {
   const tracker = document.getElementById('live-tracker');
   tracker.style.cssText = 'display:flex;flex-direction:column;position:fixed;top:0;left:0;background:#0a0806;z-index:9999;overflow:hidden;touch-action:none;';
 
-  // Wait two frames — one for scroll, one for paint
   requestAnimationFrame(() => requestAnimationFrame(() => {
     const W = window.innerWidth;
     const H = window.innerHeight;
@@ -3865,6 +4019,8 @@ function setSizeVars() {
 }
 
 function closeTracker() {
+  // Release wake lock
+  if (_wakeLock) { _wakeLock.release(); _wakeLock = null; }
   document.getElementById('live-tracker').style.display = 'none';
   document.documentElement.style.overflow = '';
   document.body.style.overflow = '';
@@ -3914,6 +4070,34 @@ function buildTrackerGrid() {
     if (ps===5 && i===4) spanStyle = `grid-column:span 2;width:${gridW}px;height:${rowH}px;`;
     return buildPlayerPanel(p, i, spanStyle);
   }).join('');
+
+  // Position the turn overlay over the active player's panel
+  positionTurnOverlay(cols, rows, colW, rowH, tbH);
+}
+
+function positionTurnOverlay(cols, rows, colW, rowH, tbH) {
+  const overlay = document.getElementById('turn-overlay');
+  const overlayText = document.getElementById('turn-overlay-text');
+  if (!overlay || !liveGameState) return;
+
+  const activeIdx = liveGameState.activeSeat;
+  const activePlayer = liveGameState.players[activeIdx];
+  if (!activePlayer || activePlayer.eliminated) { overlay.style.display = 'none'; return; }
+
+  // Calculate panel position in the grid
+  const ps = liveGameState.podSize;
+  const col = activeIdx % cols;
+  const row = Math.floor(activeIdx / cols);
+  const panelX = col * colW;
+  const panelY = tbH + row * rowH;
+  const panelW = colW;
+  const panelH = rowH;
+
+  // Place overlay in center of panel
+  overlay.style.display = 'block';
+  overlay.style.left = (panelX + panelW/2 - 120) + 'px';
+  overlay.style.top = (panelY + panelH/2 - 20) + 'px';
+  overlayText.textContent = 'TURN ' + liveGameState.turn + ' — TAP TO PASS';
 }
 
 function buildPlayerPanel(p, idx, spanStyle='') {
@@ -3949,11 +4133,7 @@ function buildPlayerPanel(p, idx, spanStyle='') {
     <div class="panel-commander-name">${escHtml(p.commander)}</div>
     <div class="panel-content">
       ${isDead ? '<div class="panel-skull">💀</div>' : `<div class="panel-life ${isLow?'low':''}" id="life-${p.userId}">${p.life}</div>`}
-      ${isActive&&!isDead ? `<div class="panel-turn-indicator" style="position:relative;z-index:10;cursor:pointer;"
-        ontouchend="event.preventDefault();event.stopPropagation();advanceTurn();"
-        onmouseup="event.preventDefault();event.stopPropagation();advanceTurn();"
-        ontouchstart="event.stopPropagation();"
-        onmousedown="event.stopPropagation();">TURN ${liveGameState.turn} — TAP TO PASS</div>` : ''}
+
     </div>
     ${!isDead ? `<div class="cmd-damage-row">${cmdChips}</div>` : ''}
   </div>`;
@@ -4319,6 +4499,408 @@ async function saveEditGame(gameId) {
   }
 }
 
+
+// ============================================
+// GROUPS STATE
+// ============================================
+let allGroups = [];
+let pendingGroupInvites = [];
+
+// ============================================
+// GROUPS — LOAD
+// ============================================
+async function loadGroupsData() {
+  if (!currentUser) return;
+  try {
+    // Get all group memberships for current user
+    const memberships = await sbRequest('group_members', 'GET', null,
+      `?user_id=eq.${currentUser.id}&select=*`) || [];
+
+    const acceptedGroupIds = memberships.filter(m => m.status === 'accepted').map(m => m.group_id);
+    const pendingGroupIds = memberships.filter(m => m.status === 'pending').map(m => m.group_id);
+
+    // Fetch accepted groups
+    if (acceptedGroupIds.length > 0) {
+      allGroups = await sbRequest('groups', 'GET', null,
+        `?id=in.(${acceptedGroupIds.join(',')})&select=*`) || [];
+    } else {
+      allGroups = [];
+    }
+
+    // Fetch pending invites (where we were invited, not where we requested)
+    // We store pending invites where created_by != currentUser
+    pendingGroupInvites = [];
+    if (pendingGroupIds.length > 0) {
+      const pendingGroups = await sbRequest('groups', 'GET', null,
+        `?id=in.(${pendingGroupIds.join(',')})&select=*`) || [];
+      // Only show ones where we didn't create the group (we were invited)
+      pendingGroupInvites = pendingGroups.filter(g => g.created_by !== currentUser.id);
+    }
+
+  } catch(e) {
+    console.error('Failed to load groups:', e);
+  }
+}
+
+// ============================================
+// GROUPS — RENDER TAB
+// ============================================
+async function renderGroups() {
+  await loadGroupsData();
+
+  // Pending invitations
+  const pendingSection = document.getElementById('groups-pending-section');
+  const pendingList = document.getElementById('groups-pending-list');
+  if (pendingGroupInvites.length > 0) {
+    pendingSection.style.display = 'block';
+    pendingList.innerHTML = pendingGroupInvites.map(g => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:var(--surface2);border-radius:var(--radius);margin-bottom:0.5rem;border:1px solid var(--border)">
+        <div>
+          ${g.picture_url ? `<img src="${escHtml(g.picture_url)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:0.5rem;vertical-align:middle">` : ''}
+          <span style="font-family:'Cinzel',serif;font-size:0.85rem;color:var(--text)">${escHtml(g.name)}</span>
+        </div>
+        <div class="flex gap-1">
+          <button class="btn btn-small" style="background:var(--win);border-color:var(--win);color:#fff;width:auto" onclick="acceptGroupInvite('${g.id}')">Accept</button>
+          <button class="btn btn-small btn-danger" style="width:auto" onclick="declineGroupInvite('${g.id}')">Decline</button>
+        </div>
+      </div>`).join('');
+  } else {
+    pendingSection.style.display = 'none';
+  }
+
+  // Groups list
+  const groupsList = document.getElementById('groups-list');
+  if (allGroups.length === 0) {
+    groupsList.innerHTML = '<p class="text-dim text-small italic">No groups yet. Create one or join with a group name.</p>';
+  } else {
+    groupsList.innerHTML = allGroups.map(g => `
+      <div onclick="openGroupDetail('${g.id}')" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:var(--surface2);border-radius:var(--radius);margin-bottom:0.5rem;border:1px solid var(--border);cursor:pointer">
+        ${g.picture_url
+          ? `<img src="${escHtml(g.picture_url)}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0">`
+          : `<div style="width:48px;height:48px;border-radius:8px;background:var(--surface3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.5rem">⚔</div>`}
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Cinzel',serif;font-size:0.9rem;color:var(--gold)">${escHtml(g.name)}</div>
+          <div style="font-size:0.75rem;color:var(--text-dim)">${g.created_by === currentUser.id ? 'You created this' : 'Member'}</div>
+        </div>
+        <span style="color:var(--text-dim);font-size:1rem">›</span>
+      </div>`).join('');
+  }
+}
+
+// ============================================
+// GROUPS — ACTIONS
+// ============================================
+function showCreateGroupModal() {
+  document.getElementById('create-group-name').value = '';
+  document.getElementById('create-group-pic').value = '';
+  document.getElementById('create-group-msg').textContent = '';
+  document.getElementById('create-group-modal').classList.remove('hidden');
+}
+
+async function createGroup() {
+  const name = document.getElementById('create-group-name').value.trim();
+  const pic = document.getElementById('create-group-pic').value.trim();
+  const msg = document.getElementById('create-group-msg');
+  if (!name) { msg.style.color = 'var(--loss)'; msg.textContent = 'Please enter a group name.'; return; }
+
+  try {
+    const result = await sbRequest('groups', 'POST', {
+      name, created_by: currentUser.id, picture_url: pic || null
+    });
+    if (!result || !result[0]) throw new Error('Failed to create group');
+    // Auto-join as accepted member
+    await sbRequest('group_members', 'POST', {
+      group_id: result[0].id, user_id: currentUser.id, status: 'accepted'
+    });
+    document.getElementById('create-group-modal').classList.add('hidden');
+    showToast(`Group "${name}" created! ⚔`);
+    showTab('groups');
+  } catch(e) {
+    msg.style.color = 'var(--loss)';
+    msg.textContent = e.message.includes('unique') ? 'That group name is already taken.' : 'Failed to create group.';
+  }
+}
+
+async function requestJoinGroup() {
+  const input = document.getElementById('join-group-input');
+  const msg = document.getElementById('join-group-msg');
+  const name = input.value.trim();
+  if (!name) return;
+
+  try {
+    const groups = await sbRequest('groups', 'GET', null, `?name=eq.${encodeURIComponent(name)}&select=*`);
+    if (!groups || groups.length === 0) {
+      msg.style.color = 'var(--loss)'; msg.textContent = 'Group not found. Check the name.'; return;
+    }
+    const group = groups[0];
+    // Check if already member/pending
+    const existing = await sbRequest('group_members', 'GET', null,
+      `?group_id=eq.${group.id}&user_id=eq.${currentUser.id}&select=*`);
+    if (existing && existing.length > 0) {
+      msg.style.color = 'var(--loss)';
+      msg.textContent = existing[0].status === 'accepted' ? 'Already a member!' : 'Request already pending.'; return;
+    }
+    await sbRequest('group_members', 'POST', { group_id: group.id, user_id: currentUser.id, status: 'pending' });
+    msg.style.color = 'var(--win)'; msg.textContent = `Request sent to join "${name}"!`;
+    input.value = '';
+  } catch(e) {
+    msg.style.color = 'var(--loss)'; msg.textContent = 'Failed to send request.'; console.error(e);
+  }
+}
+
+async function acceptGroupInvite(groupId) {
+  try {
+    await sbRequest('group_members', 'PATCH', { status: 'accepted' },
+      `?group_id=eq.${groupId}&user_id=eq.${currentUser.id}`);
+    showToast('Joined the group! ⚔');
+    renderGroups();
+  } catch(e) { console.error(e); }
+}
+
+async function declineGroupInvite(groupId) {
+  try {
+    await sbRequest('group_members', 'DELETE', null,
+      `?group_id=eq.${groupId}&user_id=eq.${currentUser.id}`);
+    renderGroups();
+  } catch(e) { console.error(e); }
+}
+
+// ============================================
+// GROUP DETAIL — stats, members, podium
+// ============================================
+async function openGroupDetail(groupId) {
+  const modal = document.getElementById('group-detail-modal');
+  const content = document.getElementById('group-detail-content');
+  modal.classList.remove('hidden');
+  content.innerHTML = '<div class="ai-generating"><div class="spinner"></div><p>Loading group...</p></div>';
+
+  try {
+    const group = allGroups.find(g => g.id === groupId);
+    if (!group) return;
+
+    // Get all accepted members
+    const memberships = await sbRequest('group_members', 'GET', null,
+      `?group_id=eq.${groupId}&status=eq.accepted&select=*`) || [];
+    const memberIds = memberships.map(m => m.user_id);
+
+    // Get member usernames
+    const memberUsers = await sbRequest('users', 'GET', null,
+      `?id=in.(${memberIds.join(',')})&select=id,username`) || [];
+    const userMap = {};
+    memberUsers.forEach(u => { userMap[u.id] = u.username; });
+
+    // Get all games played by members
+    const memberGames = await sbRequest('games', 'GET', null,
+      `?user_id=in.(${memberIds.join(',')})&select=*`) || [];
+
+    // Filter to only group games — games where opponents are also group members
+    // A group game: the game's opponents include at least one other group member
+    const allGameIds = memberGames.map(g => g.id);
+    let groupGameOpponents = [];
+    if (allGameIds.length > 0) {
+      groupGameOpponents = await sbRequest('game_opponents', 'GET', null,
+        `?game_id=in.(${allGameIds.join(',')})&select=*`) || [];
+    }
+
+    // Get all member deck commanders for cross-referencing
+    const memberDecks = allGameIds.length > 0
+      ? await sbRequest('decks', 'GET', null,
+          `?user_id=in.(${memberIds.join(',')})&select=id,user_id,commander,name`) || []
+      : [];
+    const commanderToUser = {};
+    memberDecks.forEach(d => { if (d.commander) commanderToUser[d.commander.toLowerCase()] = d.user_id; });
+
+    // A game is a "group game" if at least one opponent commander belongs to a group member
+    const groupGames = memberGames.filter(g => {
+      const opps = groupGameOpponents.filter(o => o.game_id === g.id);
+      return opps.some(o => {
+        const oppUserId = commanderToUser[o.commander_name?.toLowerCase()];
+        return oppUserId && memberIds.includes(oppUserId) && oppUserId !== g.user_id;
+      });
+    });
+
+    // Build per-member stats from group games only
+    const memberStats = memberIds.map(uid => {
+      const userGames = groupGames.filter(g => g.user_id === uid);
+      const wins = userGames.filter(g => g.result === 'win').length;
+      const total = userGames.length;
+      return {
+        userId: uid,
+        username: userMap[uid] || 'Unknown',
+        wins, total,
+        wr: total > 0 ? wins / total : 0
+      };
+    }).filter(m => m.total > 0).sort((a, b) => b.wr - a.wr || b.wins - a.wins);
+
+    // Build per-deck stats from group games
+    const deckStats = memberDecks.map(d => {
+      const deckGames = groupGames.filter(g => g.deck_id === d.id);
+      const wins = deckGames.filter(g => g.result === 'win').length;
+      const total = deckGames.length;
+      return {
+        deckId: d.id, name: d.name, commander: d.commander,
+        username: userMap[d.user_id] || '',
+        wins, total, wr: total > 0 ? wins / total : 0
+      };
+    }).filter(d => d.total > 0).sort((a, b) => b.wr - a.wr || b.wins - a.wins);
+
+    const isCreator = group.created_by === currentUser.id;
+    const podiumColors = ['#d4aa7d', '#9a8878', '#764c4e'];
+    const podiumHeights = ['80px', '60px', '45px'];
+    const medals = ['🥇', '🥈', '🥉'];
+
+    // Pending requests (creator only)
+    let pendingHTML = '';
+    if (isCreator) {
+      const pending = await sbRequest('group_members', 'GET', null,
+        `?group_id=eq.${groupId}&status=eq.pending&select=*`) || [];
+      if (pending.length > 0) {
+        const pendingUserIds = pending.map(p => p.user_id);
+        const pendingUsers = await sbRequest('users', 'GET', null,
+          `?id=in.(${pendingUserIds.join(',')})&select=id,username`) || [];
+        const puMap = {};
+        pendingUsers.forEach(u => { puMap[u.id] = u.username; });
+        pendingHTML = `
+          <div style="margin-bottom:1.5rem">
+            <h3 style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--crimson-bright);margin-bottom:0.75rem">Pending Requests</h3>
+            ${pending.map(p => `
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.75rem;background:var(--surface2);border-radius:var(--radius);margin-bottom:0.4rem;border:1px solid var(--border)">
+                <span style="font-size:0.85rem;color:var(--text)">${escHtml(puMap[p.user_id] || 'Unknown')}</span>
+                <div class="flex gap-1">
+                  <button class="btn btn-small" style="background:var(--win);border-color:var(--win);color:#fff;width:auto" onclick="approveGroupMember('${groupId}','${p.user_id}')">Approve</button>
+                  <button class="btn btn-small btn-danger" style="width:auto" onclick="rejectGroupMember('${groupId}','${p.user_id}')">Reject</button>
+                </div>
+              </div>`).join('')}
+          </div>`;
+      }
+    }
+
+    content.innerHTML = `
+      <!-- Group header -->
+      <div style="text-align:center;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+        ${group.picture_url
+          ? `<img src="${escHtml(group.picture_url)}" style="width:80px;height:80px;border-radius:12px;object-fit:cover;margin-bottom:0.75rem">`
+          : `<div style="width:80px;height:80px;border-radius:12px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin:0 auto 0.75rem">⚔</div>`}
+        <h3 style="font-family:'Cinzel',serif;font-size:1.3rem;color:var(--gold)">${escHtml(group.name)}</h3>
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-top:0.2rem">${memberIds.length} members · ${groupGames.length} group games</div>
+        ${isCreator ? `<button class="btn btn-small" style="width:auto;margin-top:0.75rem" onclick="editGroupPicture('${groupId}')">Edit Picture</button>` : ''}
+      </div>
+
+      ${pendingHTML}
+
+      <!-- Podiums side by side -->
+      ${memberStats.length > 0 || deckStats.length > 0 ? `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem">
+
+        <!-- Player podium -->
+        <div>
+          <h3 style="font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);text-align:center;margin-bottom:1rem">Top Players</h3>
+          ${memberStats.length === 0 ? '<p class="text-dim text-small italic text-center">No games yet</p>' : `
+          <div style="display:flex;align-items:flex-end;justify-content:center;gap:0.3rem;height:120px;margin-bottom:0.75rem">
+            ${[1, 0, 2].filter(i => memberStats[i]).map(i => `
+              <div style="display:flex;flex-direction:column;align-items:center;width:30%">
+                <div style="font-size:${i===0?'1.1rem':'0.9rem'};margin-bottom:0.2rem">${medals[i]||''}</div>
+                <div style="font-size:0.6rem;font-family:'Cinzel',serif;color:var(--text);text-align:center;margin-bottom:0.3rem;word-break:break-word">${escHtml(memberStats[i].username)}</div>
+                <div style="font-size:0.6rem;color:var(--text-dim)">${(memberStats[i].wr*100).toFixed(0)}%</div>
+                <div style="width:100%;background:${podiumColors[i]};height:${podiumHeights[i]};border-radius:4px 4px 0 0;margin-top:0.2rem"></div>
+              </div>`).join('')}
+          </div>
+          ${memberStats.slice(3).map((m, i) => `
+            <div style="display:flex;justify-content:space-between;font-size:0.75rem;padding:0.3rem 0;border-top:1px solid var(--border);color:var(--text-dim)">
+              <span>${i+4}. ${escHtml(m.username)}</span>
+              <span>${(m.wr*100).toFixed(0)}% (${m.wins}W)</span>
+            </div>`).join('')}`}
+        </div>
+
+        <!-- Deck podium -->
+        <div>
+          <h3 style="font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);text-align:center;margin-bottom:1rem">Top Decks</h3>
+          ${deckStats.length === 0 ? '<p class="text-dim text-small italic text-center">No games yet</p>' : `
+          <div style="display:flex;align-items:flex-end;justify-content:center;gap:0.3rem;height:120px;margin-bottom:0.75rem">
+            ${[1, 0, 2].filter(i => deckStats[i]).map(i => `
+              <div style="display:flex;flex-direction:column;align-items:center;width:30%">
+                <div style="font-size:${i===0?'1.1rem':'0.9rem'};margin-bottom:0.2rem">${medals[i]||''}</div>
+                <div style="font-size:0.55rem;font-family:'Cinzel',serif;color:var(--text);text-align:center;margin-bottom:0.1rem;word-break:break-word">${escHtml(deckStats[i].commander)}</div>
+                <div style="font-size:0.5rem;color:var(--text-dim);text-align:center">${escHtml(deckStats[i].username)}</div>
+                <div style="font-size:0.55rem;color:var(--text-dim)">${(deckStats[i].wr*100).toFixed(0)}%</div>
+                <div style="width:100%;background:${podiumColors[i]};height:${podiumHeights[i]};border-radius:4px 4px 0 0;margin-top:0.2rem"></div>
+              </div>`).join('')}
+          </div>
+          ${deckStats.slice(3).map((d, i) => `
+            <div style="display:flex;justify-content:space-between;font-size:0.75rem;padding:0.3rem 0;border-top:1px solid var(--border);color:var(--text-dim)">
+              <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%">${escHtml(d.commander)}</span>
+              <span>${(d.wr*100).toFixed(0)}% (${d.wins}W)</span>
+            </div>`).join('')}`}
+        </div>
+      </div>` : '<p class="text-dim text-small italic" style="text-align:center;padding:1rem 0">Play some group games to see stats!</p>'}
+
+      <!-- Members list -->
+      <div>
+        <h3 style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.75rem">Members (${memberIds.length})</h3>
+        ${memberUsers.map(u => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-top:1px solid var(--border)">
+            <span style="font-family:'Cinzel',serif;font-size:0.82rem;color:var(--text)">${escHtml(u.username)}${u.id === group.created_by ? ' <span style="color:var(--gold-dim);font-size:0.65rem">(Creator)</span>' : ''}</span>
+            ${isCreator && u.id !== currentUser.id ? `<button class="btn btn-small btn-danger" style="width:auto;font-size:0.65rem" onclick="removeGroupMember('${groupId}','${u.id}','${escHtml(u.username)}')">Remove</button>` : ''}
+          </div>`).join('')}
+      </div>
+
+      <!-- Leave/Delete -->
+      <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);text-align:right">
+        ${isCreator
+          ? `<button class="btn btn-small btn-danger" style="width:auto" onclick="deleteGroup('${groupId}','${escHtml(group.name)}')">Delete Group</button>`
+          : `<button class="btn btn-small btn-danger" style="width:auto" onclick="leaveGroup('${groupId}','${escHtml(group.name)}')">Leave Group</button>`}
+      </div>
+    `;
+  } catch(e) {
+    content.innerHTML = '<p class="text-dim">Failed to load group.</p>';
+    console.error(e);
+  }
+}
+
+// ============================================
+// GROUP MANAGEMENT ACTIONS
+// ============================================
+async function approveGroupMember(groupId, userId) {
+  await sbRequest('group_members', 'PATCH', { status: 'accepted' },
+    `?group_id=eq.${groupId}&user_id=eq.${userId}`);
+  openGroupDetail(groupId);
+}
+async function rejectGroupMember(groupId, userId) {
+  await sbRequest('group_members', 'DELETE', null,
+    `?group_id=eq.${groupId}&user_id=eq.${userId}`);
+  openGroupDetail(groupId);
+}
+async function removeGroupMember(groupId, userId, username) {
+  if (!confirm(`Remove ${username} from the group?`)) return;
+  await sbRequest('group_members', 'DELETE', null,
+    `?group_id=eq.${groupId}&user_id=eq.${userId}`);
+  openGroupDetail(groupId);
+}
+async function leaveGroup(groupId, name) {
+  if (!confirm(`Leave "${name}"?`)) return;
+  await sbRequest('group_members', 'DELETE', null,
+    `?group_id=eq.${groupId}&user_id=eq.${currentUser.id}`);
+  document.getElementById('group-detail-modal').classList.add('hidden');
+  showToast('Left the group.');
+  renderGroups();
+}
+async function deleteGroup(groupId, name) {
+  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  await sbRequest('groups', 'DELETE', null, `?id=eq.${groupId}`);
+  document.getElementById('group-detail-modal').classList.add('hidden');
+  showToast('Group deleted.');
+  renderGroups();
+}
+async function editGroupPicture(groupId) {
+  const url = prompt('Paste image URL for group picture:');
+  if (!url) return;
+  await sbRequest('groups', 'PATCH', { picture_url: url }, `?id=eq.${groupId}`);
+  // Update local state
+  const g = allGroups.find(g => g.id === groupId);
+  if (g) g.picture_url = url;
+  openGroupDetail(groupId);
+}
+
 </script>
 <!-- FAB CHOICE MENU -->
 <div id="fab-menu" style="display:none;position:fixed;bottom:5.5rem;right:1.5rem;z-index:199;display:none;flex-direction:column;gap:0.5rem;align-items:flex-end;">
@@ -4367,6 +4949,83 @@ async function saveEditGame(gameId) {
   </div>
 </div>
 
+<!-- IMPORT HELP MODAL -->
+<div id="import-help-modal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:560px;max-height:85vh;overflow-y:auto">
+    <button class="modal-close" onclick="document.getElementById('import-help-modal').classList.add('hidden')">✕</button>
+    <h3 class="modal-title">How to Import Your Deck</h3>
+    <div style="font-size:0.9rem;line-height:1.7">
+
+      <div style="margin-bottom:1.5rem">
+        <div style="font-family:'Cinzel',serif;font-size:0.8rem;color:var(--gold);letter-spacing:0.1em;margin-bottom:0.75rem">STEP 1 — EXPORT FROM MOXFIELD</div>
+        <ol style="padding-left:1.2rem;color:var(--text-dim)">
+          <li style="margin-bottom:0.4rem">Go to your deck on <strong style="color:var(--text)">moxfield.com</strong></li>
+          <li style="margin-bottom:0.4rem">Click the <strong style="color:var(--text)">Export</strong> button (top right of your deck)</li>
+          <li style="margin-bottom:0.4rem">Select <strong style="color:var(--text)">"Plain Text"</strong> from the export options</li>
+          <li style="margin-bottom:0.4rem">Copy all the text — it will look like:<br>
+            <code style="background:var(--surface2);padding:0.2rem 0.4rem;border-radius:3px;font-size:0.8rem;display:block;margin-top:0.3rem">1 Sol Ring<br>1 Command Tower<br>...<br><br>1 Your Commander</code>
+          </li>
+          <li>Paste it into the <strong style="color:var(--text)">Decklist</strong> box in the Import screen</li>
+        </ol>
+      </div>
+
+      <div style="margin-bottom:1.5rem">
+        <div style="font-family:'Cinzel',serif;font-size:0.8rem;color:var(--gold);letter-spacing:0.1em;margin-bottom:0.75rem">STEP 2 — ADD CARD ART (OPTIONAL)</div>
+        <p style="color:var(--text-dim);margin-bottom:0.5rem">After importing, you can add your commander's card art to make your deck card look great in the tracker.</p>
+        <ol style="padding-left:1.2rem;color:var(--text-dim)">
+          <li style="margin-bottom:0.4rem">Go to <strong style="color:var(--text)">scryfall.com</strong> and search for your commander</li>
+          <li style="margin-bottom:0.4rem">Click on the card to open it</li>
+          <li style="margin-bottom:0.4rem"><strong style="color:var(--text)">Right-click the card image</strong> → select <strong style="color:var(--text)">"Open Image in New Tab"</strong></li>
+          <li style="margin-bottom:0.4rem">⚠️ <strong style="color:var(--gold)">Important:</strong> The URL must end in <code style="background:var(--surface2);padding:0.1rem 0.3rem;border-radius:3px">.jpg</code> — it should look like:<br>
+            <code style="background:var(--surface2);padding:0.2rem 0.4rem;border-radius:3px;font-size:0.75rem;display:block;margin-top:0.3rem;word-break:break-all">https://cards.scryfall.io/art_crop/front/a/b/abc123.jpg</code>
+          </li>
+          <li style="margin-bottom:0.4rem">Make sure the URL contains <strong style="color:var(--text)">art_crop</strong> — this is the cropped art only, not the full card</li>
+          <li>Copy that URL and paste it into the deck's art field</li>
+        </ol>
+      </div>
+
+      <div style="background:var(--surface2);border-radius:var(--radius);padding:0.75rem;border-left:3px solid var(--gold)">
+        <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--gold);margin-bottom:0.3rem">💡 TIP</div>
+        <p style="color:var(--text-dim);font-size:0.85rem">The commander is automatically detected from the bottom of your Moxfield export. If it's wrong, just type the correct name in the Commander field before importing.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE GROUP MODAL -->
+<div id="create-group-modal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:480px">
+    <button class="modal-close" onclick="document.getElementById('create-group-modal').classList.add('hidden')">✕</button>
+    <h3 class="modal-title">Create a Group</h3>
+    <div class="form-group">
+      <label>Group Name</label>
+      <input type="text" id="create-group-name" class="form-control" placeholder="e.g. Tuesday Night Pod">
+    </div>
+    <div class="form-group">
+      <label>Group Picture URL (optional)</label>
+      <input type="text" id="create-group-pic" class="form-control" placeholder="Paste an image URL...">
+    </div>
+    <div id="create-group-msg" style="font-size:0.8rem;margin-bottom:0.75rem"></div>
+    <button class="btn btn-primary" style="width:100%" onclick="createGroup()">Create Group</button>
+  </div>
+</div>
+
+<!-- GROUP DETAIL MODAL -->
+<div id="group-detail-modal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:600px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="document.getElementById('group-detail-modal').classList.add('hidden')">✕</button>
+    <div id="group-detail-content"></div>
+  </div>
+</div>
+
+<!-- FRIEND DETAIL MODAL -->
+<div id="friend-detail-modal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:480px">
+    <button class="modal-close" onclick="document.getElementById('friend-detail-modal').classList.add('hidden')">✕</button>
+    <div id="friend-detail-content"></div>
+  </div>
+</div>
+
 <!-- LIVE GAME SETUP MODAL -->
 <div id="live-setup-modal" class="modal-overlay hidden">
   <div class="modal" style="max-width:560px;max-height:90vh;overflow-y:auto">
@@ -4387,6 +5046,12 @@ async function saveEditGame(gameId) {
     </div>
   </div>
   <div id="tracker-grid" style="flex:1;overflow:hidden;"></div>
+  <!-- Fixed turn indicator overlay — above all panels -->
+  <div id="turn-overlay" style="display:none;position:absolute;z-index:100;pointer-events:all;"
+    ontouchend="event.preventDefault();event.stopPropagation();advanceTurn();"
+    onmouseup="event.preventDefault();event.stopPropagation();advanceTurn();">
+    <div style="background:rgba(0,0,0,0.85);border:2px solid rgba(212,170,125,0.8);border-radius:6px;padding:0.4rem 1rem;font-family:'Cinzel',serif;color:#d4aa7d;letter-spacing:0.1em;text-transform:uppercase;font-size:1rem;cursor:pointer;white-space:nowrap;" id="turn-overlay-text">TURN 1 — TAP TO PASS</div>
+  </div>
 </div>
 
 <!-- LIVE WINNER SCREEN -->
