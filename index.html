@@ -1780,7 +1780,8 @@ function showTab(tab) {
 // DASHBOARD
 // ============================================
 function renderDashboard() {
-  const games = allGames.filter(g => currentUser.is_admin || g.user_id === currentUser.id);
+  if (!currentUser) return;
+  const games = (allGames || []).filter(g => g.user_id === currentUser.id);
   const wins = games.filter(g => g.result === 'win').length;
   const losses = games.filter(g => g.result === 'loss').length;
   const total = games.length;
@@ -3236,6 +3237,11 @@ function renderGlobalWincondBreakdown(adminAllGames) {
 // ============================================
 // UTILITY
 // ============================================
+function safeId(str) {
+  // Only allow UUID-safe characters (alphanumeric and hyphens)
+  return String(str).replace(/[^a-zA-Z0-9-]/g, '');
+}
+
 function escHtml(str) {
   if (!str) return '';
   return String(str)
@@ -3892,9 +3898,11 @@ function filterFriendSearch(seatIdx, query) {
 }
 
 async function selectLiveFriend(seatIdx, userId, username) {
-  const decks = await sbRequest('decks', 'GET', null, `?user_id=eq.${userId}&select=id,name,commander,art_url&order=created_at.desc`) || [];
-  liveSetupState.players[seatIdx] = { userId, username, deckId: null, commander: null, artUrl: null, decks };
-  renderLiveSeats();
+  try {
+    const decks = await sbRequest('decks', 'GET', null, `?user_id=eq.${userId}&select=id,name,commander,art_url&order=created_at.desc`) || [];
+    liveSetupState.players[seatIdx] = { userId, username, deckId: null, commander: null, artUrl: null, decks };
+    renderLiveSeats();
+  } catch(e) { showToast('Failed to load decks for ' + username); console.error(e); }
 }
 
 function removeLiveSeat(seatIdx) { liveSetupState.players[seatIdx] = null; renderLiveSeats(); }
@@ -4522,7 +4530,7 @@ async function loadGroupsData() {
     // Fetch accepted groups
     if (acceptedGroupIds.length > 0) {
       allGroups = await sbRequest('groups', 'GET', null,
-        `?id=in.(${acceptedGroupIds.join(',')})&select=*`) || [];
+        `?id=in.(${acceptedGroupIds.map(id => safeId(id)).join(',')})&select=*`) || [];
     } else {
       allGroups = [];
     }
@@ -4861,44 +4869,55 @@ async function openGroupDetail(groupId) {
 // GROUP MANAGEMENT ACTIONS
 // ============================================
 async function approveGroupMember(groupId, userId) {
-  await sbRequest('group_members', 'PATCH', { status: 'accepted' },
-    `?group_id=eq.${groupId}&user_id=eq.${userId}`);
-  openGroupDetail(groupId);
+  try {
+    await sbRequest('group_members', 'PATCH', { status: 'accepted' },
+      `?group_id=eq.${groupId}&user_id=eq.${userId}`);
+    openGroupDetail(groupId);
+  } catch(e) { showToast('Failed to approve.'); console.error(e); }
 }
 async function rejectGroupMember(groupId, userId) {
-  await sbRequest('group_members', 'DELETE', null,
-    `?group_id=eq.${groupId}&user_id=eq.${userId}`);
-  openGroupDetail(groupId);
+  try {
+    await sbRequest('group_members', 'DELETE', null,
+      `?group_id=eq.${groupId}&user_id=eq.${userId}`);
+    openGroupDetail(groupId);
+  } catch(e) { showToast('Failed to reject.'); console.error(e); }
 }
 async function removeGroupMember(groupId, userId, username) {
   if (!confirm(`Remove ${username} from the group?`)) return;
-  await sbRequest('group_members', 'DELETE', null,
-    `?group_id=eq.${groupId}&user_id=eq.${userId}`);
-  openGroupDetail(groupId);
+  try {
+    await sbRequest('group_members', 'DELETE', null,
+      `?group_id=eq.${groupId}&user_id=eq.${userId}`);
+    openGroupDetail(groupId);
+  } catch(e) { showToast('Failed to remove member.'); console.error(e); }
 }
 async function leaveGroup(groupId, name) {
   if (!confirm(`Leave "${name}"?`)) return;
-  await sbRequest('group_members', 'DELETE', null,
-    `?group_id=eq.${groupId}&user_id=eq.${currentUser.id}`);
-  document.getElementById('group-detail-modal').classList.add('hidden');
-  showToast('Left the group.');
-  renderGroups();
+  try {
+    await sbRequest('group_members', 'DELETE', null,
+      `?group_id=eq.${groupId}&user_id=eq.${currentUser.id}`);
+    document.getElementById('group-detail-modal').classList.add('hidden');
+    showToast('Left the group.');
+    renderGroups();
+  } catch(e) { showToast('Failed to leave group.'); console.error(e); }
 }
 async function deleteGroup(groupId, name) {
   if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
-  await sbRequest('groups', 'DELETE', null, `?id=eq.${groupId}`);
-  document.getElementById('group-detail-modal').classList.add('hidden');
-  showToast('Group deleted.');
-  renderGroups();
+  try {
+    await sbRequest('groups', 'DELETE', null, `?id=eq.${groupId}`);
+    document.getElementById('group-detail-modal').classList.add('hidden');
+    showToast('Group deleted.');
+    renderGroups();
+  } catch(e) { showToast('Failed to delete group.'); console.error(e); }
 }
 async function editGroupPicture(groupId) {
   const url = prompt('Paste image URL for group picture:');
   if (!url) return;
-  await sbRequest('groups', 'PATCH', { picture_url: url }, `?id=eq.${groupId}`);
-  // Update local state
-  const g = allGroups.find(g => g.id === groupId);
-  if (g) g.picture_url = url;
-  openGroupDetail(groupId);
+  try {
+    await sbRequest('groups', 'PATCH', { picture_url: url }, `?id=eq.${groupId}`);
+    const g = allGroups.find(g => g.id === groupId);
+    if (g) g.picture_url = url;
+    openGroupDetail(groupId);
+  } catch(e) { showToast('Failed to update picture.'); console.error(e); }
 }
 
 </script>
